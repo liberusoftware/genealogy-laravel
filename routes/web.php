@@ -8,6 +8,7 @@ use App\Http\Middleware\EnsureStripeWebhookIsVerifiable;
 use App\Livewire\DocumentTranscriptionComponent;
 use App\Livewire\GamificationDashboard;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +25,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn (): Factory|\Illuminate\Contracts\View\View => view('home'));
 
-Route::get('/register', fn (): Redirector|\Illuminate\Http\RedirectResponse => redirect('/app/register'))->name('register');
+Route::get('/register', function (): RedirectResponse {
+    // Preserve premium-upgrade intent across the register round-trip (GET here →
+    // form at /app/register → POST /register) so RegisterResponse can route
+    // paid-intent signups to checkout instead of /app.
+    if (request()->query('plan') === 'premium') {
+        session()->put('premium_intent', true);
+    }
+
+    return redirect('/app/register');
+})->name('register');
 Route::get('/login', fn (): Redirector|\Illuminate\Http\RedirectResponse => redirect('/app/login'))->name('login');
 
 Route::get('/privacy', fn (): Factory|\Illuminate\Contracts\View\View => view('pages.privacy'))->name('privacy');
