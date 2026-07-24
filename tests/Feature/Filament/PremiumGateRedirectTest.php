@@ -66,17 +66,27 @@ class PremiumGateRedirectTest extends TestCase
         );
     }
 
-    public function test_a_non_premium_tenant_403_is_not_hijacked_into_a_signup_redirect(): void
+    public function test_a_tenant_403_is_not_hijacked_into_a_signup_redirect(): void
     {
         config(['premium.enabled' => false]);
 
         $owner = User::factory()->withPersonalTeam()->create();
         $team = $owner->currentTeam;
 
-        // A non-owner member who is also non-premium. TeamMembers is owner-only,
-        // so it 403s for a tenant reason — the handler keys on the exception
-        // type, not on "any 403 from a non-premium user", so this stays a 403.
-        $member = User::factory()->create(['is_premium' => false, 'current_team_id' => $team->id]);
+        // A non-owner member who IS a subscriber — so the #1635 paywall gate
+        // lets them into the panel. TeamMembers is owner-only, so it 403s for a
+        // tenant reason. The handler keys on the exception type, not on "any 403",
+        // so this stays a 403 and is not turned into a subscription redirect.
+        // (Under the paywall a *non*-subscriber never reaches here — they're
+        // bounced to subscribe first; see PaywallGateTest.)
+        $member = User::factory()->create(['current_team_id' => $team->id, 'stripe_id' => 'cus_member']);
+        $member->subscriptions()->create([
+            'type' => 'premium',
+            'stripe_id' => 'sub_member',
+            'stripe_status' => 'active',
+            'stripe_price' => 'price_premium_monthly',
+            'quantity' => 1,
+        ]);
         $team->users()->attach($member, ['role' => 'viewer']);
 
         $this->actingAs($member->fresh());
