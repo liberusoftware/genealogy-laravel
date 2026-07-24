@@ -21,20 +21,21 @@ class RegisterResponse implements RegisterResponseContract
             return redirect()->route('login');
         }
 
-        // A signup that came in through a premium CTA (?plan=premium, stashed by
-        // the /register route) goes straight to checkout, not the app dashboard.
-        // currentTeam exists here because CreateNewUser creates+switches a
-        // personal team during registration.
-        if ($request->session()->pull('premium_intent') && $user->currentTeam) {
-            return redirect()->route('filament.app.pages.subscription', ['tenant' => $user->currentTeam]);
-        }
-
         $panel = Filament::getPanel('app');
 
         // When the panel uses tenancy and the newly registered user has no
         // default tenant yet, send them to the team-creation page.
         if ($panel->hasTenancy() && ! $user->getDefaultTenant($panel)) {
             return redirect('/app/new');
+        }
+
+        // The app is subscription-only (#1635): every new account must subscribe
+        // before it can use anything, so send them straight to checkout — unless
+        // they already have access (e.g. an affiliate comp), in which case the
+        // app is reachable. currentTeam exists here because CreateNewUser
+        // creates + switches a personal team during registration.
+        if (! $user->isPremium() && $user->currentTeam) {
+            return redirect()->route('filament.app.pages.subscription', ['tenant' => $user->currentTeam]);
         }
 
         return redirect()->intended(Filament::getUrl());

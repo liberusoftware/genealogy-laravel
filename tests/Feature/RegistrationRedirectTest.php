@@ -12,18 +12,15 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Tests\TestCase;
 
 /**
- * The guest-to-paid funnel (upstream #1635, ticket 01): a signup that comes in
- * through the premium CTA must land on the subscription checkout page, not the
- * app dashboard. Intent rides as `?plan=premium` on the register link, is
- * stashed in the session by the /register route, and is consumed by
- * RegisterResponse after the account is created.
+ * Subscription-only registration (#1635, ticket 07): every new account is sent
+ * to checkout after registering — there is no free tier, so registration leads
+ * straight to the subscription page. A user who already has access (e.g. an
+ * affiliate comp) goes to the app instead.
  *
- * The two halves are tested at their seams: the GET route (intent capture) via
- * HTTP, and RegisterResponse (intent consumption) directly — Fortify's POST
- * /register route is not registered under the test env (Filament owns auth),
- * so the account-creation step can't be driven over HTTP here.
+ * RegisterResponse is tested directly: Fortify's POST /register route is not
+ * registered under the test env (Filament owns auth).
  */
-class PremiumIntentRegistrationTest extends TestCase
+class RegistrationRedirectTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -34,50 +31,39 @@ class PremiumIntentRegistrationTest extends TestCase
         if (! Features::enabled(Features::registration())) {
             $this->markTestSkipped('Registration support is not enabled.');
         }
+
+        config(['premium.enabled' => false]);
     }
 
-    public function test_register_link_with_premium_plan_stashes_intent(): void
+    public function test_a_new_account_is_sent_to_checkout(): void
     {
-        $this->get('/register?plan=premium')
-            ->assertRedirect('/app/register')
-            ->assertSessionHas('premium_intent', true);
+        $user = User::factory()->withPersonalTeam()->create(['is_premium' => false, 'trial_ends_at' => null]);
+
+        $this->assertStringContainsString('/subscription', $this->responseFor($user)->getTargetUrl());
     }
 
-    public function test_register_link_without_plan_does_not_stash_intent(): void
+    public function test_a_user_with_access_is_sent_to_the_app(): void
     {
-        $this->get('/register')
-            ->assertRedirect('/app/register')
-            ->assertSessionMissing('premium_intent');
+        // e.g. an affiliate-comped account: already premium, so no forced checkout.
+        $user = User::factory()->withPersonalTeam()->create(['stripe_id' => 'cus_x']);
+        $user->subscriptions()->create([
+            'type' => 'premium',
+            'stripe_id' => 'sub_x',
+            'stripe_status' => 'active',
+            'stripe_price' => 'price_premium_monthly',
+            'quantity' => 1,
+        ]);
+
+        $this->assertStringNotContainsString('/subscription', $this->responseFor($user)->getTargetUrl());
     }
 
-    public function test_register_response_sends_premium_intent_to_checkout(): void
+    private function responseFor(User $user): RedirectResponse
     {
-        $response = $this->responseFor(premiumIntent: true);
-
-        $this->assertStringContainsString('/subscription', $response->getTargetUrl());
-    }
-
-    public function test_register_response_without_intent_lands_on_app(): void
-    {
-        // Revert guard: without the flag, registration must NOT divert to
-        // checkout — the pre-existing landing is preserved.
-        $response = $this->responseFor(premiumIntent: false);
-
-        $this->assertStringNotContainsString('/subscription', $response->getTargetUrl());
-    }
-
-    private function responseFor(bool $premiumIntent): RedirectResponse
-    {
-        $user = User::factory()->withPersonalTeam()->create();
         $this->actingAs($user);
         Filament::setTenant($user->currentTeam, isQuiet: true);
 
         $request = Request::create('/register', 'POST');
         $request->setLaravelSession(app('session.store'));
-
-        if ($premiumIntent) {
-            $request->session()->put('premium_intent', true);
-        }
 
         return (new RegisterResponse)->toResponse($request);
     }

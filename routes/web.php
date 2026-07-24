@@ -25,16 +25,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn (): Factory|\Illuminate\Contracts\View\View => view('home'));
 
-Route::get('/register', function (): RedirectResponse {
-    // Preserve premium-upgrade intent across the register round-trip (GET here →
-    // form at /app/register → POST /register) so RegisterResponse can route
-    // paid-intent signups to checkout instead of /app.
-    if (request()->query('plan') === 'premium') {
-        session()->put('premium_intent', true);
-    }
-
-    return redirect('/app/register');
-})->name('register');
+// Registration is subscription-only (#1635): RegisterResponse sends every new
+// account to checkout, so no per-link intent is needed here.
+Route::get('/register', fn (): RedirectResponse => redirect('/app/register'))->name('register');
 Route::get('/login', fn (): Redirector|\Illuminate\Http\RedirectResponse => redirect('/app/login'))->name('login');
 
 Route::get('/privacy', fn (): Factory|\Illuminate\Contracts\View\View => view('pages.privacy'))->name('privacy');
