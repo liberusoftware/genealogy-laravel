@@ -8,6 +8,8 @@ use App\Services\SubscriptionService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -47,12 +49,17 @@ class SubscriptionPageTest extends TestCase
         $this->actingUser();
 
         Livewire::test(SubscriptionPage::class)
-            // Monthly is the default; yearly advertises what it saves.
-            ->assertSee('Save $5.89')
-            ->assertSee('$29.99 billed once a year')
-            ->assertSee('charged $2.99 today')
+            // Monthly is the default; yearly advertises what it saves. Every
+            // money figure is wrapped by <x-price> so it can be switched to
+            // another currency (#1636), which is why these assert across the
+            // closing tag rather than on contiguous text.
+            ->assertSee('$5.89</span>', escape: false)
+            ->assertSee('$29.99</span>', escape: false)
+            ->assertSee('billed once a year')
+            // The charge line tracks the selected interval.
+            ->assertSee('today, then every month')
             ->set('interval', 'year')
-            ->assertSee('charged $29.99 today');
+            ->assertSee('today, then every year');
     }
 
     public function test_page_offers_subscribe_and_never_a_trial_button(): void
@@ -97,10 +104,11 @@ class SubscriptionPageTest extends TestCase
                 'trial_days' => 14,
                 'require_card' => true,
                 'intervals' => [
-                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99', 'per_month' => '$2.99'],
-                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99', 'per_month' => '$2.50', 'savings' => '$5.89', 'savings_percent' => 16],
+                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99', 'per_month' => '$2.99', 'price_amounts' => ['USD' => '$2.99'], 'per_month_amounts' => ['USD' => '$2.99']],
+                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99', 'per_month' => '$2.50', 'savings' => '$5.89', 'savings_percent' => 16, 'price_amounts' => ['USD' => '$29.99'], 'per_month_amounts' => ['USD' => '$2.50'], 'savings_amounts' => ['USD' => '$5.89']],
                 ],
                 'features' => [],
+                'estimate_date' => null,
             ],
         ];
 
@@ -135,10 +143,11 @@ class SubscriptionPageTest extends TestCase
             'premium' => [
                 'name' => 'Premium', 'trial_days' => 14, 'require_card' => true,
                 'intervals' => [
-                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99', 'per_month' => '$2.99'],
-                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99', 'per_month' => '$2.50', 'savings' => '$5.89', 'savings_percent' => 16],
+                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99', 'per_month' => '$2.99', 'price_amounts' => ['USD' => '$2.99'], 'per_month_amounts' => ['USD' => '$2.99']],
+                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99', 'per_month' => '$2.50', 'savings' => '$5.89', 'savings_percent' => 16, 'price_amounts' => ['USD' => '$29.99'], 'per_month_amounts' => ['USD' => '$2.50'], 'savings_amounts' => ['USD' => '$5.89']],
                 ],
                 'features' => [],
+                'estimate_date' => null,
             ],
         ]);
         $mockService->allows('requiresCard')->andReturnTrue();
@@ -155,5 +164,40 @@ class SubscriptionPageTest extends TestCase
             ->call('redirectToCheckout')
             ->assertNoRedirect()
             ->assertNotified('Subscription Error');
+    }
+
+    public function test_every_figure_on_the_page_converts_with_the_switcher(): void
+    {
+        // Not just the headline (#1636 ticket 02): a page framed in GBP that still
+        // shows "$2.50 per month" in the same row reads as a bug, so per_month and
+        // the savings pill carry their converted forms too.
+        config([
+            'premium.enabled' => false,
+            'cashier.currency' => 'usd',
+            'subscription.premium.amounts.month' => 299,
+            'subscription.premium.amounts.year' => 2999,
+            'subscription.display_currencies' => ['GBP'],
+        ]);
+        Cache::flush();
+        Http::fake([
+            'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml' => Http::response(
+                '<?xml version="1.0" encoding="UTF-8"?>'.
+                '<gesmes:Envelope xmlns:gesmes="http://www.gesmes.org/xml/2002-08-01" xmlns="http://www.ecb.int/vocabulary/2002-08-01/eurofxref">'.
+                "<Cube><Cube time='2026-07-24'>".
+                "<Cube currency='USD' rate='1.1377'/><Cube currency='GBP' rate='0.85388'/>".
+                '</Cube></Cube></gesmes:Envelope>'
+            ),
+        ]);
+        $this->actingUser();
+
+        Livewire::test(SubscriptionPage::class)
+            // headline monthly: 299 * 0.85388 / 1.1377 = 224.41
+            ->assertSee('data-gbp="£2.24"', escape: false)
+            // per-month equivalent of the yearly plan: 2999/12 = 250 -> 187.63
+            ->assertSee('data-gbp="£1.88"', escape: false)
+            // the savings pill: 3588 - 2999 = 589 -> 442.06
+            ->assertSee('data-gbp="£4.42"', escape: false)
+            ->assertSee('data-currency-option="GBP"', escape: false)
+            ->assertSee('Central Bank');
     }
 }

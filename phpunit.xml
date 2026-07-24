@@ -43,5 +43,9 @@
         <env name="REVERB_APP_KEY" value="test"/>
         <env name="REVERB_APP_SECRET" value="test"/>
         <env name="STRIPE_WEBHOOK_SECRET" value="whsec_test_secret"/>
+        <!-- Off by default so rendering a price page never reaches for the live ECB
+             feed (#1636). Tests that want the estimate set the config themselves
+             and fake the HTTP call. -->
+        <env name="SUBSCRIPTION_DISPLAY_CURRENCIES" value=""/>
     </php>
 </phpunit>

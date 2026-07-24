@@ -25,6 +25,14 @@
                 <div class="mb-6">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Premium</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Choose how you'd like to be billed.</p>
+
+                    {{-- Every figure below converts with this (#1636). Renders
+                         nothing when there are no rates. --}}
+                    <x-currency-switcher
+                        :amounts="$selected['price_amounts']"
+                        :date="$pricing['estimate_date']"
+                        class="mt-4"
+                    />
                 </div>
 
                 {{-- Billing interval. Rows rather than a segmented toggle so each
@@ -59,19 +67,21 @@
                                     {{ $key === 'year' ? 'Yearly' : 'Monthly' }}
                                     @isset($option['savings'])
                                         <span class="rounded-full bg-success-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-success-700 dark:bg-success-500/20 dark:text-success-400">
-                                            Save {{ $option['savings'] }}
+                                            Save <x-price :amounts="$option['savings_amounts']" />
                                         </span>
                                     @endisset
                                 </span>
                                 <span class="mt-0.5 block text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $key === 'year'
-                                        ? $option['price'].' billed once a year'
-                                        : 'Billed every month' }}
+                                    @if ($key === 'year')
+                                        <x-price :amounts="$option['price_amounts']" /> billed once a year
+                                    @else
+                                        Billed every month
+                                    @endif
                                 </span>
                             </span>
 
                             <span class="ml-auto shrink-0 text-right tabular-nums">
-                                <span class="block font-semibold text-gray-900 dark:text-white">{{ $option['per_month'] }}</span>
+                                <span class="block font-semibold text-gray-900 dark:text-white"><x-price :amounts="$option['per_month_amounts']" /></span>
                                 <span class="block text-xs text-gray-500 dark:text-gray-400">per month</span>
                             </span>
                         </button>
@@ -79,7 +89,7 @@
                 </div>
 
                 <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                    You'll be charged {{ $selected['price'] }} today, then every {{ $selected['interval'] }}. Cancel anytime.
+                    You'll be charged <x-price :amounts="$selected['price_amounts']" /> today, then every {{ $selected['interval'] }}. Cancel anytime.
                 </p>
 
                 <ul class="mt-6 space-y-3">
@@ -106,7 +116,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                             </svg>
-                            <span wire:loading.remove wire:target="redirectToCheckout">Subscribe {{ ucfirst($selected['interval']) }}ly · {{ $selected['price'] }}</span>
+                            <span wire:loading.remove wire:target="redirectToCheckout">Subscribe {{ ucfirst($selected['interval']) }}ly · <x-price :amounts="$selected['price_amounts']" /></span>
                             <span wire:loading wire:target="redirectToCheckout">Redirecting…</span>
                         </span>
                     </x-filament::button>
