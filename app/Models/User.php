@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\UserLeveledUp;
+use App\Support\Affiliate;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasDefaultTenant;
@@ -19,6 +20,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JoelButcher\Socialstream\HasConnectedAccounts;
 use JoelButcher\Socialstream\SetsProfilePhotoFromUrl;
 // use Laravel\Jetstream\HasProfilePhoto;
@@ -431,6 +433,88 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
     public function achievements(): HasMany
     {
         return $this->hasMany(UserAchievement::class);
+    }
+
+    /**
+     * Referrals where this user is the referrer (affiliate program).
+     */
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    /**
+     * The referral row that brought this user in, if any (referred at most once).
+     */
+    public function referredBy(): HasOne
+    {
+        return $this->hasOne(Referral::class, 'referred_user_id');
+    }
+
+    /**
+     * Free-month rewards this user has earned as a referrer.
+     */
+    public function affiliateRewards(): HasMany
+    {
+        return $this->hasMany(AffiliateReward::class);
+    }
+
+    /**
+     * This user's affiliate code, generating and persisting one on first use.
+     */
+    public function referralCode(): string
+    {
+        if (! $this->referral_code) {
+            $this->ensureReferralCode();
+        }
+
+        return (string) $this->referral_code;
+    }
+
+    /**
+     * Shareable affiliate link: site root with this user's ?ref=CODE.
+     */
+    public function referralLink(): string
+    {
+        return url('/').'?ref='.$this->referralCode();
+    }
+
+    /**
+     * Affiliate progress for the page + dashboard widget — computed one place so
+     * both read the same numbers.
+     *
+     * @return array{needed:int,toward:int,free_months:int,qualified:int,pending:int}
+     */
+    public function affiliateProgress(): array
+    {
+        $needed = Affiliate::referralsPerFreeMonth();
+        $qualified = $this->referrals()->where('status', Referral::STATUS_QUALIFIED)->count();
+        $consumed = (int) $this->affiliateRewards()->sum('referrals_consumed');
+
+        return [
+            'needed' => $needed,
+            'toward' => max(0, $qualified - $consumed) % $needed,
+            'free_months' => $this->affiliateRewards()->count(),
+            'qualified' => $qualified,
+            'pending' => $this->referrals()->where('status', Referral::STATUS_PENDING)->count(),
+        ];
+    }
+
+    /**
+     * Generate + persist a unique referral code if the user doesn't have one.
+     */
+    public function ensureReferralCode(): void
+    {
+        if ($this->referral_code) {
+            return;
+        }
+
+        // ponytail: unique index + retry, no checksum scheme.
+        do {
+            $code = Str::upper(Str::random(8));
+        } while (static::query()->where('referral_code', $code)->exists());
+
+        $this->forceFill(['referral_code' => $code])->save();
     }
 
     /**
