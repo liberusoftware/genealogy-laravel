@@ -16,6 +16,10 @@ class SubscriptionService
     /** The billing intervals the premium tier is offered at. */
     public const INTERVALS = ['month', 'year'];
 
+    // Defaulted rather than required so the many `new SubscriptionService` call
+    // sites — tests included — keep working without a container.
+    public function __construct(private readonly ExchangeRates $exchangeRates = new ExchangeRates) {}
+
     /**
      * Whether a card must be taken before premium access is granted. When true,
      * the no-card local-trial path is unavailable (issue #1614). Defaults on.
@@ -177,16 +181,20 @@ class SubscriptionService
     {
         $intervals = [];
         foreach (self::INTERVALS as $interval) {
+            $perMonth = (int) round($this->amountFor($interval) / ($interval === 'year' ? 12 : 1));
+
             $intervals[$interval] = [
                 'interval' => $interval,
                 'amount' => $this->amountFor($interval),
                 'price' => $this->formatPrice($interval),
                 // What the plan works out to per month, so the two intervals are
                 // comparable at a glance ($2.50/mo vs $2.99/mo).
-                'per_month' => Cashier::formatAmount(
-                    (int) round($this->amountFor($interval) / ($interval === 'year' ? 12 : 1)),
-                    $this->currency(),
-                ),
+                'per_month' => Cashier::formatAmount($perMonth, $this->currency()),
+                // Every figure the page shows converts, not just the headline: with
+                // a currency switcher, a page in GBP still showing "$2.50 per month"
+                // reads as a bug (#1636 ticket 02).
+                'price_amounts' => $this->displayAmounts($this->amountFor($interval)),
+                'per_month_amounts' => $this->displayAmounts($perMonth),
             ];
         }
 
@@ -196,6 +204,7 @@ class SubscriptionService
         $saving = $twelveMonths - $this->amountFor('year');
         if ($twelveMonths > 0 && $saving > 0) {
             $intervals['year']['savings'] = Cashier::formatAmount($saving, $this->currency());
+            $intervals['year']['savings_amounts'] = $this->displayAmounts($saving);
             $intervals['year']['savings_percent'] = (int) round($saving / $twelveMonths * 100);
         }
 
@@ -205,6 +214,9 @@ class SubscriptionService
                 'trial_days' => $this->trialDays(),
                 'require_card' => $this->requiresCard(),
                 'intervals' => $intervals,
+                // Null when there are no rates: the surfaces read this as "render no
+                // switcher and no attribution", falling back to the charge currency.
+                'estimate_date' => $this->estimateDate(),
                 'features' => [
                     'Premium user badge',
                     'Unlimited DNA kit uploads',
@@ -402,6 +414,40 @@ class SubscriptionService
     public function formatPrice(string $interval): string
     {
         return Cashier::formatAmount($this->amountFor($interval), $this->currency());
+    }
+
+    /**
+     * Every display form of one minor-unit amount, keyed by upper-case currency
+     * code, **charge currency first** (#1636). The surfaces render all of them and
+     * a script shows one; the first entry is what a reader with no stored choice,
+     * or no JavaScript, sees.
+     *
+     * With no rates available this is just the charge currency — which is exactly
+     * how the pages rendered before this feature, so the fallback is "unchanged".
+     *
+     * @return array<string, string>
+     */
+    public function displayAmounts(int $amount): array
+    {
+        $currency = $this->currency();
+        $amounts = [strtoupper($currency) => Cashier::formatAmount($amount, $currency)];
+
+        $estimate = $this->exchangeRates->estimate($amount, $currency);
+
+        foreach ($estimate['amounts'] ?? [] as $code => $minorUnits) {
+            $amounts[$code] = Cashier::formatAmount($minorUnits, strtolower($code));
+        }
+
+        return $amounts;
+    }
+
+    /**
+     * Rate date behind the estimate, or null when there is no estimate to show.
+     * Null is what tells a surface to render no switcher and no attribution.
+     */
+    public function estimateDate(): ?string
+    {
+        return $this->exchangeRates->date();
     }
 
     private function assertInterval(string $interval): void

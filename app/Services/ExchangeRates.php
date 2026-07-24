@@ -48,6 +48,14 @@ class ExchangeRates
      */
     public function estimate(int $amount, string $base): ?array
     {
+        // Checked before the fetch: with no display currencies there is nothing to
+        // convert into, so an install that leaves this empty never touches the feed.
+        $currencies = $this->displayCurrencies();
+
+        if ($currencies === []) {
+            return null;
+        }
+
         $feed = $this->rates();
 
         if ($feed === null) {
@@ -67,7 +75,7 @@ class ExchangeRates
 
         $amounts = [];
 
-        foreach ($this->displayCurrencies() as $code) {
+        foreach ($currencies as $code) {
             if ($code === $base || ! isset($rates[$code])) {
                 continue;
             }
@@ -86,6 +94,15 @@ class ExchangeRates
         }
 
         return ['date' => $feed['date'], 'amounts' => $amounts];
+    }
+
+    /**
+     * Rate date of the feed backing the estimate, or null when there is none.
+     * The surfaces print it — the ECB's terms require the figure be dated.
+     */
+    public function date(): ?string
+    {
+        return $this->displayCurrencies() === [] ? null : $this->rates()['date'] ?? null;
     }
 
     /**

@@ -2,8 +2,13 @@
 
 @php
     $settings = app(\App\Settings\GeneralSettings::class);
-    $price = app(\App\Services\SubscriptionService::class)->formatPrice('month');
+    $subscription = app(\App\Services\SubscriptionService::class);
+    $price = $subscription->formatPrice('month');
     $interval = 'month';
+
+    // Converted estimates (#1636). Display only — the charge is always the base.
+    $priceAmounts = $subscription->displayAmounts($subscription->amountFor('month'));
+    $estimateDate = $subscription->estimateDate();
     $trialDays = (int) config('subscription.premium.trial_days', 14);
     $requiresCard = (bool) config('subscription.premium.require_card', true);
     $repo = 'https://github.com/liberu-genealogy/genealogy-laravel';
@@ -138,9 +143,11 @@
                 </p>
 
                 <p class="mt-6 flex items-baseline gap-2">
-                    <span class="text-headline tabular-nums text-ink">{{ $price }}</span>
+                    <x-price :amounts="$priceAmounts" class="text-headline tabular-nums text-ink" />
                     <span class="text-body text-ink-muted">per {{ $interval }}</span>
                 </p>
+
+                <x-currency-switcher :amounts="$priceAmounts" :date="$estimateDate" class="mt-4" />
 
                 <ul class="mt-8 flex flex-col gap-3 text-body text-ink">
                     <li class="flex items-start gap-3 text-ink-muted">

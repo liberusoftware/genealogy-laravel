@@ -3,8 +3,16 @@
 @php
     // Real price from config, not hardcoded (an old page invented "£4.99").
     $settings = app(\App\Settings\GeneralSettings::class);
-    $price = app(\App\Services\SubscriptionService::class)->formatPrice('month');
+    $subscription = app(\App\Services\SubscriptionService::class);
+    $price = $subscription->formatPrice('month');
     $interval = 'month';
+
+    // Converted estimates for the premium card (#1636). The hero strapline below
+    // deliberately keeps the charge currency and does not switch: it has no room
+    // for the attribution the ECB's terms require, and an unattributed converted
+    // figure is the one thing we may not show. Readers who want it click through.
+    $priceAmounts = $subscription->displayAmounts($subscription->amountFor('month'));
+    $estimateDate = $subscription->estimateDate();
 @endphp
 
 @section('content')
@@ -254,10 +262,11 @@
                         </a>
                     @else
                         <p class="flex items-baseline gap-2">
-                            <span class="text-headline tabular-nums text-ink">{{ $price }}</span>
+                            <x-price :amounts="$priceAmounts" class="text-headline tabular-nums text-ink" />
                             <span class="text-body text-ink-muted">per {{ $interval }}</span>
                         </p>
                         <p class="mt-3 text-label text-ink-muted">Billed at checkout. Cancel anytime.</p>
+                        <x-currency-switcher :amounts="$priceAmounts" :date="$estimateDate" class="mt-4" />
 
                         <a href="{{ route('filament.app.pages.subscription', ['tenant' => auth()->user()->currentTeam]) }}"
                            class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
@@ -271,10 +280,11 @@
                     @endif
                 @else
                     <p class="flex items-baseline gap-2">
-                        <span class="text-headline tabular-nums text-ink">{{ $price }}</span>
+                        <x-price :amounts="$priceAmounts" class="text-headline tabular-nums text-ink" />
                         <span class="text-body text-ink-muted">per {{ $interval }}</span>
                     </p>
                     <p class="mt-3 text-label text-ink-muted">Billed at checkout. Cancel anytime.</p>
+                    <x-currency-switcher :amounts="$priceAmounts" :date="$estimateDate" class="mt-4" />
 
                     <a href="{{ route('register') }}"
                        class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
