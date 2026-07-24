@@ -47,5 +47,8 @@
              feed (#1636). Tests that want the estimate set the config themselves
              and fake the HTTP call. -->
         <env name="SUBSCRIPTION_DISPLAY_CURRENCIES" value=""/>
+        <!-- The suite exercises the paywalled posture this deployment ships
+             (#1638). Tests for the open posture turn it off themselves. -->
+        <env name="SUBSCRIPTION_PAYWALL_ENABLED" value="true"/>
     </php>
 </phpunit>

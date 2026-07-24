@@ -32,6 +32,13 @@ class PremiumDoctor extends Command
         $this->info('Premium funnel configuration (#1635)');
         $this->newLine();
 
+        // 0 — asked first because it decides whether any of the rest is load-bearing.
+        // Warn-only: an open app is a valid posture, just rarely the intended one
+        // for someone running this command (#1638).
+        $this->warnCheck('paywall on (app panel requires a subscription)',
+            (bool) config('subscription.paywall_enabled'),
+            'Set SUBSCRIPTION_PAYWALL_ENABLED=true — off, the panel is open and registration skips checkout.');
+
         // 1
         $this->hard('premium.enabled is false (funnel reachable)',
             config('premium.enabled') === false,
