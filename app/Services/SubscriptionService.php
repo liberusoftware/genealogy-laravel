@@ -181,7 +181,22 @@ class SubscriptionService
                 'interval' => $interval,
                 'amount' => $this->amountFor($interval),
                 'price' => $this->formatPrice($interval),
+                // What the plan works out to per month, so the two intervals are
+                // comparable at a glance ($2.50/mo vs $2.99/mo).
+                'per_month' => Cashier::formatAmount(
+                    (int) round($this->amountFor($interval) / ($interval === 'year' ? 12 : 1)),
+                    $this->currency(),
+                ),
             ];
+        }
+
+        // What choosing yearly actually saves against paying monthly for a year.
+        // Derived from the same amounts that are charged, never hardcoded.
+        $twelveMonths = $this->amountFor('month') * 12;
+        $saving = $twelveMonths - $this->amountFor('year');
+        if ($twelveMonths > 0 && $saving > 0) {
+            $intervals['year']['savings'] = Cashier::formatAmount($saving, $this->currency());
+            $intervals['year']['savings_percent'] = (int) round($saving / $twelveMonths * 100);
         }
 
         return [

@@ -15,105 +15,74 @@
                 <h1 class="text-3xl font-bold mb-2">Upgrade to Premium</h1>
                 <p class="text-lg opacity-90 mb-6">Unlock powerful genealogy tools and unlimited features</p>
 
-                <div class="bg-white/10 rounded-lg p-4 inline-block">
-                    <div class="text-4xl font-bold">{{ $selected['price'] }}</div>
-                    <div class="text-sm opacity-75">per {{ $selected['interval'] }}</div>
-                </div>
-
-                @if($pricing['trial_days'] > 0)
-                    <div class="mt-6">
-                        <div class="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full inline-block font-semibold">
-                            🎉 {{ $pricing['trial_days'] }}-Day Free Trial
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
 
-        <!-- Feature Comparison -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Standard Plan -->
+        {{-- One plan. There is no free tier (#1635) — the old "Standard · Free
+             forever · $0" column advertised a plan that no longer exists. --}}
+        <div class="mx-auto w-full max-w-xl">
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                <div class="text-center mb-6">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Standard</h3>
-                    <p class="text-gray-500 dark:text-gray-400">Free forever</p>
-                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2">$0</div>
-                </div>
-
-                <ul class="space-y-3">
-                    <li class="flex items-center">
-                        @svg('heroicon-o-check', 'h-5 w-5 text-green-500 mr-3')
-                        <span class="text-gray-700 dark:text-gray-300">Basic family tree</span>
-                    </li>
-                    <li class="flex items-center">
-                        @svg('heroicon-o-check', 'h-5 w-5 text-green-500 mr-3')
-                        <span class="text-gray-700 dark:text-gray-300">Standard charts</span>
-                    </li>
-                    <li class="flex items-center">
-                        @svg('heroicon-o-check', 'h-5 w-5 text-green-500 mr-3')
-                        <span class="text-gray-700 dark:text-gray-300">1 DNA kit upload</span>
-                    </li>
-                    <li class="flex items-center">
-                        @svg('heroicon-o-x-mark', 'h-5 w-5 text-red-500 mr-3')
-                        <span class="text-gray-400 line-through">Premium badge</span>
-                    </li>
-                    <li class="flex items-center">
-                        @svg('heroicon-o-x-mark', 'h-5 w-5 text-red-500 mr-3')
-                        <span class="text-gray-400 line-through">Duplicate checker</span>
-                    </li>
-                    <li class="flex items-center">
-                        @svg('heroicon-o-x-mark', 'h-5 w-5 text-red-500 mr-3')
-                        <span class="text-gray-400 line-through">Smart matching</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Premium Plan -->
-            <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border-2 border-purple-200 dark:border-purple-700 p-6 relative">
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        Most Popular
-                    </span>
-                </div>
-
-                <div class="text-center mb-6">
+                <div class="mb-6">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Premium</h3>
-                    @if($pricing['trial_days'] > 0)
-                        <p class="text-gray-500 dark:text-gray-400">{{ $pricing['trial_days'] }}-day free trial</p>
-                    @endif
-                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ $selected['price'] }}</div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">per {{ $selected['interval'] }}</p>
-
-                    <!-- Billing interval toggle -->
-                    <div class="mt-4 inline-flex rounded-lg border border-purple-200 dark:border-purple-700 p-1" role="group" aria-label="Billing interval">
-                        <button
-                            type="button"
-                            wire:click="$set('interval', 'month')"
-                            @class([
-                                'px-4 py-1.5 text-sm font-medium rounded-md transition',
-                                'bg-purple-600 text-white' => $this->interval === 'month',
-                                'text-gray-600 dark:text-gray-300' => $this->interval !== 'month',
-                            ])
-                            aria-pressed="{{ $this->interval === 'month' ? 'true' : 'false' }}"
-                        >
-                            Monthly · {{ $pricing['intervals']['month']['price'] }}
-                        </button>
-                        <button
-                            type="button"
-                            wire:click="$set('interval', 'year')"
-                            @class([
-                                'px-4 py-1.5 text-sm font-medium rounded-md transition',
-                                'bg-purple-600 text-white' => $this->interval === 'year',
-                                'text-gray-600 dark:text-gray-300' => $this->interval !== 'year',
-                            ])
-                            aria-pressed="{{ $this->interval === 'year' ? 'true' : 'false' }}"
-                        >
-                            Yearly · {{ $pricing['intervals']['year']['price'] }}
-                        </button>
-                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Choose how you'd like to be billed.</p>
                 </div>
 
-                <ul class="space-y-3">
+                {{-- Billing interval. Rows rather than a segmented toggle so each
+                     option can state its own per-month equivalent, what it saves
+                     and how often it bills — the facts the choice turns on. --}}
+                <div class="space-y-2" role="radiogroup" aria-label="Billing interval">
+                    @foreach ($pricing['intervals'] as $key => $option)
+                        @php $isSelected = $this->interval === $key; @endphp
+                        <button
+                            type="button"
+                            role="radio"
+                            aria-checked="{{ $isSelected ? 'true' : 'false' }}"
+                            wire:click="$set('interval', '{{ $key }}')"
+                            @class([
+                                'flex w-full items-center gap-3 rounded-lg border p-4 text-left transition',
+                                'border-primary-500 bg-primary-50 dark:bg-primary-500/10' => $isSelected,
+                                'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600' => ! $isSelected,
+                            ])
+                        >
+                            <span @class([
+                                'relative h-4 w-4 shrink-0 rounded-full border-2',
+                                'border-primary-600 bg-primary-600' => $isSelected,
+                                'border-gray-300 dark:border-gray-600' => ! $isSelected,
+                            ])>
+                                @if ($isSelected)
+                                    <span class="absolute inset-[3px] rounded-full bg-white"></span>
+                                @endif
+                            </span>
+
+                            <span class="min-w-0">
+                                <span class="flex flex-wrap items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                                    {{ $key === 'year' ? 'Yearly' : 'Monthly' }}
+                                    @isset($option['savings'])
+                                        <span class="rounded-full bg-success-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-success-700 dark:bg-success-500/20 dark:text-success-400">
+                                            Save {{ $option['savings'] }}
+                                        </span>
+                                    @endisset
+                                </span>
+                                <span class="mt-0.5 block text-sm text-gray-500 dark:text-gray-400">
+                                    {{ $key === 'year'
+                                        ? $option['price'].' billed once a year'
+                                        : 'Billed every month' }}
+                                </span>
+                            </span>
+
+                            <span class="ml-auto shrink-0 text-right tabular-nums">
+                                <span class="block font-semibold text-gray-900 dark:text-white">{{ $option['per_month'] }}</span>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400">per month</span>
+                            </span>
+                        </button>
+                    @endforeach
+                </div>
+
+                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                    You'll be charged {{ $selected['price'] }} today, then every {{ $selected['interval'] }}. Cancel anytime.
+                </p>
+
+                <ul class="mt-6 space-y-3">
                     @foreach($this->getPricingData()['premium']['features'] as $feature)
                         <li class="flex items-center">
                             @svg('heroicon-o-check', 'h-5 w-5 text-green-500 mr-3')
@@ -173,7 +142,7 @@
 
                 <div class="text-center">
                     <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                        Standard
+                        None
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">
                         Current plan
@@ -188,9 +157,9 @@
 
             <div class="space-y-4">
                 <div>
-                    <h4 class="font-medium text-gray-900 dark:text-white">What happens during the free trial?</h4>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Can I switch between monthly and yearly?</h4>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        You get full access to all premium features for {{ config('subscription.premium.trial_days', 14) }} days. No payment required upfront.
+                        Yes. Once you're subscribed you can switch billing interval from the billing portal, and we'll prorate the difference.
                     </p>
                 </div>
 
