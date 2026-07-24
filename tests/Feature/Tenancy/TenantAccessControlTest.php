@@ -34,6 +34,16 @@ class TenantAccessControlTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Exercises tenant isolation via HTTP GET on panel URLs. The #1635
+        // paywall gate would otherwise redirect the (non-subscriber) test users
+        // to subscribe before the tenant check runs — enable premium globally so
+        // the gate is inert and the tenant boundary is what's under test.
+        config(['premium.enabled' => true]);
+    }
+
     public function test_an_owner_can_access_their_team(): void
     {
         $user = User::factory()->withPersonalTeam()->create();

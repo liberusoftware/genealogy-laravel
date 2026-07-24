@@ -10,8 +10,9 @@ return [
         'require_card' => (bool) env('SUBSCRIPTION_REQUIRE_CARD', true),
 
         // Trial length in days. Zero is a first-class value meaning "no trial" —
-        // the subscriber is charged immediately at checkout.
-        'trial_days' => (int) env('SUBSCRIPTION_PREMIUM_TRIAL_DAYS', 14),
+        // the subscriber is charged immediately at checkout. Default 0: the app
+        // is subscription-only (#1635), buy immediately, no signup trial.
+        'trial_days' => (int) env('SUBSCRIPTION_PREMIUM_TRIAL_DAYS', 0),
 
         // Name of the Stripe Product the app auto-creates (managed price, ADR 0003).
         'product_name' => env('SUBSCRIPTION_PREMIUM_PRODUCT_NAME', 'Premium'),

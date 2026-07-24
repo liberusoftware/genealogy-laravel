@@ -29,6 +29,15 @@ class RegisterResponse implements RegisterResponseContract
             return redirect('/app/new');
         }
 
+        // The app is subscription-only (#1635): every new account must subscribe
+        // before it can use anything, so send them straight to checkout — unless
+        // they already have access (e.g. an affiliate comp), in which case the
+        // app is reachable. currentTeam exists here because CreateNewUser
+        // creates + switches a personal team during registration.
+        if (! $user->isPremium() && $user->currentTeam) {
+            return redirect()->route('filament.app.pages.subscription', ['tenant' => $user->currentTeam]);
+        }
+
         return redirect()->intended(Filament::getUrl());
     }
 }

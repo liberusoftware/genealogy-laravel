@@ -1,13 +1,10 @@
 @extends('layouts.home', ['fieldHero' => true])
 
 @php
-    // Real values, not hardcoded. The old page claimed "£4.99" and a "7-day"
-    // trial while config said $2.99 / 14 days.
+    // Real price from config, not hardcoded (an old page invented "£4.99").
     $settings = app(\App\Settings\GeneralSettings::class);
     $price = app(\App\Services\SubscriptionService::class)->formatPrice('month');
     $interval = 'month';
-    $trialDays = (int) config('subscription.premium.trial_days', 14);
-    $requiresCard = (bool) config('subscription.premium.require_card', true);
 @endphp
 
 @section('content')
@@ -23,7 +20,7 @@
             </h1>
 
             <p class="mt-6 max-w-[58ch] text-pretty text-body text-emerald-100">
-                {{ $settings->site_name }} is a free, open-source platform for
+                {{ $settings->site_name }} is an open-source platform for
                 building a family tree out of evidence. GEDCOM in, GEDCOM out. DNA matches with their
                 confidence stated in words, not colours. A citation under every claim.
             </p>
@@ -39,7 +36,7 @@
                 @else
                     <a href="{{ route('register') }}"
                        class="inline-flex min-h-11 items-center rounded-md bg-paper px-5 py-3 text-label text-registry-green-deep transition-colors duration-150 ease-out-quart hover:bg-registry-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-tint">
-                        Start free
+                        Get started
                     </a>
                 @endauth
 
@@ -50,7 +47,7 @@
             </div>
 
             <p class="mt-5 text-label text-emerald-200">
-                Free forever · No credit card required · MIT licensed
+                {{ $price }} per month · Cancel anytime · MIT-licensed &amp; self-hostable
             </p>
         </div>
 
@@ -218,11 +215,11 @@
     <div class="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-12 lg:gap-16 lg:py-24">
         <div class="lg:col-span-6">
             <h2 id="premium-heading" class="text-headline text-balance text-ink">
-                The free tier is the product. Premium is the heavy lifting.
+                One subscription. The whole platform.
             </h2>
             <p class="mt-4 max-w-[54ch] text-pretty text-body text-ink-muted">
-                Building, citing and exporting your tree costs nothing, forever. Premium pays for the
-                work that burns CPU on our side.
+                Your subscription covers everything — building and citing your tree, DNA matching,
+                record discovery, and GEDCOM export. Cancel anytime, and your data comes with you.
             </p>
 
             <ul class="mt-8 flex flex-col gap-3 text-body text-ink">
@@ -244,35 +241,51 @@
 
         <div class="lg:col-span-6 lg:justify-self-end">
             <div class="rounded-lg border border-rule bg-paper p-8 sm:min-w-[22rem]">
-                <p class="flex items-baseline gap-2">
-                    <span class="text-headline tabular-nums text-ink">{{ $price }}</span>
-                    <span class="text-body text-ink-muted">per {{ $interval }}</span>
-                </p>
+                {{-- Three states (#1635): subscribers see no price and a manage
+                     link; everyone else sees the price and a way to subscribe. --}}
+                @auth
+                    @if(auth()->user()->isPremium())
+                        <p class="text-headline text-ink">You're on Premium.</p>
+                        <p class="mt-3 text-label text-ink-muted">Thanks for supporting the project.</p>
 
-                <p class="mt-3 text-label text-ink-muted">
-                    @if($trialDays > 0)
-                        <span class="tabular-nums">{{ $trialDays }}</span>-day free trial.@unless($requiresCard) No card required to start.@endunless
+                        <a href="{{ route('filament.app.pages.premium-dashboard', ['tenant' => auth()->user()->currentTeam]) }}"
+                           class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
+                            Manage subscription
+                        </a>
                     @else
-                        Billed at checkout. Cancel anytime.
-                    @endif
-                </p>
+                        <p class="flex items-baseline gap-2">
+                            <span class="text-headline tabular-nums text-ink">{{ $price }}</span>
+                            <span class="text-body text-ink-muted">per {{ $interval }}</span>
+                        </p>
+                        <p class="mt-3 text-label text-ink-muted">Billed at checkout. Cancel anytime.</p>
 
-                @guest
+                        <a href="{{ route('filament.app.pages.subscription', ['tenant' => auth()->user()->currentTeam]) }}"
+                           class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
+                            Subscribe
+                        </a>
+
+                        <a href="{{ route('subscription') }}"
+                           class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-sm px-2 text-label text-registry-green transition-colors duration-150 ease-out-quart hover:text-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
+                            What's included
+                        </a>
+                    @endif
+                @else
+                    <p class="flex items-baseline gap-2">
+                        <span class="text-headline tabular-nums text-ink">{{ $price }}</span>
+                        <span class="text-body text-ink-muted">per {{ $interval }}</span>
+                    </p>
+                    <p class="mt-3 text-label text-ink-muted">Billed at checkout. Cancel anytime.</p>
+
                     <a href="{{ route('register') }}"
                        class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
-                        Start the trial
+                        Get started
                     </a>
-                @else
-                    <a href="{{ route('filament.app.pages.subscription', ['tenant' => auth()->user()->currentTeam]) }}"
-                       class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
-                        Upgrade to premium
-                    </a>
-                @endguest
 
-                <a href="{{ route('subscription') }}"
-                   class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-sm px-2 text-label text-registry-green transition-colors duration-150 ease-out-quart hover:text-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
-                    What's included
-                </a>
+                    <a href="{{ route('subscription') }}"
+                       class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-sm px-2 text-label text-registry-green transition-colors duration-150 ease-out-quart hover:text-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
+                        What's included
+                    </a>
+                @endauth
             </div>
         </div>
     </div>
@@ -301,7 +314,7 @@
                 @guest
                     <a href="{{ route('register') }}"
                        class="inline-flex min-h-11 items-center rounded-md bg-paper px-5 py-3 text-label text-registry-green-deep transition-colors duration-150 ease-out-quart hover:bg-registry-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-tint">
-                        Start free
+                        Get started
                     </a>
                 @else
                     <a href="{{ route('filament.app.tenant') }}"

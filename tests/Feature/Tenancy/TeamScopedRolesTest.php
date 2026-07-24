@@ -35,6 +35,16 @@ class TeamScopedRolesTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Exercises tenant isolation via HTTP GET on panel URLs. The #1635
+        // paywall gate would otherwise redirect the (non-subscriber) test users
+        // to subscribe before the tenant check runs — enable premium globally so
+        // the gate is inert and the tenant boundary is what's under test.
+        config(['premium.enabled' => true]);
+    }
+
     public function test_a_role_granted_in_one_team_is_not_held_in_another(): void
     {
         [$user, $teamA, $teamB] = $this->userInTwoTeams();

@@ -59,6 +59,7 @@ use App\Filament\App\Resources\SubmResource;
 use App\Filament\App\Resources\SubnResource;
 use App\Filament\App\Resources\TypeResource;
 use App\Filament\App\Resources\VirtualEventResource;
+use App\Http\Middleware\EnsureSubscribed;
 use App\Http\Middleware\TeamsPermission;
 use App\Listeners\CreatePersonalTeam;
 use App\Listeners\SwitchTeam;
@@ -283,6 +284,11 @@ class AppPanelProvider extends PanelProvider
                 // Laravel de-duplicates middleware, so only the first occurrence
                 // runs, which silently reinstates the bug.
                 TeamsPermission::class,
+                // Paywall (#1635): the whole app panel is subscription-only.
+                // Runs after auth + tenant so currentTeam is resolved for the
+                // redirect. Non-subscribers are bounced to the subscription page
+                // from everything except the allowlist (subscription/logout/…).
+                EnsureSubscribed::class,
             ], isPersistent: true);
 
         // if (Features::hasApiFeatures()) {
