@@ -24,47 +24,17 @@ class SubscriptionPageTest extends TestCase
         return $user;
     }
 
-    public function test_start_trial_sets_user_to_premium_and_redirects(): void
+    public function test_page_offers_subscribe_and_never_a_trial_button(): void
     {
-        // The no-card trial only exists when the deployment doesn't require a card.
+        // The app is subscription-only (#1635): the no-card trial button is
+        // gone as code, so even a deployment that flips these flags back on
+        // never renders it. Revert guard for the removal.
         config()->set('subscription.premium.require_card', false);
-        $user = User::factory()->withPersonalTeam()->create();
-
-        Livewire::actingAs($user)
-            ->test(SubscriptionPage::class)
-            ->call('startTrial')
-            ->assertRedirectContains('premium-dashboard');
-
-        $this->assertTrue($user->fresh()->is_premium);
-    }
-
-    public function test_trial_button_hidden_when_card_required(): void
-    {
-        config()->set('subscription.premium.require_card', true);
+        config()->set('subscription.premium.trial_days', 14);
         $this->actingUser();
 
         Livewire::test(SubscriptionPage::class)
             ->assertSee('Subscribe')
-            ->assertDontSee('Start Free Trial');
-    }
-
-    public function test_start_trial_rejected_server_side_when_card_required(): void
-    {
-        config()->set('subscription.premium.require_card', true);
-        $user = $this->actingUser();
-
-        Livewire::test(SubscriptionPage::class)->call('startTrial');
-
-        $this->assertFalse((bool) $user->fresh()->is_premium, 'no premium granted without a card');
-    }
-
-    public function test_no_trial_button_when_trial_days_zero(): void
-    {
-        config()->set('subscription.premium.require_card', false);
-        config()->set('subscription.premium.trial_days', 0);
-        $this->actingUser();
-
-        Livewire::test(SubscriptionPage::class)
             ->assertDontSee('Start Free Trial');
     }
 

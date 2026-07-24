@@ -3,7 +3,6 @@
 namespace App\Filament\App\Pages;
 
 use App\Services\SubscriptionService;
-use Exception;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
@@ -75,63 +74,9 @@ class SubscriptionPage extends Page
     #[\Override]
     protected function getHeaderActions(): array
     {
-        // CTAs live in the page body (interval toggle + Subscribe, plus the
-        // optional no-card trial button); no header actions.
+        // CTAs live in the page body (interval toggle + Subscribe). The app is
+        // subscription-only (#1635): no no-card trial, so no trial header action.
         return [];
-    }
-
-    /** Whether the no-card trial button should be shown/allowed. */
-    public function showTrialButton(): bool
-    {
-        $service = app(SubscriptionService::class);
-
-        return ! $service->requiresCard() && $service->trialDays() > 0;
-    }
-
-    public function startTrial(): void
-    {
-        // Server-side guard: even if the button is hidden, the Livewire action
-        // must not grant premium without a card when the deployment requires one.
-        if (! $this->showTrialButton()) {
-            Notification::make()
-                ->title('Card required')
-                ->body('A payment method is required to start Premium. Please subscribe with a card.')
-                ->danger()
-                ->send();
-
-            return;
-        }
-
-        try {
-            $subscriptionService = app(SubscriptionService::class);
-            $user = Auth::user();
-
-            // Create trial subscription (no payment method provided)
-            $subscriptionService->createPremiumSubscription($user);
-
-            // Refresh user and show trial end date if available
-            $user = $user->fresh();
-            $trialDays = config('subscription.premium.trial_days', 14);
-            $endsAt = optional($user->trial_ends_at)->toFormattedDateString();
-            $body = $endsAt
-                ? "Welcome to Premium! Your {$trialDays}-day trial ends on {$endsAt}."
-                : "Welcome to Premium! Your {$trialDays}-day trial has begun.";
-
-            Notification::make()
-                ->title('Premium Trial Started!')
-                ->body($body)
-                ->success()
-                ->send();
-
-            $this->redirect(route('filament.app.pages.premium-dashboard', ['tenant' => auth()->user()->currentTeam]));
-
-        } catch (Exception) {
-            Notification::make()
-                ->title('Subscription Error')
-                ->body('There was an error starting your trial. Please try again.')
-                ->danger()
-                ->send();
-        }
     }
 
     public function getPricingData(): array

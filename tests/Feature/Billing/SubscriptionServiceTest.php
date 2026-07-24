@@ -175,17 +175,20 @@ final class SubscriptionServiceTest extends TestCase
         }
     }
 
-    public function test_local_trial_is_granted_when_card_not_required(): void
+    public function test_no_card_path_is_rejected_even_when_card_not_required(): void
     {
+        // #1635: the no-card trial is removed as code, so flipping require_card
+        // off can no longer grant premium without a payment method.
         config()->set('subscription.premium.require_card', false);
         config()->set('subscription.premium.trial_days', 14);
         $user = User::factory()->create();
 
-        $result = $this->service()->createPremiumSubscription($user);
+        $this->expectException(RuntimeException::class);
 
-        $this->assertNull($result);
-        $user->refresh();
-        $this->assertTrue((bool) $user->is_premium);
-        $this->assertNotNull($user->trial_ends_at);
+        try {
+            $this->service()->createPremiumSubscription($user);
+        } finally {
+            $this->assertFalse((bool) $user->fresh()->is_premium, 'no premium granted without a payment method');
+        }
     }
 }

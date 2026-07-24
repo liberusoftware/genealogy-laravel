@@ -52,22 +52,10 @@ class SubscriptionService
      */
     public function createPremiumSubscription(User $user, ?string $paymentMethod = null, string $interval = 'month')
     {
-        // No-card local trial.
+        // The app is subscription-only (#1635): no no-card trial. A payment
+        // method is always required to reach premium through this path.
         if (in_array($paymentMethod, [null, '', '0'], true)) {
-            if ($this->requiresCard()) {
-                // Server-side defense: the UI hides this path, but the Livewire
-                // action must not grant premium without a card either.
-                throw new RuntimeException('A payment method is required; the no-card trial is disabled.');
-            }
-
-            $user->forceFill([
-                'is_premium' => true,
-                'premium_started_at' => now(),
-                // Generic trial used by Cashier's Billable::onTrial()
-                'trial_ends_at' => now()->addDays($this->trialDays()),
-            ])->save();
-
-            return null;
+            throw new RuntimeException('A payment method is required to start Premium.');
         }
 
         $subscriptionBuilder = $this->applyTrial(
