@@ -48,6 +48,36 @@ class SubscriptionServiceTest extends TestCase
         $this->assertIsArray($pricingInfo['premium']['features']);
     }
 
+    public function test_pricing_info_derives_per_month_and_yearly_savings(): void
+    {
+        // $2.99/month vs $29.99/year: $2.50 a month, saving $5.89 (16%) against
+        // twelve monthly charges. Derived from the charged amounts, never hardcoded.
+        config([
+            'subscription.premium.amounts.month' => 299,
+            'subscription.premium.amounts.year' => 2999,
+        ]);
+
+        $intervals = $this->subscriptionService->getPricingInfo()['premium']['intervals'];
+
+        $this->assertSame('$2.99', $intervals['month']['per_month']);
+        $this->assertSame('$2.50', $intervals['year']['per_month']);
+        $this->assertSame('$5.89', $intervals['year']['savings']);
+        $this->assertSame(16, $intervals['year']['savings_percent']);
+        $this->assertArrayNotHasKey('savings', $intervals['month']);
+    }
+
+    public function test_pricing_info_omits_savings_when_yearly_saves_nothing(): void
+    {
+        config([
+            'subscription.premium.amounts.month' => 299,
+            'subscription.premium.amounts.year' => 3588,
+        ]);
+
+        $intervals = $this->subscriptionService->getPricingInfo()['premium']['intervals'];
+
+        $this->assertArrayNotHasKey('savings', $intervals['year']);
+    }
+
     public function test_check_dna_upload_limit_for_non_premium_user(): void
     {
         $user = User::factory()->create(['is_premium' => false]);

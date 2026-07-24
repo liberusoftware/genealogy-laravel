@@ -24,6 +24,37 @@ class SubscriptionPageTest extends TestCase
         return $user;
     }
 
+    public function test_page_advertises_no_free_plan(): void
+    {
+        // The app is subscription-only (#1635): the page used to sell a
+        // "Standard · Free forever · $0" column and a free-trial FAQ.
+        config(['premium.enabled' => false]);
+        $this->actingUser();
+
+        Livewire::test(SubscriptionPage::class)
+            ->assertDontSee('Free forever')
+            ->assertDontSee('$0')
+            ->assertDontSee('What happens during the free trial?');
+    }
+
+    public function test_billing_interval_rows_show_savings_and_drive_checkout(): void
+    {
+        config([
+            'premium.enabled' => false,
+            'subscription.premium.amounts.month' => 299,
+            'subscription.premium.amounts.year' => 2999,
+        ]);
+        $this->actingUser();
+
+        Livewire::test(SubscriptionPage::class)
+            // Monthly is the default; yearly advertises what it saves.
+            ->assertSee('Save $5.89')
+            ->assertSee('$29.99 billed once a year')
+            ->assertSee('charged $2.99 today')
+            ->set('interval', 'year')
+            ->assertSee('charged $29.99 today');
+    }
+
     public function test_page_offers_subscribe_and_never_a_trial_button(): void
     {
         // The app is subscription-only (#1635): the no-card trial button is
@@ -66,8 +97,8 @@ class SubscriptionPageTest extends TestCase
                 'trial_days' => 14,
                 'require_card' => true,
                 'intervals' => [
-                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99'],
-                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99'],
+                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99', 'per_month' => '$2.99'],
+                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99', 'per_month' => '$2.50', 'savings' => '$5.89', 'savings_percent' => 16],
                 ],
                 'features' => [],
             ],
@@ -104,8 +135,8 @@ class SubscriptionPageTest extends TestCase
             'premium' => [
                 'name' => 'Premium', 'trial_days' => 14, 'require_card' => true,
                 'intervals' => [
-                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99'],
-                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99'],
+                    'month' => ['interval' => 'month', 'amount' => 299, 'price' => '$2.99', 'per_month' => '$2.99'],
+                    'year' => ['interval' => 'year', 'amount' => 2999, 'price' => '$29.99', 'per_month' => '$2.50', 'savings' => '$5.89', 'savings_percent' => 16],
                 ],
                 'features' => [],
             ],
