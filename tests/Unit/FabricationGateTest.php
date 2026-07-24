@@ -41,6 +41,11 @@ final class FabricationGateTest extends TestCase
                 'Kit variable_name identifier, generated inside a collision-retry loop that re-rolls until unique.',
             ),
             new AllowlistEntry(
+                'Models/User.php', 'Str::random', 'identifier',
+                'Affiliate referral_code — a unique share identifier generated in a collision-retry loop '
+                .'(ensureReferralCode), not an invented domain value.',
+            ),
+            new AllowlistEntry(
                 'Services/VideoConferencing/GoogleMeetService.php', 'uniqid', 'api-request-id',
                 'requestId for the Google Meet createRequest call — an external API request identifier.',
             ),

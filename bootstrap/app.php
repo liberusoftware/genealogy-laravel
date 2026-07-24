@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CaptureReferral;
 use App\Http\Middleware\SecurityHeaders;
 use Filament\Forms\Form;
 use Filament\Schemas\Schema;
@@ -25,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withBroadcasting(__DIR__.'/../routes/channels.php')
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(SecurityHeaders::class);
+        // Capture ?ref=CODE affiliate links into a cookie for guests (issue #1621).
+        $middleware->web(append: CaptureReferral::class);
         $middleware->validateCsrfTokens(except: [
             'stripe/*',
         ]);
