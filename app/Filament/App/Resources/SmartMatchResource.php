@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources;
 
+use App\Exceptions\PremiumRequiredException;
 use App\Filament\App\Resources\SmartMatchResource\Pages\ListSmartMatches;
 use App\Filament\App\Resources\SmartMatchResource\Pages\ViewSmartMatch;
 use App\Models\SmartMatch;
@@ -47,11 +48,11 @@ class SmartMatchResource extends AppResource
     #[\Override]
     public static function canAccess(): bool
     {
-        if (config('premium.enabled')) {
-            return true;
-        }
+        // Throws (rather than returning false) so the handler redirects a
+        // non-premium user to sign-up instead of showing a bare 403 (#1630).
+        PremiumRequiredException::unlessPremium();
 
-        return Auth::user()?->isPremium() ?? false;
+        return true;
     }
 
     #[\Override]

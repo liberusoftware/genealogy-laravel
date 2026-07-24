@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources;
 
+use App\Exceptions\PremiumRequiredException;
 use App\Filament\App\Resources\DnaMatchingResource\Pages\CreateDnaMatching;
 use App\Filament\App\Resources\DnaMatchingResource\Pages\EditDnaMatching;
 use App\Filament\App\Resources\DnaMatchingResource\Pages\ListDnaMatchings;
@@ -59,12 +60,11 @@ class DnaMatchingResource extends AppResource
     public static function canAccess(): bool
     {
         // Server-side premium gate: hiding the nav item is not enough, the
-        // resource URL must reject non-premium users directly.
-        if (config('premium.enabled')) {
-            return true;
-        }
+        // resource URL must reject non-premium users directly. Throws (rather
+        // than returning false) so the handler redirects to sign-up (#1630).
+        PremiumRequiredException::unlessPremium();
 
-        return auth()->user()?->isPremium() ?? false;
+        return true;
     }
 
     #[\Override]

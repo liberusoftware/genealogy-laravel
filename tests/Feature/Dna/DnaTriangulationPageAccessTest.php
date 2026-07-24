@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Dna;
 
+use App\Exceptions\PremiumRequiredException;
 use App\Filament\App\Pages\DnaTriangulationPage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,13 +13,14 @@ class DnaTriangulationPageAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_can_access_denied_for_non_premium_user(): void
+    public function test_can_access_throws_for_non_premium_user(): void
     {
         config(['premium.enabled' => false]);
         $user = User::factory()->create(['is_premium' => false, 'trial_ends_at' => null]);
         Auth::login($user);
 
-        $this->assertFalse(DnaTriangulationPage::canAccess());
+        $this->expectException(PremiumRequiredException::class);
+        DnaTriangulationPage::canAccess();
     }
 
     public function test_can_access_allowed_for_trialing_premium_user(): void
