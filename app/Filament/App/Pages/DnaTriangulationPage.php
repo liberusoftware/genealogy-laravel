@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Pages;
 
+use App\Exceptions\PremiumRequiredException;
 use App\Models\Dna;
 use App\Services\Dna\SegmentMatcher;
 use App\Services\DnaTriangulationService;
@@ -51,12 +52,11 @@ class DnaTriangulationPage extends Page implements HasForms
     public static function canAccess(): bool
     {
         // Server-side premium gate: hiding the nav item is not enough, the
-        // page URL must reject non-premium users directly.
-        if (config('premium.enabled')) {
-            return true;
-        }
+        // page URL must reject non-premium users directly. Throws (rather than
+        // returning false) so the handler redirects to sign-up (#1630).
+        PremiumRequiredException::unlessPremium();
 
-        return auth()->user()?->isPremium() ?? false;
+        return true;
     }
 
     public function mount(): void

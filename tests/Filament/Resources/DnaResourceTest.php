@@ -2,6 +2,7 @@
 
 namespace Tests\Filament\Resources;
 
+use App\Exceptions\PremiumRequiredException;
 use App\Filament\App\Resources\DnaResource;
 use App\Models\Dna;
 use App\Models\User;
@@ -61,13 +62,16 @@ class DnaResourceTest extends TestCase
         $this->assertFalse(DnaResource::canCreate());
     }
 
-    public function test_can_access_denied_for_non_premium_user(): void
+    public function test_can_access_throws_for_non_premium_user(): void
     {
         config(['premium.enabled' => false]);
         $user = User::factory()->create(['is_premium' => false, 'trial_ends_at' => null]);
         Auth::login($user);
 
-        $this->assertFalse(DnaResource::canAccess());
+        // The gate throws instead of returning false so the handler can redirect
+        // a non-premium user to sign-up rather than 403 (#1630).
+        $this->expectException(PremiumRequiredException::class);
+        DnaResource::canAccess();
     }
 
     public function test_can_access_allowed_for_trialing_premium_user(): void

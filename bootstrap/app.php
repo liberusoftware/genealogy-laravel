@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\PremiumRequiredException;
 use App\Http\Middleware\CaptureReferral;
 use App\Http\Middleware\SecurityHeaders;
 use Filament\Forms\Form;
@@ -7,6 +8,8 @@ use Filament\Schemas\Schema;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 
 if (! class_exists(Form::class) && class_exists(Schema::class)) {
     class_alias(Schema::class, Form::class);
@@ -37,5 +40,24 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->throttleApi('60,1');
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // A non-premium user who reaches a gated premium surface is redirected
+        // to sign-up rather than shown a bare 403 (upstream #1630). Keyed on the
+        // exception type, so tenant/team 403s (TeamMembers, TreePrivacy) fall
+        // through untouched. Target mirrors PremiumDashboardPage::mount().
+        $exceptions->render(function (PremiumRequiredException $e) {
+            $user = auth()->user();
+
+            if (! $user) {
+                return new Response('Forbidden', 403);
+            }
+
+            $route = $user->hasExpiredTrial()
+                ? 'filament.app.pages.trial-expired'
+                : 'filament.app.pages.subscription';
+
+            // Build the RedirectResponse directly: the redirect() helper resolves
+            // Livewire's Redirector inside a Livewire request, which is not a
+            // Symfony Response and breaks the panel's typed middleware.
+            return new RedirectResponse(route($route, ['tenant' => $user->currentTeam]));
+        });
     })->create();

@@ -2,6 +2,7 @@
 
 namespace Tests\Filament\Resources;
 
+use App\Exceptions\PremiumRequiredException;
 use App\Filament\App\Resources\DnaMatchingResource;
 use App\Models\DnaMatching;
 use App\Models\User;
@@ -50,13 +51,14 @@ class DnaMatchingResourceTest extends TestCase
         $this->assertDatabaseMissing('dna_matchings', ['id' => $dnaMatching->id]);
     }
 
-    public function test_can_access_denied_for_non_premium_user(): void
+    public function test_can_access_throws_for_non_premium_user(): void
     {
         config(['premium.enabled' => false]);
         $user = User::factory()->create(['is_premium' => false, 'trial_ends_at' => null]);
         Auth::login($user);
 
-        $this->assertFalse(DnaMatchingResource::canAccess());
+        $this->expectException(PremiumRequiredException::class);
+        DnaMatchingResource::canAccess();
     }
 
     public function test_can_access_allowed_for_trialing_premium_user(): void
