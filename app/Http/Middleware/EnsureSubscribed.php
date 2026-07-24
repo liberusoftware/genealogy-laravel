@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Paywall gate (upstream #1635): the whole `app` panel is subscription-only.
+ * Paywall gate (upstream #1635, made opt-in by #1638): with
+ * `subscription.paywall_enabled` on, the whole `app` panel is subscription-only.
  *
  * A non-subscriber is redirected to the subscription page from every panel
  * surface EXCEPT the ones they need in order to pay or leave. The redirect is
@@ -36,6 +37,12 @@ class EnsureSubscribed
 
     public function handle(Request $request, Closure $next): Response
     {
+        // Opt-in (#1638). Off, the panel is open and only the per-resource
+        // premium gates apply; on, this is the whole paywall.
+        if (! config('subscription.paywall_enabled')) {
+            return $next($request);
+        }
+
         if (! $request->routeIs(...self::ALLOWLIST)) {
             PremiumRequiredException::unlessPremium();
         }

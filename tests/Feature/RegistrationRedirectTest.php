@@ -67,4 +67,14 @@ class RegistrationRedirectTest extends TestCase
 
         return (new RegisterResponse)->toResponse($request);
     }
+
+    public function test_the_paywall_off_lands_a_new_account_in_the_app(): void
+    {
+        // #1638: the same flag as EnsureSubscribed. With the panel open, shoving a
+        // new account at a checkout it doesn't need would be half a switch.
+        config(['subscription.paywall_enabled' => false]);
+        $user = User::factory()->withPersonalTeam()->create(['is_premium' => false, 'trial_ends_at' => null]);
+
+        $this->assertStringNotContainsString('/subscription', $this->responseFor($user)->getTargetUrl());
+    }
 }

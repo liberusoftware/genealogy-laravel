@@ -14,6 +14,15 @@ return [
         PREG_SPLIT_NO_EMPTY,
     ),
 
+    // The paywall (#1638): with this on, the whole app panel requires an active
+    // subscription and every new registration goes straight to checkout — the
+    // behaviour #1635 shipped. With it off, the panel is open and registration
+    // lands in the app; the per-resource premium gates still apply.
+    //
+    // Defaults to FALSE so a fresh checkout of this open-source project is not
+    // paywalled. Deployments that sell access opt in — .env.example ships it on.
+    'paywall_enabled' => (bool) env('SUBSCRIPTION_PAYWALL_ENABLED', false),
+
     'premium' => [
         // Require a card before granting premium access. When true, the no-card
         // local-trial path is unavailable and the only route to premium is a

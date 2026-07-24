@@ -69,4 +69,28 @@ class PaywallGateTest extends TestCase
 
         $this->get(route('filament.app.pages.dashboard', ['tenant' => $user->currentTeam]))->assertOk();
     }
+
+    public function test_the_paywall_is_opt_in_and_off_leaves_the_panel_open(): void
+    {
+        // #1638 made the gate a flag defaulting to false, so a fresh checkout of
+        // this open-source project is not paywalled. Off, the surfaces #1635
+        // closed are reachable again by any authenticated user.
+        config(['subscription.paywall_enabled' => false]);
+        $user = $this->actingAsNonSubscriber();
+
+        $this->get(route('filament.app.pages.dashboard', ['tenant' => $user->currentTeam]))->assertOk();
+        $this->get(route('filament.app.resources.people.index', ['tenant' => $user->currentTeam]))->assertOk();
+    }
+
+    public function test_the_flag_off_does_not_open_the_per_resource_premium_gates(): void
+    {
+        // The paywall and the premium tier are separate concerns: turning the
+        // paywall off opens the panel, not the DNA tools that were premium-only
+        // long before #1635 closed everything.
+        config(['subscription.paywall_enabled' => false]);
+        $user = $this->actingAsNonSubscriber();
+
+        $this->get(route('filament.app.resources.dnas.index', ['tenant' => $user->currentTeam]))
+            ->assertRedirect(route('filament.app.pages.subscription', ['tenant' => $user->currentTeam]));
+    }
 }
