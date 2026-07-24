@@ -6,7 +6,6 @@ use App\Services\SubscriptionService;
 use Exception;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 class SubscriptionPage extends Page
@@ -155,20 +154,33 @@ class SubscriptionPage extends Page
             : 'month';
 
         // delegate the heavy lifting to our service which resolves the managed
-        // price for the chosen interval
-        $checkout = app(SubscriptionService::class)->createCheckoutRedirect($user, $interval);
+        // price for the chosen interval. Cashier's Checkout exposes its Stripe URL
+        // through redirect() (and magic __get), NOT a declared property — an earlier
+        // property_exists($checkout, 'url') guard was always false, so this page
+        // never actually redirected. Read the URL via the declared redirect() API.
+        try {
+            $checkout = app(SubscriptionService::class)->createCheckoutRedirect($user, $interval);
+            $url = $checkout->redirect()->getTargetUrl();
 
-        if (is_object($checkout) && property_exists($checkout, 'url') && $checkout->url) {
-            $this->redirect($checkout->url);
-        } elseif ($checkout instanceof RedirectResponse) {
-            $this->redirect($checkout->getTargetUrl());
-        } else {
+            if ($url === '') {
+                throw new \RuntimeException('Stripe returned no checkout URL.');
+            }
+        } catch (\Throwable $e) {
+            // Missing prerequisites (invalid STRIPE_SECRET, un-migrated
+            // subscription_prices, no currentTeam) throw here — surface a
+            // notification instead of an uncaught 500.
+            report($e);
+
             Notification::make()
                 ->title('Subscription Error')
                 ->body('Unable to start Stripe checkout.')
                 ->danger()
                 ->send();
+
+            return;
         }
+
+        $this->redirect($url);
     }
 
     public function getDnaLimitData(): array
