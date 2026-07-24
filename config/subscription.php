@@ -3,6 +3,17 @@
 declare(strict_types=1);
 
 return [
+    // Currencies shown beside the charge currency as a converted estimate (#1636).
+    // Display only — nothing is ever charged in these, and the ECB rates behind
+    // them are published for information purposes only. Comma-separated ISO 4217
+    // codes; an empty list disables the estimate entirely.
+    'display_currencies' => preg_split(
+        '/\s*,\s*/',
+        (string) env('SUBSCRIPTION_DISPLAY_CURRENCIES', 'GBP,EUR'),
+        -1,
+        PREG_SPLIT_NO_EMPTY,
+    ),
+
     'premium' => [
         // Require a card before granting premium access. When true, the no-card
         // local-trial path is unavailable and the only route to premium is a
