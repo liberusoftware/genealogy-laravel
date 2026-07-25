@@ -65,6 +65,20 @@ class ManageGeneralSettings extends SettingsPage
                     ])
                     ->columns(2),
 
+                Section::make('Link Preview')
+                    ->description('What a shared link to this site shows on social media (#1648).')
+                    ->schema([
+                        Textarea::make('site_description')
+                            ->label('Site Description')
+                            ->helperText('Shown under the title in a preview card. Around 155 characters survive before it is truncated.')
+                            ->rows(3)
+                            ->maxLength(255),
+                        TextInput::make('og_image')
+                            ->label('Preview Image')
+                            ->helperText('Absolute URL or a path under public/. Leave blank to use the bundled 1200×630 card.')
+                            ->maxLength(255),
+                    ]),
+
                 Section::make('Social Media Links')
                     ->description('Add your social media profile URLs')
                     ->schema([

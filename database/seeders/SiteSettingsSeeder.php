@@ -12,6 +12,9 @@ class SiteSettingsSeeder extends Seeder
         $settings = app(GeneralSettings::class);
 
         $settings->site_name = config('app.name', 'Liberu Genealogy');
+        // site_description and og_image are deliberately absent: the #1648
+        // migration owns their defaults, and a second copy of that sentence here
+        // would drift the day one of them is edited.
         $settings->site_email = 'info@liberugenealogy.com';
         $settings->site_phone = '+44 208 050 5865';
         $settings->site_address = '123 Genealogy St, London, UK';

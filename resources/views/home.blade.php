@@ -1,6 +1,12 @@
 @extends('layouts.home', ['fieldHero' => true])
 
 @php
+    // Link preview (#1648). The title is the <h1>; the description is that same
+    // claim in prose. Deliberately no price — it lives in config/subscription.php
+    // and a copy of it here would drift into a lie the day it changes.
+    $pageTitle = 'Every name, with the record that proves it.';
+    $pageDescription = 'Build a family tree out of evidence, not guesswork. GEDCOM import and export, DNA matching, and a source under every fact. Free and self-hostable.';
+
     // Real price from config, not hardcoded (an old page invented "£4.99").
     $settings = app(\App\Settings\GeneralSettings::class);
     $subscription = app(\App\Services\SubscriptionService::class);
