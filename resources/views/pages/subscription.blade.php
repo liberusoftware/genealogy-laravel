@@ -1,6 +1,11 @@
 @extends('layouts.home', ['fieldHero' => true])
 
 @php
+    // Link preview (#1648). Title is the <h1>; the premium list is exactly the
+    // five gated resources below, no more. No price: it lives in config.
+    $pageTitle = "The tree is free. The DNA work isn't.";
+    $pageDescription = 'The tree is free: build, cite and export it forever at no cost. Premium adds DNA upload, matching, triangulation and duplicate detection.';
+
     $settings = app(\App\Settings\GeneralSettings::class);
     $subscription = app(\App\Services\SubscriptionService::class);
     $price = $subscription->formatPrice('month');
