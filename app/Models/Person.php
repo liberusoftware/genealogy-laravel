@@ -125,7 +125,7 @@ class Person extends Model
 
     public function events(): HasMany
     {
-        return $this->hasMany(PersonEvent::class)->select(['id', 'person_id', 'title', 'date', 'places_id']);
+        return $this->hasMany(PersonEvent::class)->select(['id', 'person_id', 'title', 'date', 'places_id', 'team_id']);
     }
 
     /**
