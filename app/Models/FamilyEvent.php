@@ -22,6 +22,11 @@ class FamilyEvent extends \FamilyTree365\LaravelGedcom\Models\FamilyEvent
         static::observe(new EventActionsObserver);
     }
 
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Place::class, 'places_id');
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
