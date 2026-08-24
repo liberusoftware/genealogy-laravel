@@ -13,6 +13,7 @@ final class MediaLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-media-livewire');
         Livewire::component('genealogy-media-list', MediaAssetList::class);
+        Livewire::component('genealogy-media-library', MediaLibraryBrowser::class);
     }
 }
 

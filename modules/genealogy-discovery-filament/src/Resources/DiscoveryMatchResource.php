@@ -30,11 +30,16 @@ final class DiscoveryMatchResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            Select::make('kind')->options(array_combine(DiscoveryMatch::KINDS, DiscoveryMatch::KINDS))->required(),
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',
                 'completed' => 'Completed',
             ])->required(),
+            TextInput::make('subject_id')->uuid()->nullable(),
+            TextInput::make('related_id')->uuid()->nullable(),
+            TextInput::make('confidence')->numeric()->minValue(0)->maxValue(100)->nullable(),
+            TextInput::make('source_type')->maxLength(100)->nullable(),
         ]);
     }
 
@@ -42,6 +47,7 @@ final class DiscoveryMatchResource extends Resource
     {
         return $table->columns([
             TextColumn::make('name')->searchable()->sortable(),
+            TextColumn::make('kind')->badge()->sortable(),
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([

@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy Places.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\Places\\Filament\\PlacesFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\Places\\Filament\\PlacesFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\Places\\Filament\\PlacesFilamentPlugin"], "app": ["Liberu\\Genealogy\\Places\\Filament\\PlacesFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

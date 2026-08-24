@@ -15,6 +15,11 @@ final class GenealogyCoreFilamentServiceProvider extends ServiceProvider
 
 final class GenealogyCoreFilamentPlugin implements Plugin
 {
+    public static function make(): self
+    {
+        return new self();
+    }
+
     public function getId(): string
     {
         return 'genealogy-core-filament';

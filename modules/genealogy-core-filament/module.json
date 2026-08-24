@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy GenealogyCore.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\GenealogyCore\\Filament\\GenealogyCoreFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\GenealogyCore\\Filament\\GenealogyCoreFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\GenealogyCore\\Filament\\GenealogyCoreFilamentPlugin"], "app": ["Liberu\\Genealogy\\GenealogyCore\\Filament\\GenealogyCoreFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",

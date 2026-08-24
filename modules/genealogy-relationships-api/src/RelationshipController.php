@@ -7,8 +7,10 @@ namespace Liberu\Genealogy\Relationships\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
+use Liberu\Genealogy\Relationships\Queries\GraphValidator;
 
 final class RelationshipController
 {
@@ -17,12 +19,27 @@ final class RelationshipController
         return response()->json(['data' => Relationship::query()->latest()->paginate()]);
     }
 
+    public function validateGraph(Request $request, GraphValidator $validator): JsonResponse
+    {
+        $values = $request->validate([
+            'person_id' => ['required', 'uuid', $this->personRule()],
+            'related_person_id' => ['required', 'uuid', $this->personRule()],
+            'type' => ['required', Rule::in(Relationship::TYPES)],
+        ]);
+
+        return response()->json(['data' => $validator->validate(
+            $values['person_id'],
+            $values['related_person_id'],
+            $values['type'],
+        )]);
+    }
+
     public function store(Request $request, CreateRelationship $create): JsonResponse
     {
         $record = $create->execute($request->validate([
-            'person_id' => ['required', 'uuid', 'exists:genealogy_people,id', Rule::notIn([$request->input('related_person_id')])],
-            'related_person_id' => ['required', 'uuid', 'exists:genealogy_people,id'],
-            'type' => ['required', Rule::in(['parent', 'partner', 'household', 'adoption', 'guardianship', 'uncertain'])],
+            'person_id' => ['required', 'uuid', $this->personRule(), Rule::notIn([$request->input('related_person_id')])],
+            'related_person_id' => ['required', 'uuid', $this->personRule()],
+            'type' => ['required', Rule::in(Relationship::TYPES)],
             'confidence' => ['sometimes', 'integer', 'min:0', 'max:100'],
             'metadata' => ['nullable', 'array'],
         ]));
@@ -38,9 +55,9 @@ final class RelationshipController
     public function update(Request $request, Relationship $record): JsonResponse
     {
         $record->update($request->validate([
-            'person_id' => ['sometimes', 'uuid', 'exists:genealogy_people,id', Rule::notIn([$request->input('related_person_id', $record->related_person_id)])],
-            'related_person_id' => ['sometimes', 'uuid', 'exists:genealogy_people,id'],
-            'type' => ['sometimes', Rule::in(['parent', 'partner', 'household', 'adoption', 'guardianship', 'uncertain'])],
+            'person_id' => ['sometimes', 'uuid', $this->personRule(), Rule::notIn([$request->input('related_person_id', $record->related_person_id)])],
+            'related_person_id' => ['sometimes', 'uuid', $this->personRule()],
+            'type' => ['sometimes', Rule::in(Relationship::TYPES)],
             'confidence' => ['sometimes', 'integer', 'min:0', 'max:100'],
             'metadata' => ['nullable', 'array'],
         ]));
@@ -53,5 +70,11 @@ final class RelationshipController
         $record->delete();
 
         return response()->json(status: 204);
+    }
+
+    private function personRule(): object
+    {
+        return Rule::exists('genealogy_people', 'id')
+            ->where('team_id', app(TeamContext::class)->require());
     }
 }

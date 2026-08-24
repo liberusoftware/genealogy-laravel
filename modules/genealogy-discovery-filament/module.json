@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy Discovery.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\Discovery\\Filament\\DiscoveryFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\Discovery\\Filament\\DiscoveryFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\Discovery\\Filament\\DiscoveryFilamentPlugin"], "app": ["Liberu\\Genealogy\\Discovery\\Filament\\DiscoveryFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

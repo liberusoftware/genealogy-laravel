@@ -30,11 +30,25 @@ final class TimelineEventResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            Select::make('kind')->options(array_combine(TimelineEvent::KINDS, TimelineEvent::KINDS))->required(),
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',
                 'completed' => 'Completed',
             ])->required(),
+            TextInput::make('subject_person_id')->uuid()->nullable(),
+            TextInput::make('family_key')->maxLength(255)->nullable(),
+            Filament\Forms\Components\DatePicker::make('event_date')->nullable(),
+            Filament\Forms\Components\DatePicker::make('date_start')->nullable(),
+            Filament\Forms\Components\DatePicker::make('date_end')->nullable(),
+            Select::make('date_precision')->options(array_combine(TimelineEvent::DATE_PRECISIONS, TimelineEvent::DATE_PRECISIONS))->required(),
+            TextInput::make('place_id')->uuid()->nullable(),
+            Filament\Forms\Components\Textarea::make('description')->nullable(),
+            Filament\Forms\Components\Textarea::make('historical_context')->nullable(),
+            TextInput::make('conflict_group')->maxLength(255)->nullable(),
+            TextInput::make('confidence')->numeric()->minValue(0)->maxValue(100)->nullable(),
+            TextInput::make('source_reference')->maxLength(255)->nullable(),
+            Filament\Forms\Components\Toggle::make('is_private'),
         ]);
     }
 
@@ -42,6 +56,8 @@ final class TimelineEventResource extends Resource
     {
         return $table->columns([
             TextColumn::make('name')->searchable()->sortable(),
+            TextColumn::make('kind')->badge()->sortable(),
+            TextColumn::make('event_date')->date()->sortable(),
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([

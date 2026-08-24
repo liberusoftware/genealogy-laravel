@@ -13,6 +13,7 @@ final class EvidenceLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-evidence-livewire');
         Livewire::component('genealogy-evidence-list', EvidenceRecordList::class);
+        Livewire::component('genealogy-evidence-editor', EvidenceEditor::class);
     }
 }
 

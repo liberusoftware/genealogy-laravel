@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Research\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\Research\Filament\Resources\ResearchEntryResource;
 use Liberu\Genealogy\Research\Filament\Resources\ResearchProjectResource;
 
 final class ResearchFilamentServiceProvider extends ServiceProvider
@@ -28,7 +29,7 @@ final class ResearchFilamentPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->resources([ResearchProjectResource::class]);
+        $panel->resources([ResearchProjectResource::class, ResearchEntryResource::class]);
     }
 
     public function boot(Panel $panel): void {}

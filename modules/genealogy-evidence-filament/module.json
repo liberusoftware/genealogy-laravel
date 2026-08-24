@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy Evidence.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\Evidence\\Filament\\EvidenceFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\Evidence\\Filament\\EvidenceFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\Evidence\\Filament\\EvidenceFilamentPlugin"], "app": ["Liberu\\Genealogy\\Evidence\\Filament\\EvidenceFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

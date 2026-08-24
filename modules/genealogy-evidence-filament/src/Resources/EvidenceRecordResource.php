@@ -6,7 +6,9 @@ namespace Liberu\Genealogy\Evidence\Filament\Resources;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -30,6 +32,16 @@ final class EvidenceRecordResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            Select::make('kind')->options(array_combine(EvidenceRecord::KINDS, EvidenceRecord::KINDS))->required(),
+            TextInput::make('repository')->maxLength(255),
+            Textarea::make('citation')->maxLength(10000),
+            Textarea::make('extract')->maxLength(10000),
+            Textarea::make('assertion')->maxLength(10000),
+            Textarea::make('proof_conclusion')->maxLength(10000),
+            TextInput::make('confidence')->numeric()->minValue(0)->maxValue(100)->default(0),
+            TextInput::make('source_url')->url()->maxLength(2048),
+            DatePicker::make('event_date'),
+            TextInput::make('subject_person_id')->uuid(),
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',
@@ -42,6 +54,8 @@ final class EvidenceRecordResource extends Resource
     {
         return $table->columns([
             TextColumn::make('name')->searchable()->sortable(),
+            TextColumn::make('kind')->badge()->sortable(),
+            TextColumn::make('confidence')->numeric()->sortable(),
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([

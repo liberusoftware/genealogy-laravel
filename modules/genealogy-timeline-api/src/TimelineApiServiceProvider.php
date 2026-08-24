@@ -6,14 +6,15 @@ namespace Liberu\Genealogy\Timeline\Api;
 
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\GenealogyCore\Http\Middleware\EstablishTeamContext;
 
 final class TimelineApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware(['api', 'auth:sanctum'])->group(function () use ($router): void {
-            $router->apiResource('api/v1/timeline-events', TimelineEventController::class)
-                ->parameters(['timeline-events' => 'record']);
+        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, 'throttle:api'])->group(function () use ($router): void {
+            $router->get('api/v1/genealogy/timeline/events', [TimelineEventController::class, 'timeline'])->name('genealogy.timeline.events');
+            $router->apiResource('api/v1/genealogy/timeline', TimelineEventController::class)->parameters(['timeline' => 'record']);
         });
     }
 }

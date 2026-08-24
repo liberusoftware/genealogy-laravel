@@ -13,6 +13,7 @@ final class TimelineLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-timeline-livewire');
         Livewire::component('genealogy-timeline-list', TimelineEventList::class);
+        Livewire::component('genealogy-timeline-browser', TimelineBrowser::class);
     }
 }
 

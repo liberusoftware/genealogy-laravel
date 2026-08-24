@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy ImportExport.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\ImportExport\\Filament\\ImportExportFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\ImportExport\\Filament\\ImportExportFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\ImportExport\\Filament\\ImportExportFilamentPlugin"], "app": ["Liberu\\Genealogy\\ImportExport\\Filament\\ImportExportFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

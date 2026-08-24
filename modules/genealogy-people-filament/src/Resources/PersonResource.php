@@ -11,6 +11,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -35,10 +36,12 @@ final class PersonResource extends Resource
             TextInput::make('given_name')->required()->maxLength(255),
             TextInput::make('family_name')->maxLength(255),
             TextInput::make('display_name')->maxLength(255),
+            TextInput::make('sex')->maxLength(1),
             DatePicker::make('birth_date'),
             DatePicker::make('death_date')->afterOrEqual('birth_date'),
             TextInput::make('birth_place')->maxLength(255),
             TextInput::make('death_place')->maxLength(255),
+            Toggle::make('is_public')->default(false),
             Textarea::make('metadata')->json()->columnSpanFull(),
         ]);
     }

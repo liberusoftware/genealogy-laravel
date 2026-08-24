@@ -12,8 +12,8 @@ final class CreatePerson
     public function execute(array $attributes): Person
     {
         return Person::query()->create(Arr::only($attributes, [
-            'given_name', 'family_name', 'display_name', 'birth_date', 'death_date',
-            'birth_place', 'death_place', 'metadata',
+            'given_name', 'family_name', 'display_name', 'sex', 'aliases', 'attributes',
+            'birth_date', 'death_date', 'birth_place', 'death_place', 'is_public', 'metadata',
         ]));
     }
 }

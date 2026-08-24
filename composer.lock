@@ -5148,10 +5148,6 @@
                 "MIT"
             ],
             "description": "Stable provider-neutral contracts and value types for Liberu Analytics.",
-            "support": {
-                "source": "https://github.com/liberusoftware/analytics-contracts/tree/1.0.2",
-                "issues": "https://github.com/liberusoftware/analytics-contracts/issues"
-            },
             "time": "2026-08-01T07:24:38+00:00"
         },
         {
@@ -5486,10 +5482,6 @@
                 "MIT"
             ],
             "description": "Deterministic Composer 2 installer for tracked Liberu modules and themes.",
-            "support": {
-                "source": "https://github.com/liberusoftware/composer-installer/tree/1.1.0",
-                "issues": "https://github.com/liberusoftware/composer-installer/issues"
-            },
             "time": "2026-08-05T07:59:00+00:00"
         },
         {
@@ -6002,10 +5994,6 @@
                 "MIT"
             ],
             "description": "Stable provider-neutral machine translation contracts for Liberu Localization.",
-            "support": {
-                "source": "https://github.com/liberusoftware/localization-contracts/tree/1.0.2",
-                "issues": "https://github.com/liberusoftware/localization-contracts/issues"
-            },
             "time": "2026-08-01T07:24:41+00:00"
         },
         {
@@ -6162,12 +6150,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-collaboration",
-                "reference": "a04f44d64e194328c506fd0673626858a6971365"
+                "reference": "d03f796e02f30fe273fa6f07bccb208add27ef6e"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
+                "liberusoftware/module-genealogy-people": "^1.0",
+                "liberusoftware/module-genealogy-relationships": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6180,6 +6175,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Collaboration\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Collaboration\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6196,14 +6201,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-collaboration-api",
-                "reference": "c601b588b5735233f4edc09d56594a15ef88be86"
+                "reference": "e6124d485af78cf13c4aa4da40236994ead4d3e3"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-collaboration": "^1.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6216,6 +6226,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Collaboration\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Collaboration\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6232,12 +6252,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-collaboration-filament",
-                "reference": "f66c50f42993043e30556a4bcae698602a68401d"
+                "reference": "e9de7d4a5f3e3237a2cb85f1eb0aa2a84b7804cc"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-collaboration": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6250,6 +6274,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Collaboration\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Collaboration\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6266,12 +6300,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-collaboration-livewire",
-                "reference": "82e7970af7b39070d307a18f265c30317b8b556c"
+                "reference": "8b16d5bcabfc5bb6f70e20b1c04a0ea4d9263457"
             },
             "require": {
                 "liberusoftware/module-genealogy-collaboration": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6284,6 +6322,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Collaboration\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Collaboration\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6300,9 +6348,11 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-core",
-                "reference": "d692162c9e4219592d99ab7e343dda50825a6d7f"
+                "reference": "ae0584c64a4cb896d59531c95d33135afbc62c6f"
             },
             "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/http": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -6347,12 +6397,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-core-api",
-                "reference": "2605c68f618e78bdbfb03d5dfcd571b9f4e3d863"
+                "reference": "1c54ad63ffdba9ea9a74055d258a95b0976046b2"
             },
             "require": {
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6365,6 +6419,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\GenealogyCore\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\GenealogyCore\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6381,12 +6445,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-core-filament",
-                "reference": "17b47c4759a452f0688c49ad8917e5529697eed3"
+                "reference": "da7adfe1a27ba565fda80dc1aafeec0bbbf1ed1e"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6399,6 +6467,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\GenealogyCore\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\GenealogyCore\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6415,12 +6493,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-core-livewire",
-                "reference": "3ea044c43d93a252c894a080b3dbbe8d41f01362"
+                "reference": "bb5120b86769d4da2f7bfa11798ffbd2c78084bc"
             },
             "require": {
                 "liberusoftware/module-genealogy-core": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6433,6 +6515,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\GenealogyCore\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\GenealogyCore\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6449,12 +6541,21 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery",
-                "reference": "d679d331b862f161d1a229a27453f75cea5b46a5"
+                "reference": "6f3fa887a1d42ab322e8c970da288f8387852480"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
+                "liberusoftware/module-genealogy-evidence": "^1.0",
+                "liberusoftware/module-genealogy-people": "^1.0",
+                "liberusoftware/module-genealogy-places": "^1.0",
+                "liberusoftware/module-genealogy-relationships": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6467,6 +6568,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Discovery\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Discovery\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6483,14 +6594,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery-api",
-                "reference": "e58ca531e8b8b44926c2053a60ffeef43f2e9f7b"
+                "reference": "63cf3f47a68c7b2d1fe11e31c7300b3c8a1f89ee"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-discovery": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6503,6 +6619,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Discovery\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Discovery\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6519,12 +6645,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery-filament",
-                "reference": "0fc22e4576f8b244e05823bba9efc4022a4e2e96"
+                "reference": "4f93329d6d5d63bc0dd2b3be504b77cf6542addd"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-discovery": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6537,6 +6667,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Discovery\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Discovery\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6553,12 +6693,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery-livewire",
-                "reference": "850bf1c7d3b9a34945055cc8c56a81fc1162c8c0"
+                "reference": "13e65fcd5c478053a14490e2963de6ba21bfd4b7"
             },
             "require": {
                 "liberusoftware/module-genealogy-discovery": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6571,6 +6715,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Discovery\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Discovery\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6587,12 +6741,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-dna",
-                "reference": "4c6157abeaaac394517114491f4ed460048d9972"
+                "reference": "d5be0557807579cab46384caac0519798668f6df"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6605,6 +6764,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Dna\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Dna\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6621,14 +6790,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-dna-api",
-                "reference": "1eed6bca619733bf91d16c476b5e916301a3e058"
+                "reference": "6f78bebb1777aba9e003ea13c61c53cb0c18664a"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-dna": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6641,6 +6815,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Dna\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Dna\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6657,12 +6841,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-dna-filament",
-                "reference": "c29b533db69e5434185db02dc835e666e4ccd44d"
+                "reference": "7d57c82ad6fac5b64120be359a201047ffc492c2"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-dna": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6675,6 +6863,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Dna\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Dna\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6691,12 +6889,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-dna-livewire",
-                "reference": "2ed19b9d6aa7f389481563c7151970f68dbfb4a5"
+                "reference": "20293155ca4f08e1354881c595fe4698c4b49779"
             },
             "require": {
                 "liberusoftware/module-genealogy-dna": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6709,6 +6911,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Dna\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Dna\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6725,12 +6937,18 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-evidence",
-                "reference": "e9a751c828fcfdffe464a28b208dfceeba0e766b"
+                "reference": "c7edff603f3b0fca11bfc6cbbf758f34b860cf9e"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
+                "liberusoftware/module-genealogy-people": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6743,6 +6961,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Evidence\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Evidence\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6759,14 +6987,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-evidence-api",
-                "reference": "5eac9a523679b0cb9d19f9060bd9670906118c74"
+                "reference": "bf154be4ea4645a2f1200f8cc1737ab808f33ce5"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-evidence": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6779,6 +7012,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Evidence\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Evidence\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6795,12 +7038,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-evidence-filament",
-                "reference": "63849cfc3a44ac3f7f1f219fdc25805c2858e40e"
+                "reference": "ab8d489a98017025a056c1674bc3ed16ca591d0e"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-evidence": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6813,6 +7060,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Evidence\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Evidence\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6829,12 +7086,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-evidence-livewire",
-                "reference": "b65556d9634ddbbe57d59f6b9cbca6b16e3d7d1e"
+                "reference": "7b00e450424792c48778c687f81b0d78df768f35"
             },
             "require": {
                 "liberusoftware/module-genealogy-evidence": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6847,6 +7108,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Evidence\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Evidence\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6863,12 +7134,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-import-export",
-                "reference": "68f2dbffbec7f812a5f541c98d4f6f8af3bdea0e"
+                "reference": "19a3eb939c04a93ef23b1f2011cbb359369377fa"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
+                "liberusoftware/module-genealogy-people": "^1.0",
+                "liberusoftware/module-genealogy-relationships": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6881,6 +7159,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\ImportExport\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\ImportExport\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6897,14 +7185,20 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-import-export-api",
-                "reference": "fe5fd29c8c2ec22124d6609a5f1f4b48eb198ace"
+                "reference": "a45d6ed2979e34cd70d1dba47df79b96b3c57169"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-import-export": "^1.0",
+                "liberusoftware/module-genealogy-people": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6917,6 +7211,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\ImportExport\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\ImportExport\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6933,12 +7237,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-import-export-filament",
-                "reference": "c74278921af1b056bee79ca28830b6787c98c7e7"
+                "reference": "93aa5fc522a4312783584d123a8394f481ee960e"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-import-export": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6951,6 +7259,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\ImportExport\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\ImportExport\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -6967,12 +7285,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-import-export-livewire",
-                "reference": "211ddf8dc16658e889dac310ffa6f0a42b55f7c9"
+                "reference": "5c12f52e5f28f368543a3caaefd288c86fd2ffac"
             },
             "require": {
                 "liberusoftware/module-genealogy-import-export": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -6985,6 +7307,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\ImportExport\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\ImportExport\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7001,12 +7333,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-media",
-                "reference": "8970a8b5d25fab46d59954230f461fbb0a773902"
+                "reference": "5ca7e42e00c31b7017c23050e76ff789bc54ac00"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7019,6 +7356,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Media\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Media\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7035,14 +7382,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-media-api",
-                "reference": "ca2730949cff9dec7a6a66c89cf4bcc1ec5e8eea"
+                "reference": "0ca30057dc9f3f7af7c8168f6e4fe87d9ec6568b"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-media": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7055,6 +7407,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Media\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Media\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7071,12 +7433,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-media-filament",
-                "reference": "139751f527f313cef9568933a33eafba8c45abcf"
+                "reference": "f5e6c6281c34b2f30d0395024b00fc5579ceb0bc"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-media": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7089,6 +7455,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Media\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Media\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7105,12 +7481,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-media-livewire",
-                "reference": "ee5c0d9d5a160eb0c629f938f3e5b504d3424e56"
+                "reference": "faa86f7ff81632697eeed63b5d2655f5165531b2"
             },
             "require": {
                 "liberusoftware/module-genealogy-media": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7123,6 +7503,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Media\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Media\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7188,14 +7578,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-people-api",
-                "reference": "fa31de1ca0bba2aba82ec1198ffaf9218a307557"
+                "reference": "98a9122d3cabfe3ccee7aeb778cfe727dc5773bc"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-people": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7208,6 +7603,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\People\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\People\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7224,12 +7629,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-people-filament",
-                "reference": "dd14bd67beb7b1b8517a0c0c7b77e657445a5410"
+                "reference": "46beb6f56d8bd4b6209ab31895f86d05185a595d"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-people": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7242,6 +7651,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\People\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\People\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7258,12 +7677,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-people-livewire",
-                "reference": "7c5c49f7591867fccb047600920d2cd700eaede0"
+                "reference": "127d32e79422b92ae7f13168adeba62d249c00aa"
             },
             "require": {
                 "liberusoftware/module-genealogy-people": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7276,6 +7699,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\People\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\People\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7292,12 +7725,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-places",
-                "reference": "212cab90b8113a4826154b2ae1e3fc9726467723"
+                "reference": "83dbf45f0d6f22c699e1bd2fb70bf22748d91c1d"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7310,6 +7748,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Places\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Places\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7326,14 +7774,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-places-api",
-                "reference": "70abac26c852c63f32bf9b6216a97a16f74c9f65"
+                "reference": "194de6ddfeb0717fd6cdb16ea59a1b8832b82c97"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-places": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7346,6 +7799,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Places\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Places\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7362,12 +7825,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-places-filament",
-                "reference": "e12bb36b34a316af88df799c9af7fd928c57778d"
+                "reference": "8d796d0823410db1cdfdb684266fd48edbbc6e23"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-places": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7380,6 +7847,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Places\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Places\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7396,12 +7873,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-places-livewire",
-                "reference": "96a348cab7258ae1beefd84b2c1ca7dfb96106be"
+                "reference": "c98fcd062d314fca915279d16a989177023cb28c"
             },
             "require": {
                 "liberusoftware/module-genealogy-places": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7414,6 +7895,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Places\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Places\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7430,11 +7921,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-relationships",
-                "reference": "a42c1e466ce66176dbdd4c03ba8c78b0914f0e45"
+                "reference": "07c16b747aadf1886b319a7b4b9071868c1d0bf4"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-people": "^1.0",
                 "php": "^8.5"
             },
@@ -7479,13 +7971,13 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-relationships-api",
-                "reference": "1e8be1c624fdc0bfb6b83462d03ced80daeb3e37"
+                "reference": "e99efbf9dcb6bad5d3045efc68ca3b2a321cb089"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
-                "liberusoftware/module-genealogy-relationships": "^1.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
             },
             "require-dev": {
@@ -7529,12 +8021,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-relationships-filament",
-                "reference": "ee115fde62326e1db68b13b68f23ee7baf877b81"
+                "reference": "17ca510e7200dbe144bdaa43dba8ee4575264040"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-relationships": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7547,6 +8043,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Relationships\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Relationships\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7563,12 +8069,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-relationships-livewire",
-                "reference": "06c25645ab7bc6e9cea9b643f8824be76e27eb61"
+                "reference": "1f2a82f7c92dc2c9b05dab567daac334f171f644"
             },
             "require": {
                 "liberusoftware/module-genealogy-relationships": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7581,6 +8091,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Relationships\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Relationships\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7597,12 +8117,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-reports",
-                "reference": "603cc7a9b112d22efdb6181575c2f6cd00099c55"
+                "reference": "728b9a4602d0b6648eb524f8c56040049633288c"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7615,6 +8140,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Reports\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Reports\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7631,14 +8166,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-reports-api",
-                "reference": "afd9de7f248602ba95463d5edc8392751cc24a0e"
+                "reference": "d315cdcce98c645e93c6150d5545d98da0307b3f"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-reports": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7651,6 +8191,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Reports\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Reports\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7667,12 +8217,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-reports-filament",
-                "reference": "228afcacad9deb9788f9c5dfcc1ba306d1c2dc6e"
+                "reference": "64a90e70c647e34a6f2adc47abee7ce4448e25ca"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-reports": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7685,6 +8239,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Reports\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Reports\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7701,12 +8265,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-reports-livewire",
-                "reference": "7996b816225d273e696904d8e52cea0e64f4f18f"
+                "reference": "506ed41b861f913355467c7cc7289f69266747a0"
             },
             "require": {
                 "liberusoftware/module-genealogy-reports": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7719,6 +8287,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Reports\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Reports\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7735,12 +8313,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-research",
-                "reference": "522f8ffe6977ec0719433e709301f477e4ab3337"
+                "reference": "849b33f1296dbdc6637239436db74432b77cb54f"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7753,6 +8336,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Research\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Research\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7769,14 +8362,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-research-api",
-                "reference": "c5aa76c2fe92746bd52986810d42a25d6275de58"
+                "reference": "c1b910a2fe59c7ed117bf0e768027362bf4e61c7"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-research": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7789,6 +8387,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Research\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Research\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7805,12 +8413,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-research-filament",
-                "reference": "643c208f7df9169b5c2f6257c7130496e815f890"
+                "reference": "9b23c9c1c3913b6e12e90bbced8731e4280db199"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-research": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7823,6 +8435,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Research\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Research\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7839,12 +8461,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-research-livewire",
-                "reference": "9c7e776d2679f04403ae9902640849818536908e"
+                "reference": "06629dfc7c0433ea98dd3b5f4a1d9688cce086e0"
             },
             "require": {
                 "liberusoftware/module-genealogy-research": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7857,6 +8483,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Research\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Research\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7873,12 +8509,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-timeline",
-                "reference": "e7705f81e223c713e6ce719c14e1d91f4cd74edf"
+                "reference": "12aadbdd8a0cbf07e9831984311fcb28031e57c8"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7891,6 +8532,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Timeline\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Timeline\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7907,14 +8558,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-timeline-api",
-                "reference": "11cc005ce71ac1cb1e98fca9567b309591de1fd4"
+                "reference": "c784a8f70595f5fc963e93bd12aaeac244a0a558"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-timeline": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7927,6 +8583,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Timeline\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Timeline\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7943,12 +8609,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-timeline-filament",
-                "reference": "fa7c79e464b4de6aab6f3a3ecea9e2c106ec252f"
+                "reference": "63305d895e24b07752412a6804e578d7471359f8"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-timeline": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7961,6 +8631,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Timeline\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Timeline\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -7977,12 +8657,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-timeline-livewire",
-                "reference": "210da7bb76bb594b5e5ae8d564e1eb7786b80913"
+                "reference": "588d4bc5ff38774f4cc937749bc709ced9a6e500"
             },
             "require": {
                 "liberusoftware/module-genealogy-timeline": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -7995,6 +8679,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\Timeline\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Timeline\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -8011,12 +8705,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer",
-                "reference": "a80d57520e70cfcc5eb51deae3015fcb6c730c45"
+                "reference": "8c0e6818f3b72c72c3399908c57adfd9a7ab5b08"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
+                "liberusoftware/module-genealogy-people": "^1.0",
+                "liberusoftware/module-genealogy-relationships": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8029,6 +8730,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\TreeViewer\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\TreeViewer\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -8045,14 +8756,19 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer-api",
-                "reference": "659e99c294ca85d0ec21116080c702f28e862837"
+                "reference": "edac074678add983626ba86005c30b16e9af227e"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "laravel/sanctum": "^4.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-tree-viewer": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8065,6 +8781,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\TreeViewer\\Api\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\TreeViewer\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -8081,12 +8807,16 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer-filament",
-                "reference": "cc594a72c70d81d85fef82799706df885ec262d9"
+                "reference": "d1e1112a923fceca1684e679d74b9bc256267fe2"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-genealogy-tree-viewer": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8099,6 +8829,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\TreeViewer\\Filament\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\TreeViewer\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -8115,12 +8855,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer-livewire",
-                "reference": "985358628cd9b643c9820d1396c3a5fbf4eb91b9"
+                "reference": "b1656fa259c9f1eeda9922e420127bc6a2af55a6"
             },
             "require": {
+                "liberusoftware/module-genealogy-people": "^1.0",
                 "liberusoftware/module-genealogy-tree-viewer": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8133,6 +8878,16 @@
                 "psr-4": {
                     "Liberu\\Genealogy\\TreeViewer\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\TreeViewer\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -9741,10 +10496,6 @@
                 "MIT"
             ],
             "description": "Shared semantic tokens and accessible presentation primitives for Liberu themes.",
-            "support": {
-                "source": "https://github.com/liberusoftware/theme-base/tree/2.0.2",
-                "issues": "https://github.com/liberusoftware/theme-base/issues"
-            },
             "time": "2026-08-24T01:26:33+00:00"
         },
         {
@@ -9795,10 +10546,6 @@
                 "MIT"
             ],
             "description": "Clear Signal public theme for Liberu applications.",
-            "support": {
-                "source": "https://github.com/liberusoftware/theme-clear-signal/tree/1.5.2",
-                "issues": "https://github.com/liberusoftware/theme-clear-signal/issues"
-            },
             "time": "2026-08-24T01:26:47+00:00"
         },
         {
@@ -9849,10 +10596,6 @@
                 "MIT"
             ],
             "description": "Liberu dark public theme.",
-            "support": {
-                "source": "https://github.com/liberusoftware/theme-dark/tree/1.5.2",
-                "issues": "https://github.com/liberusoftware/theme-dark/issues"
-            },
             "time": "2026-08-24T01:26:42+00:00"
         },
         {
@@ -9903,10 +10646,6 @@
                 "MIT"
             ],
             "description": "Liberu default public theme.",
-            "support": {
-                "source": "https://github.com/liberusoftware/theme-default/tree/1.5.2",
-                "issues": "https://github.com/liberusoftware/theme-default/issues"
-            },
             "time": "2026-08-24T01:26:38+00:00"
         },
         {
@@ -19852,8 +20591,7 @@
             ],
             "description": "Release, repository splitting, and Packagist publishing automation for Liberu Composer packages.",
             "support": {
-                "source": "https://github.com/liberusoftware/boilerplate-scripts",
-                "issues": "https://github.com/liberusoftware/boilerplate-scripts/issues"
+                "source": "https://github.com/liberusoftware/boilerplate-scripts"
             },
             "time": "2026-08-07T09:23:54+00:00"
         },

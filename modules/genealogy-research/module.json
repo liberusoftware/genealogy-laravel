@@ -8,7 +8,7 @@
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
-    "packages": {}
+    "packages": {"liberusoftware/module-genealogy-core": "^1.0"}
   },
   "capabilities": [
     "genealogy.research",
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-

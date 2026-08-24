@@ -30,11 +30,27 @@ final class MediaAssetResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            Select::make('kind')->options(array_combine(MediaAsset::KINDS, MediaAsset::KINDS))->required(),
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',
                 'completed' => 'Completed',
             ])->required(),
+            TextInput::make('storage_disk')->maxLength(100)->nullable(),
+            TextInput::make('storage_path')->maxLength(2000)->nullable(),
+            TextInput::make('mime_type')->maxLength(255)->nullable(),
+            TextInput::make('byte_size')->numeric()->minValue(0)->nullable(),
+            TextInput::make('checksum')->maxLength(128)->nullable(),
+            Filament\Forms\Components\DateTimePicker::make('captured_at')->nullable(),
+            TextInput::make('captured_place_id')->uuid()->nullable(),
+            Filament\Forms\Components\Textarea::make('transcription')->nullable(),
+            Select::make('transcription_status')->options(array_combine(MediaAsset::TRANSCRIPTION_STATUSES, MediaAsset::TRANSCRIPTION_STATUSES))->required(),
+            TextInput::make('transcription_language')->maxLength(16)->nullable(),
+            TextInput::make('rights_holder')->maxLength(255)->nullable(),
+            Select::make('rights_status')->options(array_combine(MediaAsset::RIGHTS_STATUSES, MediaAsset::RIGHTS_STATUSES))->nullable(),
+            TextInput::make('license_url')->url()->maxLength(2000)->nullable(),
+            Filament\Forms\Components\DatePicker::make('rights_expires_at')->nullable(),
+            Filament\Forms\Components\Toggle::make('is_public'),
         ]);
     }
 
@@ -42,6 +58,9 @@ final class MediaAssetResource extends Resource
     {
         return $table->columns([
             TextColumn::make('name')->searchable()->sortable(),
+            TextColumn::make('kind')->badge()->sortable(),
+            TextColumn::make('mime_type')->toggleable(),
+            TextColumn::make('rights_status')->badge()->toggleable(),
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([

@@ -13,6 +13,7 @@ final class ResearchLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-research-livewire');
         Livewire::component('genealogy-research-list', ResearchProjectList::class);
+        Livewire::component('genealogy-research-entry-editor', ResearchEntryEditor::class);
     }
 }
 

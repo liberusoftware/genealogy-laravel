@@ -7,6 +7,7 @@
   "require": {
     "php": "^8.5",
     "liberusoftware/module-genealogy-research": "^1.0",
+    "liberusoftware/module-genealogy-core": "^1.0",
     "illuminate/http": "^13.0",
     "illuminate/routing": "^13.0",
     "laravel/sanctum": "^4.0"

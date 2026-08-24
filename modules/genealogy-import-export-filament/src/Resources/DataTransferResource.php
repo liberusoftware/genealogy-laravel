@@ -30,6 +30,14 @@ final class DataTransferResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            Select::make('format')->options([
+                'gedcom' => 'GEDCOM 5.5.1',
+                'gramps-xml' => 'GRAMPS XML',
+            ])->required(),
+            Select::make('direction')->options([
+                'import' => 'Import',
+                'export' => 'Export',
+            ])->required(),
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',

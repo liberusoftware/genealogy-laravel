@@ -11,6 +11,6 @@ final class CreateDataTransfer
 {
     public function execute(array $attributes): DataTransfer
     {
-        return DataTransfer::query()->create(Arr::only($attributes, ['name', 'status', 'metadata']));
+        return DataTransfer::query()->create(Arr::only($attributes, ['name', 'format', 'direction', 'records_count', 'status', 'metadata']));
     }
 }

@@ -12,9 +12,13 @@ return new class() extends Migration
     {
         Schema::create('genealogy_people', function (Blueprint $table): void {
             $table->uuid('id')->primary();
+            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
             $table->string('given_name');
             $table->string('family_name')->nullable();
             $table->string('display_name')->nullable();
+            $table->string('sex', 1)->nullable();
+            $table->json('aliases')->nullable();
+            $table->json('attributes')->nullable();
             $table->date('birth_date')->nullable();
             $table->date('death_date')->nullable();
             $table->string('birth_place')->nullable();
@@ -23,6 +27,8 @@ return new class() extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index(['family_name', 'given_name']);
+            $table->index(['team_id', 'family_name', 'given_name']);
+            $table->index(['team_id', 'sex']);
         });
     }
 

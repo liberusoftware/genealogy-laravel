@@ -13,6 +13,7 @@ final class TreeViewerLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-tree-viewer-livewire');
         Livewire::component('genealogy-tree-viewer-list', TreeViewList::class);
+        Livewire::component('genealogy-tree-viewer-graph', TreeGraphView::class);
     }
 }
 

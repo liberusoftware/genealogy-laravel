@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -30,11 +31,13 @@ final class TreeViewResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            TextInput::make('root_person_id')->label('Root person ID')->uuid()->nullable(),
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',
                 'completed' => 'Completed',
             ])->required(),
+            Toggle::make('is_public')->default(false),
         ]);
     }
 

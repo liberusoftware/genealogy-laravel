@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy Collaboration.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\Collaboration\\Filament\\CollaborationFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\Collaboration\\Filament\\CollaborationFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\Collaboration\\Filament\\CollaborationFilamentPlugin"], "app": ["Liberu\\Genealogy\\Collaboration\\Filament\\CollaborationFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

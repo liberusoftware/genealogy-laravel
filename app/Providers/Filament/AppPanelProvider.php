@@ -21,6 +21,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Liberu\Foundation\ApplicationCore\Http\Middleware\SecurityHeaders;
 use Liberu\Foundation\Localization\Http\Middleware\SetLocale;
+use Liberu\Genealogy\GenealogyCore\Http\Middleware\EstablishTeamContext;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -52,6 +53,7 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
                 SetLocale::class,
                 SecurityHeaders::class,
+                EstablishTeamContext::class,
             ])
             ->plugins(app(ModulePlugins::class)->forPanel('app'))
             ->authMiddleware([

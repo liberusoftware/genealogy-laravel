@@ -12,6 +12,7 @@ return new class() extends Migration
     {
         Schema::create('genealogy_relationships', function (Blueprint $table): void {
             $table->uuid('id')->primary();
+            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
             $table->foreignUuid('person_id')->constrained('genealogy_people')->cascadeOnDelete();
             $table->foreignUuid('related_person_id')->constrained('genealogy_people')->cascadeOnDelete();
             $table->string('type');
@@ -19,6 +20,7 @@ return new class() extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
             $table->unique(['person_id', 'related_person_id', 'type']);
+            $table->index(['team_id', 'person_id']);
         });
     }
 

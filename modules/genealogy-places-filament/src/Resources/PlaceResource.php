@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Places\Filament\Resources;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -30,6 +31,11 @@ final class PlaceResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            TextInput::make('parent_id')->uuid(),
+            Textarea::make('historical_names')->json(),
+            TextInput::make('latitude')->numeric()->minValue(-90)->maxValue(90),
+            TextInput::make('longitude')->numeric()->minValue(-180)->maxValue(180),
+            TextInput::make('jurisdiction')->maxLength(255),
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',

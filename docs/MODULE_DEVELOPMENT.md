@@ -78,13 +78,15 @@ Filament code belongs in a companion `*-filament` presentation module rather tha
 
 ```json
 {
-    "name": "example-filament",
-    "category": "presentation",
-    "default_enabled": false,
-    "requires": ["example"],
-    "filament_plugins": {
-        "admin": ["Liberu\\ExampleFilament\\ExampleFilamentPlugin"]
+  "name": "example-filament",
+  "category": "presentation",
+  "default_enabled": false,
+  "requires": {"packages": {"liberusoftware/module-example": "^1.0"}},
+  "presentation": {
+    "filament": {
+      "admin": ["Liberu\\ExampleFilament\\ExampleFilamentPlugin"]
     }
+  }
 }
 ```
 

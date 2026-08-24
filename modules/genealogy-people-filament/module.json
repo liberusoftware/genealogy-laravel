@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy People.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\People\\Filament\\PeopleFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\People\\Filament\\PeopleFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\People\\Filament\\PeopleFilamentPlugin"], "app": ["Liberu\\Genealogy\\People\\Filament\\PeopleFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

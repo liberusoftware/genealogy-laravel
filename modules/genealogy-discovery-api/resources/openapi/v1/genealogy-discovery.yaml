@@ -1,0 +1,84 @@
+openapi: 3.1.0
+info:
+  title: Genealogy Discovery API
+  version: 1.0.0
+paths:
+  /api/v1/genealogy/discovery:
+    get:
+      operationId: genealogy.discovery.list
+      security: [{ sanctum: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/PageSize' }
+        - { name: kind, in: query, schema: { type: string, enum: [hint, duplicate, relationship_path] } }
+        - { name: status, in: query, schema: { type: string, enum: [draft, active, dismissed, completed] } }
+      responses: { '200': { $ref: '#/components/responses/DiscoveryCollection' } }
+    post:
+      operationId: genealogy.discovery.create
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DiscoveryCreate' } } } }
+      responses: { '201': { $ref: '#/components/responses/Discovery' }, '422': { $ref: '#/components/responses/Problem' } }
+  /api/v1/genealogy/discovery/search:
+    get:
+      operationId: genealogy.discovery.search
+      security: [{ sanctum: [] }]
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2, maxLength: 200 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: public_only, in: query, schema: { type: boolean, default: false } }
+        - { name: include_living, in: query, schema: { type: boolean, default: true } }
+      responses: { '200': { description: Privacy-filtered search results } }
+  /api/v1/genealogy/discovery/duplicates:
+    get:
+      operationId: genealogy.discovery.duplicates
+      security: [{ sanctum: [] }]
+      responses: { '200': { description: Duplicate candidate pairs } }
+  /api/v1/genealogy/discovery/paths/{from}/{to}:
+    get:
+      operationId: genealogy.discovery.relationshipPath
+      security: [{ sanctum: [] }]
+      parameters:
+        - { name: from, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: to, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: max_depth, in: query, schema: { type: integer, minimum: 1, maximum: 12, default: 6 } }
+        - { name: public_only, in: query, schema: { type: boolean, default: false } }
+      responses: { '200': { description: Bounded relationship path result } }
+components:
+  securitySchemes:
+    sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum }
+  parameters:
+    PageSize: { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+  schemas:
+    DiscoveryCreate:
+      type: object
+      required: [name]
+      properties:
+        kind: { type: string, enum: [hint, duplicate, relationship_path], default: hint }
+        name: { type: string, maxLength: 255 }
+        subject_id: { type: string, format: uuid, nullable: true }
+        related_id: { type: string, format: uuid, nullable: true }
+        confidence: { type: integer, minimum: 0, maximum: 100, nullable: true }
+        rationale: { type: string, nullable: true }
+        source_type: { type: string, nullable: true }
+        status: { type: string, enum: [draft, active, dismissed, completed], default: draft }
+        metadata: { type: object, additionalProperties: true }
+    DiscoveryResource:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id: { type: string }
+        type: { type: string, const: genealogy-discovery }
+        attributes: { $ref: '#/components/schemas/DiscoveryCreate' }
+    Problem:
+      type: object
+      required: [title, status]
+      properties: { title: { type: string }, status: { type: integer }, detail: { type: string } }
+  responses:
+    Discovery:
+      description: Discovery resource
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/DiscoveryResource' } } } } }
+    DiscoveryCollection:
+      description: Paginated discovery resources
+      content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/DiscoveryResource' } }, meta: { type: object } } } } }
+    Problem:
+      description: RFC 9457 problem details
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }

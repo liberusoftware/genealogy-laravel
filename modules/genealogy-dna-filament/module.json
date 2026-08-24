@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy Dna.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\Dna\\Filament\\DnaFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\Dna\\Filament\\DnaFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\Dna\\Filament\\DnaFilamentPlugin"], "app": ["Liberu\\Genealogy\\Dna\\Filament\\DnaFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

@@ -4,7 +4,8 @@
   "description": "One-to-one filament adapter for Genealogy TreeViewer.",
   "version": "1.0.0",
   "category": "presentation",
-  "provider": "Liberu\\Genealogy\\TreeViewer\\Filament\\TreeViewerFilamentServiceProvider",
+ "provider": "Liberu\\Genealogy\\TreeViewer\\Filament\\TreeViewerFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\TreeViewer\\Filament\\TreeViewerFilamentPlugin"], "app": ["Liberu\\Genealogy\\TreeViewer\\Filament\\TreeViewerFilamentPlugin"]}},
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
@@ -20,4 +21,3 @@
   ],
   "default_enabled": true
 }
-

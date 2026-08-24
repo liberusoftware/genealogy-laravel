@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info: {title: Genealogy Relationships API, version: 1.0.0}
+paths:
+  /api/v1/genealogy/relationships/validate:
+    post: {operationId: genealogy.relationships.validate, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RelationshipInput'}}}}, responses: {'200': {description: Graph validation result}}}
+  /api/v1/genealogy/relationships:
+    get: {operationId: genealogy.relationships.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.relationships.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RelationshipInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/relationships/{id}:
+    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+    get: {operationId: genealogy.relationships.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    patch: {operationId: genealogy.relationships.update, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    delete: {operationId: genealogy.relationships.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+components:
+  securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
+  schemas:
+    RelationshipInput: {type: object, required: [person_id, related_person_id, type], properties: {person_id: {type: string, format: uuid}, related_person_id: {type: string, format: uuid}, type: {type: string, enum: [parent, partner, household, adoption, guardianship, uncertain]}, confidence: {type: integer, minimum: 0, maximum: 100}, metadata: {type: object}}}
+    Resource: {type: object, required: [id, type, attributes], properties: {id: {type: string}, type: {type: string, const: genealogy-relationship}, attributes: {$ref: '#/components/schemas/RelationshipInput'}}}
+  responses:
+    Resource: {description: Authorized relationship, content: {application/json: {schema: {type: object, properties: {data: {$ref: '#/components/schemas/Resource'}}}}}}
+    Collection: {description: Paginated relationships, content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {$ref: '#/components/schemas/Resource'}}, meta: {type: object}}}}}}

@@ -7,6 +7,7 @@
   "require": {
     "php": "^8.5",
     "liberusoftware/module-genealogy-tree-viewer": "^1.0",
+    "liberusoftware/module-genealogy-people": "^1.0",
     "livewire/livewire": "^4.0"
   },
   "autoload": {
