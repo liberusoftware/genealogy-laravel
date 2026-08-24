@@ -18,11 +18,11 @@ paths:
       security: [{ sanctum: [] }]
       parameters: [{ name: q, in: query, schema: { type: string } }, { name: kind, in: query, schema: { type: string } }, { name: public_only, in: query, schema: { type: boolean } }]
       responses: { '200': { description: Privacy-filtered media library results } }
-  /api/v1/genealogy/media/{id}/links:
+  /api/v1/genealogy/media/{record}/links:
     post:
       operationId: genealogy.media.link
       security: [{ sanctum: [] }]
-      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      parameters: [{ name: record, in: path, required: true, schema: { type: string, format: uuid } }]
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [linkable_type, linkable_id], properties: { linkable_type: { type: string }, linkable_id: { type: string, format: uuid }, role: { type: string }, metadata: { type: object } } } } } }
       responses: { '201': { description: Link created } }
 components:

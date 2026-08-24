@@ -4,8 +4,8 @@ paths:
   /api/v1/genealogy/dna/kits:
     get: {operationId: genealogy.dna.kits.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.kits.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/KitInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
-  /api/v1/genealogy/dna/kits/{id}:
-    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+  /api/v1/genealogy/dna/kits/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.dna.kits.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.dna.kits.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/KitInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.dna.kits.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
@@ -16,8 +16,8 @@ paths:
   /api/v1/genealogy/dna/matches:
     get: {operationId: genealogy.dna.matches.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.matches.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MatchInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
-  /api/v1/genealogy/dna/matches/{id}:
-    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+  /api/v1/genealogy/dna/matches/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.dna.matches.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.dna.matches.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MatchInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.dna.matches.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
@@ -26,8 +26,8 @@ paths:
   /api/v1/genealogy/dna/groups:
     get: {operationId: genealogy.dna.groups.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.groups.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GroupInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
-  /api/v1/genealogy/dna/groups/{id}:
-    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+  /api/v1/genealogy/dna/groups/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.dna.groups.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.dna.groups.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GroupInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.dna.groups.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}

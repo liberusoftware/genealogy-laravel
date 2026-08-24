@@ -4,8 +4,8 @@ paths:
   /api/v1/genealogy/research:
     get: {operationId: genealogy.research.projects.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.research.projects.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProjectInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
-  /api/v1/genealogy/research/{id}:
-    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+  /api/v1/genealogy/research/{research}:
+    parameters: [{name: research, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.research.projects.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.research.projects.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProjectInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.research.projects.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}

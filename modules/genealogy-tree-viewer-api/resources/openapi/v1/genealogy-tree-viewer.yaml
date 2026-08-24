@@ -4,8 +4,8 @@ paths:
   /api/v1/genealogy/tree-viewer:
     get: {operationId: genealogy.treeViewer.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.treeViewer.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TreeInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
-  /api/v1/genealogy/tree-viewer/{id}:
-    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+  /api/v1/genealogy/tree-viewer/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.treeViewer.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.treeViewer.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TreeInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.treeViewer.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}

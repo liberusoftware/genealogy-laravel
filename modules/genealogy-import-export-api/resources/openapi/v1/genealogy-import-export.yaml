@@ -4,8 +4,8 @@ paths:
   /api/v1/genealogy/import-export:
     get: {operationId: genealogy.importExport.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.importExport.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TransferInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
-  /api/v1/genealogy/import-export/{id}:
-    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+  /api/v1/genealogy/import-export/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.importExport.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.importExport.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TransferInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.importExport.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}

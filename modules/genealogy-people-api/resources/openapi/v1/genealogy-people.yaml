@@ -4,8 +4,8 @@ paths:
   /api/v1/genealogy/people:
     get: {operationId: genealogy.people.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.people.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PersonInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
-  /api/v1/genealogy/people/{id}:
-    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+  /api/v1/genealogy/people/{person}:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.people.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.people.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PersonInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.people.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
