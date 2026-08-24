@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info: { title: Genealogy Core API, version: 1.0.0 }
+paths:
+  /api/v1/genealogy-core-api:
+    get:
+      operationId: genealogy.core.health
+      security: [{ sanctum: [] }]
+      responses:
+        '200':
+          description: Core capability availability
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [module, surface, status]
+                properties: { module: { type: string, const: genealogy-core }, surface: { type: string, const: api }, status: { type: string, const: available } }
+components:
+  securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }

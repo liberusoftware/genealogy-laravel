@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info: {title: Genealogy Tree Viewer API, version: 1.0.0}
+paths:
+  /api/v1/genealogy/tree-viewer:
+    get: {operationId: genealogy.treeViewer.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.treeViewer.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TreeInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/tree-viewer/{id}:
+    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+    get: {operationId: genealogy.treeViewer.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    patch: {operationId: genealogy.treeViewer.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TreeInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    delete: {operationId: genealogy.treeViewer.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+  /api/v1/genealogy/tree-viewer/{record}/graph:
+    get: {operationId: genealogy.treeViewer.graph, security: [{sanctum: []}], parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}, {name: generations, in: query, schema: {type: integer, minimum: 1, maximum: 12, default: 3}}], responses: {'200': {description: Privacy-filtered tree graph}, '403': {description: Public living-root tree forbidden}}}
+components:
+  securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
+  schemas:
+    TreeInput: {type: object, required: [name], properties: {name: {type: string, maxLength: 255}, status: {type: string}, root_person_id: {type: string, format: uuid, nullable: true}, is_public: {type: boolean}, metadata: {type: object}}}
+  responses:
+    Resource: {description: Tree view resource, content: {application/json: {schema: {type: object, properties: {data: {type: object}}}}}}
+    Collection: {description: Paginated tree views, content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {type: object}}, meta: {type: object}}}}}}

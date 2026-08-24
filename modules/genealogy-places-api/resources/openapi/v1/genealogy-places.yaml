@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info: { title: Genealogy Places API, version: 1.0.0 }
+paths:
+  /api/v1/genealogy/places:
+    get: { operationId: genealogy.places.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    post: { operationId: genealogy.places.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '201': { $ref: '#/components/responses/Resource' } } }
+  /api/v1/genealogy/places/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+    get: { operationId: genealogy.places.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
+    patch: { operationId: genealogy.places.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
+    delete: { operationId: genealogy.places.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+components:
+  securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
+  schemas:
+    Input: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, parent_id: { type: string, format: uuid, nullable: true }, historical_names: { type: array, items: { type: string } }, latitude: { type: number, minimum: -90, maximum: 90 }, longitude: { type: number, minimum: -180, maximum: 180 }, jurisdiction: { type: string, nullable: true }, is_current: { type: boolean }, status: { type: string }, metadata: { type: object, nullable: true } } }
+    Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-place }, attributes: { $ref: '#/components/schemas/Input' } } }
+  responses:
+    Resource: { description: Place resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
+    Collection: { description: Paginated places, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }

@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info: { title: Genealogy Evidence API, version: 1.0.0 }
+paths:
+  /api/v1/genealogy/evidence:
+    get: { operationId: genealogy.evidence.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    post:
+      operationId: genealogy.evidence.create
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }
+      responses: { '201': { $ref: '#/components/responses/Resource' } }
+  /api/v1/genealogy/evidence/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+    get: { operationId: genealogy.evidence.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
+    patch: { operationId: genealogy.evidence.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
+    delete: { operationId: genealogy.evidence.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+components:
+  securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
+  schemas:
+    Input:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 255 }
+        kind: { type: string, enum: [source, repository, citation, extract, assertion, proof_conclusion] }
+        repository: { type: string, nullable: true }
+        citation: { type: string, nullable: true }
+        extract: { type: string, nullable: true }
+        assertion: { type: string, nullable: true }
+        proof_conclusion: { type: string, nullable: true }
+        confidence: { type: integer, minimum: 0, maximum: 100 }
+        source_url: { type: string, format: uri, nullable: true }
+        event_date: { type: string, format: date, nullable: true }
+        subject_person_id: { type: string, format: uuid, nullable: true }
+        reviewed_at: { type: string, format: date-time, nullable: true }
+        status: { type: string }
+        metadata: { type: object, nullable: true }
+    Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-evidence }, attributes: { $ref: '#/components/schemas/Input' } } }
+  responses:
+    Resource: { description: Evidence resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
+    Collection: { description: Paginated evidence resources, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }
