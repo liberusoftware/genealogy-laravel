@@ -1,0 +1,31 @@
+openapi: 3.1.0
+info: { title: Liberu Executive Insights API, version: 1.0.0, description: Tenant-scoped executive insight snapshots. }
+servers: [{ url: /api/v1/liberu }]
+security: [{ sanctum: [] }]
+paths:
+  /executive-insights:
+    get: { operationId: listInsightSnapshots, parameters: [{ $ref: '#/components/parameters/PageSize' }], responses: { '200': { $ref: '#/components/responses/Collection' }, '401': { $ref: '#/components/responses/Unauthorized' } } }
+    post: { operationId: createInsightSnapshot, parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }], requestBody: { $ref: '#/components/requestBodies/Record' }, responses: { '201': { $ref: '#/components/responses/Record' }, '401': { $ref: '#/components/responses/Unauthorized' }, '422': { $ref: '#/components/responses/Validation' } } }
+  /executive-insights/{record}:
+    parameters: [{ $ref: '#/components/parameters/Record' }]
+    get: { operationId: getInsightSnapshot, responses: { '200': { $ref: '#/components/responses/Record' }, '404': { $ref: '#/components/responses/NotFound' } } }
+    patch: { operationId: updateInsightSnapshot, requestBody: { $ref: '#/components/requestBodies/RecordUpdate' }, responses: { '200': { $ref: '#/components/responses/Record' }, '404': { $ref: '#/components/responses/NotFound' }, '422': { $ref: '#/components/responses/Validation' } } }
+    delete: { operationId: deleteInsightSnapshot, responses: { '204': { description: Deleted }, '404': { $ref: '#/components/responses/NotFound' } } }
+components:
+  securitySchemes: { sanctum: { type: http, scheme: bearer } }
+  parameters:
+    Record: { name: record, in: path, required: true, schema: { type: string, format: uuid } }
+    PageSize: { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+    IdempotencyKey: { name: Idempotency-Key, in: header, required: true, schema: { type: string, minLength: 1, maxLength: 100 } }
+  schemas:
+    Record: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, status: { type: string, maxLength: 50 }, metadata: { type: object, additionalProperties: true } } }
+    RecordResponse: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/Record' } } }
+  requestBodies:
+    Record: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Record' } } } }
+    RecordUpdate: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Record' } } } }
+  responses:
+    Record: { description: Record, content: { application/json: { schema: { $ref: '#/components/schemas/RecordResponse' } } } }
+    Collection: { description: Collection, content: { application/json: { schema: { type: object, required: [data], properties: { data: { type: array, items: { $ref: '#/components/schemas/Record' } }, links: { type: object }, meta: { type: object } } } } } }
+    Unauthorized: { description: Authentication required }
+    NotFound: { description: Resource not found }
+    Validation: { description: Validation failed }
