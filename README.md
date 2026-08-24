@@ -128,21 +128,23 @@ The publishing helper derives repository names from directory names, using
 `module-` for entries in `modules/` and `theme-` for entries in `themes/`. It
 also handles this complete meta repository as `boilerplate-laravel`.
 
+The component repositories are the source of truth after the initial repository
+split. Use the fleet runner to inspect or update their independent checkouts:
+
 ```bash
-# Inspect all mappings without changing GitHub
-scripts/publish-components
+# Inspect component checkout state
+scripts/fleet status
 
-# Create any missing public repositories in the organisation
-scripts/publish-components --create
+# Clone missing component repositories into the workspace
+scripts/fleet clone
 
-# After committing the complete worktree, split and push every component plus the meta repository
-scripts/publish-components --push
+# Run a command across the component repositories
+scripts/fleet run 'vendor/bin/pest'
 ```
 
-Publishing requires authenticated `gh` and `git` access to the organisation.
-Push mode deliberately refuses a dirty worktree because subtree splits can only
-publish committed content. Existing repositories are updated without force, so
-non-fast-forward histories must be reconciled explicitly rather than overwritten.
+Fleet operations require authenticated `gh` and `git` access to the
+organisation. Commits and tags require an explicit workflow and package list;
+the runner refuses dirty or unpublished checkouts and never force-pushes.
 
 After the repositories are public, register every Composer package on Packagist:
 
