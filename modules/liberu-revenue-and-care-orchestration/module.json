@@ -2,7 +2,7 @@
   "name": "liberu-revenue-and-care-orchestration",
   "display_name": "Liberu Revenue And Care Orchestration",
   "description": "Provider-neutral Liberu Revenue And Care Orchestration capability.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "category": "capability",
   "provider": "Liberu\\Platform\\RevenueAndCareOrchestration\\RevenueAndCareOrchestrationServiceProvider",
   "requires": {
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-

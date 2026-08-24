@@ -35,3 +35,18 @@ it('creates and hydrates its aggregate through the domain action', function (): 
         ->and($record->type)->toBe('parent')
         ->and($record->confidence)->toBe(90);
 });
+
+it('rejects self relationships and out-of-range confidence', function (): void {
+    expect(fn () => (new CreateRelationship())->execute([
+        'person_id' => 'person-a',
+        'related_person_id' => 'person-a',
+        'type' => 'parent',
+    ]))->toThrow(InvalidArgumentException::class);
+
+    expect(fn () => (new CreateRelationship())->execute([
+        'person_id' => 'person-a',
+        'related_person_id' => 'person-b',
+        'type' => 'parent',
+        'confidence' => 101,
+    ]))->toThrow(InvalidArgumentException::class);
+});

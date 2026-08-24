@@ -2,7 +2,7 @@
   "name": "liberu-platform-orchestration-api",
   "display_name": "Liberu PlatformOrchestration api",
   "description": "One-to-one api adapter for Liberu PlatformOrchestration.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "category": "presentation",
   "provider": "Liberu\\Platform\\PlatformOrchestration\\Api\\PlatformOrchestrationApiServiceProvider",
   "requires": {
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-

@@ -2,7 +2,7 @@
   "name": "liberu-platform-orchestration-filament",
   "display_name": "Liberu PlatformOrchestration filament",
   "description": "One-to-one filament adapter for Liberu PlatformOrchestration.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "category": "presentation",
   "provider": "Liberu\\Platform\\PlatformOrchestration\\Filament\\PlatformOrchestrationFilamentServiceProvider",
   "requires": {
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-

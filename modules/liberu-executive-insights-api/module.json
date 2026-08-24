@@ -2,7 +2,7 @@
   "name": "liberu-executive-insights-api",
   "display_name": "Liberu ExecutiveInsights api",
   "description": "One-to-one api adapter for Liberu ExecutiveInsights.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "category": "presentation",
   "provider": "Liberu\\Platform\\ExecutiveInsights\\Api\\ExecutiveInsightsApiServiceProvider",
   "requires": {
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-

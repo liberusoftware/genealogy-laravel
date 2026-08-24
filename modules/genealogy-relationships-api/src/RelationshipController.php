@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Relationships\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 
@@ -19,8 +20,10 @@ final class RelationshipController
     public function store(Request $request, CreateRelationship $create): JsonResponse
     {
         $record = $create->execute($request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'person_id' => ['required', 'uuid', 'exists:genealogy_people,id', Rule::notIn([$request->input('related_person_id')])],
+            'related_person_id' => ['required', 'uuid', 'exists:genealogy_people,id'],
+            'type' => ['required', Rule::in(['parent', 'partner', 'household', 'adoption', 'guardianship', 'uncertain'])],
+            'confidence' => ['sometimes', 'integer', 'min:0', 'max:100'],
             'metadata' => ['nullable', 'array'],
         ]));
 
@@ -35,8 +38,10 @@ final class RelationshipController
     public function update(Request $request, Relationship $record): JsonResponse
     {
         $record->update($request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'person_id' => ['sometimes', 'uuid', 'exists:genealogy_people,id', Rule::notIn([$request->input('related_person_id', $record->related_person_id)])],
+            'related_person_id' => ['sometimes', 'uuid', 'exists:genealogy_people,id'],
+            'type' => ['sometimes', Rule::in(['parent', 'partner', 'household', 'adoption', 'guardianship', 'uncertain'])],
+            'confidence' => ['sometimes', 'integer', 'min:0', 'max:100'],
             'metadata' => ['nullable', 'array'],
         ]));
 

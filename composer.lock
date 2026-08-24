@@ -8089,11 +8089,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation",
-                "reference": "333291e5d2264ae453f2840c950c6cc78cbb72a8"
+                "reference": "3246352f541fa752e00bd2864bf16036eb0641ca"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8138,11 +8138,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation-api",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-api",
-                "reference": "a44af4af961f493d7977a746ffa9103077625af0"
+                "reference": "f71ed7fce08fd433455ccaff3ea7c456b4c1834f"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8188,11 +8188,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation-filament",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-filament",
-                "reference": "9a4bceb580a0d9b6c68062021a6489872da87982"
+                "reference": "019131bd5b28249dfffa153ed1af2588d6fe7980"
             },
             "require": {
                 "filament/filament": "^5.0",
@@ -8236,11 +8236,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation-livewire",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-livewire",
-                "reference": "a9b1e3c65b54315cbe3ed58a7837a680d72f3c26"
+                "reference": "9f2e3dbf4f1ab59629c32947ac7f3b98fdd74cfa"
             },
             "require": {
                 "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0",
@@ -8284,11 +8284,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights",
-                "reference": "d491581b907788e4b3a18d07628aca6f92849f91"
+                "reference": "fe2eb250578704c2cf3e4a604cf35883c1efbf0c"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8333,11 +8333,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights-api",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-api",
-                "reference": "9bbaae7fdf3ff27c011b3cbf78a18556d1ec77dd"
+                "reference": "cd7081ac82050276d5920f24343286be4fd07514"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8383,11 +8383,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights-filament",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-filament",
-                "reference": "6d15b0791ee6d67f216b2ea06738842988421382"
+                "reference": "b6caa80e36c84ed1f363da819fc900aab700def7"
             },
             "require": {
                 "filament/filament": "^5.0",
@@ -8431,11 +8431,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights-livewire",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-livewire",
-                "reference": "2ac80c9c8130ed0596b2cd1fbf1cc5a2d989577d"
+                "reference": "71933821ea6ab7f3232a2c2955d1688e2f84a0cc"
             },
             "require": {
                 "liberusoftware/module-liberu-executive-insights": "^1.0",
@@ -8479,11 +8479,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration",
-                "reference": "b5f006074645b00790b0e14a6356d391cfb6fe9e"
+                "reference": "8a675a903ea9ab71921818f7c7030b7b2441425c"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8528,11 +8528,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration-api",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-api",
-                "reference": "5c05da8f4cf0c1b66c25dc4cfa26d6138b6187ae"
+                "reference": "ead99764477780d8ed6016a78d2540071a1c9dc1"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8578,11 +8578,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration-filament",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-filament",
-                "reference": "ea281abc97a2670429cacb0837ded43279595a29"
+                "reference": "50bfcc8924524ba5daa3d38103ab176e20055405"
             },
             "require": {
                 "filament/filament": "^5.0",
@@ -8626,11 +8626,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration-livewire",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-livewire",
-                "reference": "dbb7c9169c7273cd283d708e81ef2c86471c3555"
+                "reference": "41aa150818675a7bad19ddcbfc2c79e98999f021"
             },
             "require": {
                 "liberusoftware/module-liberu-platform-orchestration": "^1.0",
@@ -8674,11 +8674,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration",
-                "reference": "d0d7877e82fc9d2be209ce708fa931b96c0444aa"
+                "reference": "db625214ce2f7cc08cced6b91ddbdfe75e394235"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8723,11 +8723,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration-api",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-api",
-                "reference": "a45b8697ece1803b1dd15bf2eb8b4de0abdb2644"
+                "reference": "49d938fcda5a212d2ac98fd14cced90c4d6246a7"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8773,11 +8773,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration-filament",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-filament",
-                "reference": "4ca389856763541f185a7e3955bb6f1a981b7d4e"
+                "reference": "7aa518d88e51c3443e46ec9058cb2068edbde18a"
             },
             "require": {
                 "filament/filament": "^5.0",
@@ -8821,11 +8821,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration-livewire",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-livewire",
-                "reference": "0cdf8bc2cac995b35cae890dcbf51b56340c0ff4"
+                "reference": "a33eff8db1954f71479b03690edcfbcb3fc782dc"
             },
             "require": {
                 "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0",

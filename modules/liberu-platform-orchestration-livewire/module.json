@@ -2,7 +2,7 @@
   "name": "liberu-platform-orchestration-livewire",
   "display_name": "Liberu PlatformOrchestration livewire",
   "description": "One-to-one livewire adapter for Liberu PlatformOrchestration.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "category": "presentation",
   "provider": "Liberu\\Platform\\PlatformOrchestration\\Livewire\\PlatformOrchestrationLivewireServiceProvider",
   "requires": {
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-

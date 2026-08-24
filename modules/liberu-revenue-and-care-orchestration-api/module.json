@@ -2,7 +2,7 @@
   "name": "liberu-revenue-and-care-orchestration-api",
   "display_name": "Liberu RevenueAndCareOrchestration api",
   "description": "One-to-one api adapter for Liberu RevenueAndCareOrchestration.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "category": "presentation",
   "provider": "Liberu\\Platform\\RevenueAndCareOrchestration\\Api\\RevenueAndCareOrchestrationApiServiceProvider",
   "requires": {
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-
