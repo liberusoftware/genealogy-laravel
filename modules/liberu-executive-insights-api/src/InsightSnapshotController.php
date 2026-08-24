@@ -7,6 +7,8 @@ namespace Liberu\Platform\ExecutiveInsights\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Platform\ExecutiveInsights\Actions\CreateInsightSnapshot;
+use Liberu\Platform\ExecutiveInsights\Actions\TransitionInsightSnapshot;
+use Liberu\Platform\ExecutiveInsights\Enums\LifecycleStatus;
 use Liberu\Platform\ExecutiveInsights\Models\InsightSnapshot;
 
 final class InsightSnapshotController
@@ -35,7 +37,7 @@ final class InsightSnapshotController
             'idempotency_key' => $idempotencyKey,
             ...$request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', 'string', LifecycleStatus::class],
             'metadata' => ['nullable', 'array'],
             ]),
         ]);
@@ -50,14 +52,20 @@ final class InsightSnapshotController
         return response()->json(['data' => $record]);
     }
 
-    public function update(Request $request, InsightSnapshot $record): JsonResponse
+    public function update(Request $request, InsightSnapshot $record, TransitionInsightSnapshot $transition): JsonResponse
     {
         $this->assertTenant($request, $record);
-        $record->update($request->validate([
+        $attributes = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', 'string', LifecycleStatus::class],
             'metadata' => ['nullable', 'array'],
-        ]));
+        ]);
+        $status = $attributes['status'] ?? null;
+        unset($attributes['status']);
+        $record->update($attributes);
+        if ($status !== null && $status !== $record->status) {
+            $transition->execute($record, LifecycleStatus::from($status));
+        }
 
         return response()->json(['data' => $record->refresh()]);
     }

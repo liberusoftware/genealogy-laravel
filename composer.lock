@@ -8093,12 +8093,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation",
-                "reference": "473bb8adbe6e9ccad97957eb97ef2bfaee4c7ccc"
+                "reference": "624b4204908557f9619c4b7b4e40a396596ea7a8"
             },
             "require": {
                 "illuminate/database": "^13.0",
+                "illuminate/events": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8111,6 +8116,16 @@
                 "psr-4": {
                     "Liberu\\Platform\\BusinessWorkflowReconciliation\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\BusinessWorkflowReconciliation\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -8231,12 +8246,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights",
-                "reference": "045ab46801755490c3d1ccbf9d5182086cbeeac7"
+                "reference": "37e76178890afc0217009fa3dc6c4a422a6761cb"
             },
             "require": {
                 "illuminate/database": "^13.0",
+                "illuminate/events": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8249,6 +8269,16 @@
                 "psr-4": {
                     "Liberu\\Platform\\ExecutiveInsights\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\ExecutiveInsights\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -8369,12 +8399,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration",
-                "reference": "f51f0d96b902335fcb5a58ca0765d0e5b9f07569"
+                "reference": "934da7b1cb3a8baf22d5e876297595a7bb7ec674"
             },
             "require": {
                 "illuminate/database": "^13.0",
+                "illuminate/events": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8387,6 +8422,16 @@
                 "psr-4": {
                     "Liberu\\Platform\\PlatformOrchestration\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\PlatformOrchestration\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -8507,12 +8552,17 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration",
-                "reference": "ff6d333d2e4afad41e6b110e8c5736ee41f9a124"
+                "reference": "742a0d9561443f523e54828c58f639d282736dc0"
             },
             "require": {
                 "illuminate/database": "^13.0",
+                "illuminate/events": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8525,6 +8575,16 @@
                 "psr-4": {
                     "Liberu\\Platform\\RevenueAndCareOrchestration\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\RevenueAndCareOrchestration\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
