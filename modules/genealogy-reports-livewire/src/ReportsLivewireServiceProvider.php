@@ -11,7 +11,8 @@ final class ReportsLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-reports-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-reports-livewire');
+        Livewire::component('genealogy-reports-list', GenealogyReportList::class);
     }
 }
 

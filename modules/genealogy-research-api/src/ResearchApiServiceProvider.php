@@ -12,9 +12,8 @@ final class ResearchApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware('api')->group(function () use ($router): void {
-            $router->get('/api/v1/genealogy-research-api', function (): array {
-                return ['module' => 'genealogy-research', 'surface' => 'api', 'status' => 'available'];
-            });
+            $router->apiResource('api/v1/research-projects', ResearchProjectController::class)
+                ->parameters(['research-projects' => 'record']);
         });
     }
 }

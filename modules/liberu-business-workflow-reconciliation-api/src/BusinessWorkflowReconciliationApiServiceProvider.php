@@ -12,9 +12,8 @@ final class BusinessWorkflowReconciliationApiServiceProvider extends ServiceProv
     public function boot(Router $router): void
     {
         $router->middleware('api')->group(function () use ($router): void {
-            $router->get('/api/v1/liberu-business-workflow-reconciliation-api', function (): array {
-                return ['module' => 'liberu-business-workflow-reconciliation', 'surface' => 'api', 'status' => 'available'];
-            });
+            $router->apiResource('api/v1/reconciliation-cases', ReconciliationCaseController::class)
+                ->parameters(['reconciliation-cases' => 'record']);
         });
     }
 }

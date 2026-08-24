@@ -11,7 +11,8 @@ final class EvidenceLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-evidence-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-evidence-livewire');
+        Livewire::component('genealogy-evidence-list', EvidenceRecordList::class);
     }
 }
 

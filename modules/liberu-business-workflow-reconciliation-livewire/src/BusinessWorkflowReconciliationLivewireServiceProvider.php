@@ -11,7 +11,8 @@ final class BusinessWorkflowReconciliationLivewireServiceProvider extends Servic
 {
     public function boot(): void
     {
-        Livewire::component('liberu-business-workflow-reconciliation-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'liberu-business-workflow-reconciliation-livewire');
+        Livewire::component('liberu-business-workflow-reconciliation-list', ReconciliationCaseList::class);
     }
 }
 

@@ -11,7 +11,8 @@ final class CollaborationLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-collaboration-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-collaboration-livewire');
+        Livewire::component('genealogy-collaboration-list', CollaborationSpaceList::class);
     }
 }
 

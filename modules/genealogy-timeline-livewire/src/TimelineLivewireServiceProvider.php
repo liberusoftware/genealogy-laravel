@@ -11,7 +11,8 @@ final class TimelineLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-timeline-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-timeline-livewire');
+        Livewire::component('genealogy-timeline-list', TimelineEventList::class);
     }
 }
 

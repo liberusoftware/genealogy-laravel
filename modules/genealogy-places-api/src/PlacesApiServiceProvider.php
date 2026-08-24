@@ -12,9 +12,8 @@ final class PlacesApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware('api')->group(function () use ($router): void {
-            $router->get('/api/v1/genealogy-places-api', function (): array {
-                return ['module' => 'genealogy-places', 'surface' => 'api', 'status' => 'available'];
-            });
+            $router->apiResource('api/v1/places', PlaceController::class)
+                ->parameters(['places' => 'record']);
         });
     }
 }

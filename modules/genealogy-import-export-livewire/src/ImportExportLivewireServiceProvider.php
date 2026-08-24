@@ -11,7 +11,8 @@ final class ImportExportLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-import-export-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-import-export-livewire');
+        Livewire::component('genealogy-import-export-list', DataTransferList::class);
     }
 }
 

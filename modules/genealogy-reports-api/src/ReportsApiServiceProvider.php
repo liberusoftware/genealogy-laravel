@@ -12,9 +12,8 @@ final class ReportsApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware('api')->group(function () use ($router): void {
-            $router->get('/api/v1/genealogy-reports-api', function (): array {
-                return ['module' => 'genealogy-reports', 'surface' => 'api', 'status' => 'available'];
-            });
+            $router->apiResource('api/v1/reports', GenealogyReportController::class)
+                ->parameters(['reports' => 'record']);
         });
     }
 }

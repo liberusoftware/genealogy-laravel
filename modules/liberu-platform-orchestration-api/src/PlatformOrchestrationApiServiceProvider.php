@@ -12,9 +12,8 @@ final class PlatformOrchestrationApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware('api')->group(function () use ($router): void {
-            $router->get('/api/v1/liberu-platform-orchestration-api', function (): array {
-                return ['module' => 'liberu-platform-orchestration', 'surface' => 'api', 'status' => 'available'];
-            });
+            $router->apiResource('api/v1/platform-workflows', PlatformWorkflowController::class)
+                ->parameters(['platform-workflows' => 'record']);
         });
     }
 }

@@ -6196,9 +6196,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-collaboration-api",
-                "reference": "f1149ab647f1b63747395d2c250ead92ed8a072a"
+                "reference": "945728b77e4b13764d46850c5dd7be94882a35e3"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-collaboration": "^1.0",
                 "php": "^8.5"
@@ -6467,9 +6468,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery-api",
-                "reference": "bb78268defe3d4c0db37591369ed362fee365909"
+                "reference": "6bc49b9eef7a518055a705fbce28fd1561f2128b"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-discovery": "^1.0",
                 "php": "^8.5"
@@ -6603,9 +6605,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-dna-api",
-                "reference": "1a0ad5ed0a2529d38d16023af74e24b3b4bc3d26"
+                "reference": "e489fc22f3131140b5d6c70b4c47d4713a966bb5"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-dna": "^1.0",
                 "php": "^8.5"
@@ -6739,9 +6742,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-evidence-api",
-                "reference": "b0ceb45a36df0850eeb4c092954823a068325daf"
+                "reference": "905f8a91e18fed043f759269c022ffb582b28806"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-evidence": "^1.0",
                 "php": "^8.5"
@@ -6875,9 +6879,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-import-export-api",
-                "reference": "15b21b0c86743ceec1e7238bfb4350cb8ee6ae9a"
+                "reference": "b89f904be47db6ad26eadd0cfaf3b66c43fc1097"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-import-export": "^1.0",
                 "php": "^8.5"
@@ -7011,9 +7016,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-media-api",
-                "reference": "679d17dd95aa41c626613de7e3d8a1f2daa7c146"
+                "reference": "666539aee1e07c810b52abef571d6b590792a930"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-media": "^1.0",
                 "php": "^8.5"
@@ -7284,9 +7290,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-places-api",
-                "reference": "fcd7194fb7f46eea5a4cf14b407a8cc09fea51bf"
+                "reference": "2515abc5562b189a52c0df51af845ed8007ae45a"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-places": "^1.0",
                 "php": "^8.5"
@@ -7421,9 +7428,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-relationships-api",
-                "reference": "387dc4f750e15c85fa9542c921eb98f69849b192"
+                "reference": "2af1e2b6806954615d6e0cba3b2353564a89be43"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-relationships": "^1.0",
                 "php": "^8.5"
@@ -7557,9 +7565,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-reports-api",
-                "reference": "ce381bec9cfce2902c45f54c2dbac741bfb563ed"
+                "reference": "eb7e7d808c3d3e511ebf37f75fdfbace091f6251"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-reports": "^1.0",
                 "php": "^8.5"
@@ -7693,9 +7702,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-research-api",
-                "reference": "06bf28e311d81128b81d18cac0288c22ff2f8156"
+                "reference": "ffd6ca346b90781e65120e9f668e62a59d057fa1"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-research": "^1.0",
                 "php": "^8.5"
@@ -7829,9 +7839,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-timeline-api",
-                "reference": "dc20ffc7c1fb9b0ff7e29c2b8e08f52b3341a27b"
+                "reference": "b76a703bbbfd02bea3daad0a2d86c50218c5f1d3"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-timeline": "^1.0",
                 "php": "^8.5"
@@ -7965,9 +7976,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer-api",
-                "reference": "37227aa163dc79b138260c379c08b6ce47d0e2cb"
+                "reference": "4899d4d82de03930110ca493cdee620c3b49ad1c"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-genealogy-tree-viewer": "^1.0",
                 "php": "^8.5"
@@ -8101,9 +8113,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-api",
-                "reference": "665796fabb304e4d9ca7a578cd39f7b15789746e"
+                "reference": "e5c3f38402fea97763da9120ce2901bb5fe1acd7"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0",
                 "php": "^8.5"
@@ -8237,9 +8250,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-api",
-                "reference": "a7da2cfa48a9f97277cb5b6641324517ba954133"
+                "reference": "28a7a0d77d3dafbc9f321da425a76906e3c154ce"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-liberu-executive-insights": "^1.0",
                 "php": "^8.5"
@@ -8373,9 +8387,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-api",
-                "reference": "e9b77985e9632023f0add54e8137ce7efd9993ed"
+                "reference": "44ae87a102b0a30b98ddc9ec496978663b86ebf7"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-liberu-platform-orchestration": "^1.0",
                 "php": "^8.5"
@@ -8509,9 +8524,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-api",
-                "reference": "e81b2d5870114a106b22ba61621ba98593b468e9"
+                "reference": "4e3dee449376db096646472d87af65f6653b9508"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
                 "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0",
                 "php": "^8.5"

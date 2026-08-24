@@ -11,7 +11,8 @@ final class TreeViewerLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-tree-viewer-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-tree-viewer-livewire');
+        Livewire::component('genealogy-tree-viewer-list', TreeViewList::class);
     }
 }
 

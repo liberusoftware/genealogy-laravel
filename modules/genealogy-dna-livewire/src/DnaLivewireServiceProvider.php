@@ -11,7 +11,8 @@ final class DnaLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-dna-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-dna-livewire');
+        Livewire::component('genealogy-dna-list', DnaKitList::class);
     }
 }
 

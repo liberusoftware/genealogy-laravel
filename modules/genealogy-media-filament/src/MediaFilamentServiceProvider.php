@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Media\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\Media\Filament\Resources\MediaAssetResource;
 
 final class MediaFilamentServiceProvider extends ServiceProvider
 {
@@ -15,12 +16,20 @@ final class MediaFilamentServiceProvider extends ServiceProvider
 
 final class MediaFilamentPlugin implements Plugin
 {
+    public static function make(): self
+    {
+        return new self();
+    }
+
     public function getId(): string
     {
         return 'genealogy-media-filament';
     }
 
-    public function register(Panel $panel): void {}
+    public function register(Panel $panel): void
+    {
+        $panel->resources([MediaAssetResource::class]);
+    }
 
     public function boot(Panel $panel): void {}
 }

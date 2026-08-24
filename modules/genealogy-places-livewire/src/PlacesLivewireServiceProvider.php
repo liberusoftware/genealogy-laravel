@@ -11,7 +11,8 @@ final class PlacesLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-places-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-places-livewire');
+        Livewire::component('genealogy-places-list', PlaceList::class);
     }
 }
 

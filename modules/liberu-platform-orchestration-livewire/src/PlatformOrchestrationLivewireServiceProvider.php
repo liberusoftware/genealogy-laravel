@@ -11,7 +11,8 @@ final class PlatformOrchestrationLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('liberu-platform-orchestration-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'liberu-platform-orchestration-livewire');
+        Livewire::component('liberu-platform-orchestration-list', PlatformWorkflowList::class);
     }
 }
 

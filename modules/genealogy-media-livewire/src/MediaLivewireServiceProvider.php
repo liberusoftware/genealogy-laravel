@@ -11,7 +11,8 @@ final class MediaLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-media-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-media-livewire');
+        Livewire::component('genealogy-media-list', MediaAssetList::class);
     }
 }
 

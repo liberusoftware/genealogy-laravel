@@ -12,9 +12,8 @@ final class EvidenceApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware('api')->group(function () use ($router): void {
-            $router->get('/api/v1/genealogy-evidence-api', function (): array {
-                return ['module' => 'genealogy-evidence', 'surface' => 'api', 'status' => 'available'];
-            });
+            $router->apiResource('api/v1/evidence-records', EvidenceRecordController::class)
+                ->parameters(['evidence-records' => 'record']);
         });
     }
 }

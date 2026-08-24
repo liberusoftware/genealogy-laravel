@@ -11,7 +11,8 @@ final class RevenueAndCareOrchestrationLivewireServiceProvider extends ServicePr
 {
     public function boot(): void
     {
-        Livewire::component('liberu-revenue-and-care-orchestration-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'liberu-revenue-and-care-orchestration-livewire');
+        Livewire::component('liberu-revenue-and-care-orchestration-list', CarePlanList::class);
     }
 }
 

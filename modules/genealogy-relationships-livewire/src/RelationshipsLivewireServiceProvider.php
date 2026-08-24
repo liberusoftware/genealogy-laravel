@@ -11,7 +11,8 @@ final class RelationshipsLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-relationships-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-relationships-livewire');
+        Livewire::component('genealogy-relationships-list', RelationshipList::class);
     }
 }
 

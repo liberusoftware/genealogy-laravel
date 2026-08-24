@@ -11,7 +11,8 @@ final class ExecutiveInsightsLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('liberu-executive-insights-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'liberu-executive-insights-livewire');
+        Livewire::component('liberu-executive-insights-list', InsightSnapshotList::class);
     }
 }
 
