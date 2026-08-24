@@ -6297,7 +6297,7 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-core",
-                "reference": "850b9e595426ac5066b83b62fbb9987684fcc995"
+                "reference": "2e6ab6f1ae8c3ae46b486cfb3c924ef53da4b945"
             },
             "require": {
                 "illuminate/support": "^13.0",
@@ -7107,10 +7107,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-people",
-                "reference": "72e8f3732ba3f17e95753ba8817fd8512e79d968"
+                "reference": "757e51c92ee15c0600a981bead0e2d634a40c097"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
                 "php": "^8.5"
             },
             "type": "liberu-module",
@@ -7377,10 +7379,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-relationships",
-                "reference": "29a63cca5299128214f4b9f66e02d04bcea261ff"
+                "reference": "2f77817d137537ef4411bbba7f984bbaf0902be8"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-people": "^1.0",
                 "php": "^8.5"
             },
             "type": "liberu-module",
