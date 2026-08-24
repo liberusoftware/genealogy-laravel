@@ -9,14 +9,21 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
+use Liberu\Genealogy\Relationships\Actions\UpdateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
 
 final class RelationshipController
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => Relationship::query()->latest()->paginate()]);
+        $perPage = min(max($request->integer('page[size]', 25), 1), 100);
+        $relationships = Relationship::query()->latest()->paginate($perPage);
+
+        return response()->json([
+            'data' => $relationships->through(fn (Relationship $relationship): array => $this->resource($relationship)),
+            'meta' => ['current_page' => $relationships->currentPage(), 'per_page' => $relationships->perPage(), 'total' => $relationships->total()],
+        ]);
     }
 
     public function validateGraph(Request $request, GraphValidator $validator): JsonResponse
@@ -44,25 +51,25 @@ final class RelationshipController
             'metadata' => ['nullable', 'array'],
         ]));
 
-        return response()->json(['data' => $record], 201);
+        return response()->json(['data' => $this->resource($record)], 201);
     }
 
     public function show(Relationship $record): JsonResponse
     {
-        return response()->json(['data' => $record]);
+        return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, Relationship $record): JsonResponse
+    public function update(Request $request, Relationship $record, UpdateRelationship $update): JsonResponse
     {
-        $record->update($request->validate([
+        $values = $request->validate([
             'person_id' => ['sometimes', 'uuid', $this->personRule(), Rule::notIn([$request->input('related_person_id', $record->related_person_id)])],
             'related_person_id' => ['sometimes', 'uuid', $this->personRule()],
             'type' => ['sometimes', Rule::in(Relationship::TYPES)],
             'confidence' => ['sometimes', 'integer', 'min:0', 'max:100'],
             'metadata' => ['nullable', 'array'],
-        ]));
+        ]);
 
-        return response()->json(['data' => $record->refresh()]);
+        return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }
 
     public function destroy(Relationship $record): JsonResponse
@@ -76,5 +83,17 @@ final class RelationshipController
     {
         return Rule::exists('genealogy_people', 'id')
             ->where('team_id', app(TeamContext::class)->require());
+    }
+
+    /** @return array<string, mixed> */
+    private function resource(Relationship $relationship): array
+    {
+        return ['id' => $relationship->getKey(), 'type' => 'genealogy-relationship', 'attributes' => [
+            'person_id' => $relationship->person_id,
+            'related_person_id' => $relationship->related_person_id,
+            'type' => $relationship->type,
+            'confidence' => $relationship->confidence,
+            'metadata' => $relationship->metadata,
+        ]];
     }
 }
