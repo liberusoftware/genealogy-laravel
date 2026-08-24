@@ -15,6 +15,18 @@
       "Liberu\\Genealogy\\Relationships\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Genealogy\\Relationships\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
   "config": {
     "allow-plugins": {
       "pestphp/pest-plugin": true
