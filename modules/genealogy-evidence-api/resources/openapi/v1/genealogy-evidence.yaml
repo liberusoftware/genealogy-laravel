@@ -2,14 +2,14 @@ openapi: 3.1.0
 info: { title: Genealogy Evidence API, version: 1.0.0 }
 paths:
   /api/v1/genealogy/evidence:
-    get: { operationId: genealogy.evidence.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    get: { operationId: genealogy.evidence.list, security: [{ sanctum: [] }], parameters: [{ name: kind, in: query, schema: { type: string, enum: [source, repository, citation, extract, assertion, proof_conclusion] } }, { name: status, in: query, schema: { type: string } }, { name: min_confidence, in: query, schema: { type: integer, minimum: 0, maximum: 100 } }, { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
     post:
       operationId: genealogy.evidence.create
       security: [{ sanctum: [] }]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }
       responses: { '201': { $ref: '#/components/responses/Resource' } }
-  /api/v1/genealogy/evidence/{id}:
-    parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+  /api/v1/genealogy/evidence/{record}:
+    parameters: [{ name: record, in: path, required: true, schema: { type: string, format: uuid } }]
     get: { operationId: genealogy.evidence.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
     patch: { operationId: genealogy.evidence.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
     delete: { operationId: genealogy.evidence.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
