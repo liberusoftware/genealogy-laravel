@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Evidence\Actions;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use Liberu\Genealogy\Evidence\Models\EvidenceRecord;
+use Liberu\Genealogy\People\Models\Person;
 
 final class CreateEvidenceRecord
 {
@@ -30,6 +31,10 @@ final class CreateEvidenceRecord
 
         if ((int) ($values['confidence'] ?? 0) < 0 || (int) ($values['confidence'] ?? 0) > 100) {
             throw new InvalidArgumentException('Evidence confidence must be between 0 and 100.');
+        }
+
+        if (isset($values['subject_person_id']) && ! Person::query()->whereKey($values['subject_person_id'])->exists()) {
+            throw new InvalidArgumentException('The evidence subject must belong to the active team.');
         }
     }
 }
