@@ -6,6 +6,7 @@ namespace Liberu\Platform\ExecutiveInsights\Filament\Resources;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\PageRegistration;
@@ -13,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Liberu\Platform\ExecutiveInsights\Filament\Resources\InsightSnapshotResource\Pages\CreateInsightSnapshot;
 use Liberu\Platform\ExecutiveInsights\Filament\Resources\InsightSnapshotResource\Pages\EditInsightSnapshot;
 use Liberu\Platform\ExecutiveInsights\Filament\Resources\InsightSnapshotResource\Pages\ListInsightSnapshots;
@@ -25,6 +27,14 @@ final class InsightSnapshotResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Genealogy';
+
+    public static function getEloquentQuery(): Builder
+    {
+        $tenant = Filament::getTenant();
+        abort_unless($tenant !== null, 403);
+
+        return parent::getEloquentQuery()->forTenant($tenant->getKey());
+    }
 
     public static function form(Schema $schema): Schema
     {
