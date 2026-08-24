@@ -45,7 +45,7 @@ class GedcomService
      * media, notes and citations are deliberately out of scope here (map →
      * "Not yet specified") — add them when a consumer needs them.
      */
-    public function generateGedcomContent(): string
+    public function generateGedcomContent(\Illuminate\Support\Collection $people, \Illuminate\Support\Collection $families): string
     {
         // GEDCOM 5.5.1 HEAD: GEDC.VERS 5.5.1 + FORM, explicit CHAR.
         return $this->assembleDocument([
@@ -55,7 +55,7 @@ class GedcomService
             '2 VERS 5.5.1',
             '2 FORM LINEAGE-LINKED',
             '1 CHAR UTF-8',
-        ]);
+        ], $people, $families);
     }
 
     /**
@@ -68,14 +68,14 @@ class GedcomService
      * needed because no underscore/extension tags are written. See ticket 01's
      * delta checklist.
      */
-    public function generateGedcom7Content(): string
+    public function generateGedcom7Content(\Illuminate\Support\Collection $people, \Illuminate\Support\Collection $families): string
     {
         return $this->assembleDocument([
             '0 HEAD',
             '1 GEDC',
             '2 VERS 7.0',
             '1 SOUR '.config('app.name', 'Liberu Genealogy'),
-        ]);
+        ], $people, $families);
     }
 
     /**
@@ -85,7 +85,7 @@ class GedcomService
      *
      * @param  list<string>  $headLines
      */
-    private function assembleDocument(array $headLines): string
+    private function assembleDocument(array $headLines, \Illuminate\Support\Collection $people, \Illuminate\Support\Collection $families): string
     {
         $lines = $headLines;
 
@@ -102,7 +102,7 @@ class GedcomService
             }
         }
 
-        foreach (Person::query()->orderBy('id')->cursor() as $person) {
+        foreach ($people as $person) {
             [$given, $surname, $display] = $this->nameParts($person);
 
             $lines[] = '0 @I'.$person->id.'@ INDI';
@@ -119,14 +119,36 @@ class GedcomService
                 $lines[] = '1 SEX '.$sex;
             }
 
-            $birth = $this->birthDate($person);
-            if ($birth !== '') {
-                $lines[] = '1 BIRT';
-                $lines[] = '2 DATE '.$birth;
+            // Iterate through all events for the person
+            foreach ($person->events as $event) {
+                // Use explicit getters to bypass the vendor model's property shadowing bug
+                $eventTitle = $event->getAttribute('title');
+                if ($eventTitle) {
+                    // Safe parsing for both simple string titles (e.g. BIRT) and class names
+                    $lastSlash = strrpos($eventTitle, '\\');
+                    $eventType = $lastSlash === false
+                        ? strtoupper($eventTitle)
+                        : strtoupper(substr($eventTitle, $lastSlash + 1));
+
+                    $lines[] = '1 '.$eventType;
+
+                    $eventDate = $event->getAttribute('date');
+                    if ($eventDate) {
+                        $lines[] = '2 DATE '.$eventDate;
+                    }
+
+                    $eventPlace = $event->getRelationValue('place');
+                    if ($eventPlace) {
+                        $placeString = $this->buildPlaceHierarchyString($eventPlace);
+                        if ($placeString) {
+                            $lines[] = '2 PLAC '.$placeString;
+                        }
+                    }
+                }
             }
         }
 
-        foreach (Family::query()->orderBy('id')->cursor() as $family) {
+        foreach ($families as $family) {
             $lines[] = '0 @F'.$family->id.'@ FAM';
             if ($family->husband_id) {
                 $lines[] = '1 HUSB @I'.$family->husband_id.'@';
@@ -142,6 +164,28 @@ class GedcomService
         $lines[] = '0 TRLR';
 
         return implode("\n", $lines)."\n";
+    }
+
+    /**
+     * Recursively build a comma-separated string from a place hierarchy.
+     */
+    private function buildPlaceHierarchyString(?\App\Models\Place $place): string
+    {
+        if (!$place) {
+            return '';
+        }
+
+        $parts = [];
+        $currentPlace = $place;
+
+        while ($currentPlace) {
+            if ($currentPlace->defaultName) {
+                $parts[] = $currentPlace->defaultName->name;
+            }
+            $currentPlace = $currentPlace->parent;
+        }
+
+        return implode(', ', $parts);
     }
 
     /**
