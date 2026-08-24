@@ -2,7 +2,7 @@
   "name": "genealogy-relationships-api",
   "display_name": "Genealogy Relationships api",
   "description": "One-to-one api adapter for Genealogy Relationships.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "category": "presentation",
   "provider": "Liberu\\Genealogy\\Relationships\\Api\\RelationshipsApiServiceProvider",
   "requires": {
@@ -20,4 +20,3 @@
   ],
   "default_enabled": true
 }
-

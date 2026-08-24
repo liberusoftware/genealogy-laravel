@@ -2,7 +2,7 @@
   "name": "genealogy-relationships",
   "display_name": "Genealogy Relationships",
   "description": "Provider-neutral Genealogy Relationships capability.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "category": "capability",
   "provider": "Liberu\\Genealogy\\Relationships\\RelationshipsServiceProvider",
   "requires": {

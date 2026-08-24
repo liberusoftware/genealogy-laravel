@@ -1,6 +1,6 @@
 {
   "name": "liberusoftware/module-genealogy-relationships-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "liberu-module",
   "description": "Liberu genealogy-relationships-api module.",
   "license": "MIT",
