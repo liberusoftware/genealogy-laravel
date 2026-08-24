@@ -6,10 +6,13 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 
 composer validate --strict
+composer audit --locked
 php artisan module:validate
+php artisan foundation:doctor
 vendor/bin/pint --test
+vendor/bin/phpstan analyse --no-progress --memory-limit=512M
 
-find modules/genealogy-* modules/liberu-* -name '*.php' -print0 \
+find modules/genealogy-* modules/liberu-* -type d -name vendor -prune -o -name '*.php' -print0 \
     | xargs -0 -n1 php -l >/dev/null
 
 route_count="$(php artisan route:list --path=api/v1 | awk '/Showing \[/ { gsub(/[^0-9]/, "", $2); print $2 }')"
@@ -43,4 +46,24 @@ foreach ($components as $file) {
 printf("Loaded %d Filament resources and %d Livewire components.\n", count($resources), count($components));
 ' 
 
-php artisan test --compact
+php -r '
+require "vendor/autoload.php";
+foreach (glob("modules/liberu-*-api/resources/openapi.yaml") ?: [] as $path) {
+    $document = \Symfony\Component\Yaml\Yaml::parseFile($path);
+    if (($document["openapi"] ?? null) !== "3.1.0" || empty($document["paths"])) {
+        throw new RuntimeException("Invalid OpenAPI 3.1 contract: {$path}");
+    }
+}
+echo "Validated OpenAPI contracts.\n";
+'
+
+if command -v docker >/dev/null 2>&1; then
+    docker compose config --quiet
+fi
+
+if command -v kubectl >/dev/null 2>&1 && [[ -d k8s ]]; then
+    kubectl kustomize k8s >/dev/null
+fi
+
+npm run build
+XDEBUG_MODE=coverage php artisan test --coverage --min=100
