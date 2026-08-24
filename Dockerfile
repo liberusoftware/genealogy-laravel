@@ -19,6 +19,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy composer files
 COPY composer.json composer.lock ./
 
+# The host pins the bundled Liberu packages through a Composer path repository.
+# Make those package manifests available before the dependency stage resolves the
+# lock file; the final stage still receives the complete application source below.
+COPY modules ./modules
+
 # Install composer dependencies (no autoloader yet, will optimize in final stage)
 RUN composer install \
     --no-dev \
@@ -168,4 +173,3 @@ EXPOSE 8080
 ENTRYPOINT ["start-container"]
 
 HEALTHCHECK --start-period=5s --interval=2s --timeout=5s --retries=8 CMD php artisan octane:status || exit 1
-
