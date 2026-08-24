@@ -2424,21 +2424,21 @@
         },
         {
             "name": "graham-campbell/result-type",
-            "version": "v1.1.5",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrahamCampbell/Result-Type.git",
-                "reference": "ef5e784ad5cf6c86fb262e3231aa11d84552fa12"
+                "reference": "adccca3324eece92ca35463648c12b9e6293c05b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrahamCampbell/Result-Type/zipball/ef5e784ad5cf6c86fb262e3231aa11d84552fa12",
-                "reference": "ef5e784ad5cf6c86fb262e3231aa11d84552fa12",
+                "url": "https://api.github.com/repos/GrahamCampbell/Result-Type/zipball/adccca3324eece92ca35463648c12b9e6293c05b",
+                "reference": "adccca3324eece92ca35463648c12b9e6293c05b",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2.5 || ^8.0",
-                "phpoption/phpoption": "^1.9.6"
+                "phpoption/phpoption": "^1.10"
             },
             "require-dev": {
                 "phpunit/phpunit": "^8.5.52 || ^9.6.34 || ^10.5.63 || ^11.5.55 || ^12.5.14"
@@ -2470,7 +2470,7 @@
             ],
             "support": {
                 "issues": "https://github.com/GrahamCampbell/Result-Type/issues",
-                "source": "https://github.com/GrahamCampbell/Result-Type/tree/v1.1.5"
+                "source": "https://github.com/GrahamCampbell/Result-Type/tree/v1.2.0"
             },
             "funding": [
                 {
@@ -2482,26 +2482,26 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-23T22:27:24+00:00"
+            "time": "2026-08-24T09:06:52+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.15.3",
+            "version": "7.15.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc"
+                "reference": "ee80339fd9177ba44c49cdb653ff02a4d1106b9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc",
-                "reference": "ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/ee80339fd9177ba44c49cdb653ff02a4d1106b9a",
+                "reference": "ee80339fd9177ba44c49cdb653ff02a4d1106b9a",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^2.5.2",
-                "guzzlehttp/psr7": "^2.13",
+                "guzzlehttp/promises": "^2.5.3",
+                "guzzlehttp/psr7": "^2.13.1",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
                 "symfony/deprecation-contracts": "^2.5 || ^3.0",
@@ -2594,7 +2594,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.15.3"
+                "source": "https://github.com/guzzle/guzzle/tree/7.15.5"
             },
             "funding": [
                 {
@@ -2610,20 +2610,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-05T19:48:21+00:00"
+            "time": "2026-08-24T09:21:06+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.5.2",
+            "version": "2.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "2823687acff28b2dbe67b2508a6b300e2c3fa4ce"
+                "reference": "cde49999552d185d64715fe9c1f77a2aadd2f9f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/2823687acff28b2dbe67b2508a6b300e2c3fa4ce",
-                "reference": "2823687acff28b2dbe67b2508a6b300e2c3fa4ce",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/cde49999552d185d64715fe9c1f77a2aadd2f9f1",
+                "reference": "cde49999552d185d64715fe9c1f77a2aadd2f9f1",
                 "shasum": ""
             },
             "require": {
@@ -2678,7 +2678,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.5.2"
+                "source": "https://github.com/guzzle/promises/tree/2.5.3"
             },
             "funding": [
                 {
@@ -2694,20 +2694,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-05T19:30:54+00:00"
+            "time": "2026-08-24T09:11:28+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.13.0",
+            "version": "2.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "dad89620b7a6edb60c15858442eb2e408b45d8f4"
+                "reference": "95e7828100de18b4e269fb1703be530082d5166d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/dad89620b7a6edb60c15858442eb2e408b45d8f4",
-                "reference": "dad89620b7a6edb60c15858442eb2e408b45d8f4",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/95e7828100de18b4e269fb1703be530082d5166d",
+                "reference": "95e7828100de18b4e269fb1703be530082d5166d",
                 "shasum": ""
             },
             "require": {
@@ -2797,7 +2797,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.13.0"
+                "source": "https://github.com/guzzle/psr7/tree/2.13.1"
             },
             "funding": [
                 {
@@ -2813,20 +2813,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-16T22:23:49+00:00"
+            "time": "2026-08-24T09:13:11+00:00"
         },
         {
             "name": "guzzlehttp/uri-template",
-            "version": "v2.0.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/uri-template.git",
-                "reference": "516c3bf2af176c532d5b59b3430292f7e9ecccb1"
+                "reference": "7a466ad606491eb6528c717482f7cca77f1851f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/uri-template/zipball/516c3bf2af176c532d5b59b3430292f7e9ecccb1",
-                "reference": "516c3bf2af176c532d5b59b3430292f7e9ecccb1",
+                "url": "https://api.github.com/repos/guzzle/uri-template/zipball/7a466ad606491eb6528c717482f7cca77f1851f3",
+                "reference": "7a466ad606491eb6528c717482f7cca77f1851f3",
                 "shasum": ""
             },
             "require": {
@@ -2883,7 +2883,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/uri-template/issues",
-                "source": "https://github.com/guzzle/uri-template/tree/v2.0.0"
+                "source": "https://github.com/guzzle/uri-template/tree/v2.0.1"
             },
             "funding": [
                 {
@@ -2899,7 +2899,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-20T13:40:43+00:00"
+            "time": "2026-08-24T17:13:02+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
@@ -8089,11 +8089,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation",
-                "reference": "624b4204908557f9619c4b7b4e40a396596ea7a8"
+                "reference": "333291e5d2264ae453f2840c950c6cc78cbb72a8"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8138,11 +8138,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation-api",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-api",
-                "reference": "1ed2cdec7b9862ead39949537cdf75fedf379818"
+                "reference": "a44af4af961f493d7977a746ffa9103077625af0"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8150,6 +8150,10 @@
                 "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8163,6 +8167,16 @@
                     "Liberu\\Platform\\BusinessWorkflowReconciliation\\Api\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\BusinessWorkflowReconciliation\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8174,16 +8188,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation-filament",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-filament",
-                "reference": "226f5f8bcea8fd8f2425da61917743a45ee3c440"
+                "reference": "9a4bceb580a0d9b6c68062021a6489872da87982"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8197,6 +8215,16 @@
                     "Liberu\\Platform\\BusinessWorkflowReconciliation\\Filament\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\BusinessWorkflowReconciliation\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8208,16 +8236,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-business-workflow-reconciliation-livewire",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-livewire",
-                "reference": "6ed48589650e81f841932c157373ba9be747114a"
+                "reference": "a9b1e3c65b54315cbe3ed58a7837a680d72f3c26"
             },
             "require": {
                 "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8231,6 +8263,16 @@
                     "Liberu\\Platform\\BusinessWorkflowReconciliation\\Livewire\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\BusinessWorkflowReconciliation\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8242,11 +8284,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights",
-                "reference": "37e76178890afc0217009fa3dc6c4a422a6761cb"
+                "reference": "d491581b907788e4b3a18d07628aca6f92849f91"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8291,11 +8333,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights-api",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-api",
-                "reference": "739544ce5af0cd3941ec334ce6b9ad98a7c57b03"
+                "reference": "9bbaae7fdf3ff27c011b3cbf78a18556d1ec77dd"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8303,6 +8345,10 @@
                 "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-executive-insights": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8316,6 +8362,16 @@
                     "Liberu\\Platform\\ExecutiveInsights\\Api\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\ExecutiveInsights\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8327,16 +8383,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights-filament",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-filament",
-                "reference": "5b64e336b1c347620f07e3639292f7283c77ec7e"
+                "reference": "6d15b0791ee6d67f216b2ea06738842988421382"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-liberu-executive-insights": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8350,6 +8410,16 @@
                     "Liberu\\Platform\\ExecutiveInsights\\Filament\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\ExecutiveInsights\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8361,16 +8431,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-executive-insights-livewire",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-livewire",
-                "reference": "e0c23d7dc08a0a0b84e793d6cdfbec31f6d38d01"
+                "reference": "2ac80c9c8130ed0596b2cd1fbf1cc5a2d989577d"
             },
             "require": {
                 "liberusoftware/module-liberu-executive-insights": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8384,6 +8458,16 @@
                     "Liberu\\Platform\\ExecutiveInsights\\Livewire\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\ExecutiveInsights\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8395,11 +8479,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration",
-                "reference": "934da7b1cb3a8baf22d5e876297595a7bb7ec674"
+                "reference": "b5f006074645b00790b0e14a6356d391cfb6fe9e"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8444,11 +8528,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration-api",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-api",
-                "reference": "ac9ccc054ba52fbd94210d9441fdcd551e89b69e"
+                "reference": "5c05da8f4cf0c1b66c25dc4cfa26d6138b6187ae"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8456,6 +8540,10 @@
                 "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-platform-orchestration": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8469,6 +8557,16 @@
                     "Liberu\\Platform\\PlatformOrchestration\\Api\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\PlatformOrchestration\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8480,16 +8578,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration-filament",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-filament",
-                "reference": "cf7f11009d1237013db0ee18ed6284e2db5e7b85"
+                "reference": "ea281abc97a2670429cacb0837ded43279595a29"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-liberu-platform-orchestration": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8503,6 +8605,16 @@
                     "Liberu\\Platform\\PlatformOrchestration\\Filament\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\PlatformOrchestration\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8514,16 +8626,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-platform-orchestration-livewire",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-livewire",
-                "reference": "831b42c0d12e3e5acd4ade4f11a67e9871c1695d"
+                "reference": "dbb7c9169c7273cd283d708e81ef2c86471c3555"
             },
             "require": {
                 "liberusoftware/module-liberu-platform-orchestration": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8537,6 +8653,16 @@
                     "Liberu\\Platform\\PlatformOrchestration\\Livewire\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\PlatformOrchestration\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8548,11 +8674,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration",
-                "reference": "742a0d9561443f523e54828c58f639d282736dc0"
+                "reference": "d0d7877e82fc9d2be209ce708fa931b96c0444aa"
             },
             "require": {
                 "illuminate/database": "^13.0",
@@ -8597,11 +8723,11 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration-api",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-api",
-                "reference": "784f35b098dc6e6224ea0b2130a5a851fddae487"
+                "reference": "a45b8697ece1803b1dd15bf2eb8b4de0abdb2644"
             },
             "require": {
                 "illuminate/http": "^13.0",
@@ -8609,6 +8735,10 @@
                 "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8622,6 +8752,16 @@
                     "Liberu\\Platform\\RevenueAndCareOrchestration\\Api\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\RevenueAndCareOrchestration\\Api\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8633,16 +8773,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration-filament",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-filament",
-                "reference": "ce317e60b3484ee50b38cc3ebeb28872707c30ed"
+                "reference": "4ca389856763541f185a7e3955bb6f1a981b7d4e"
             },
             "require": {
                 "filament/filament": "^5.0",
                 "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8656,6 +8800,16 @@
                     "Liberu\\Platform\\RevenueAndCareOrchestration\\Filament\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\RevenueAndCareOrchestration\\Filament\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -8667,16 +8821,20 @@
         },
         {
             "name": "liberusoftware/module-liberu-revenue-and-care-orchestration-livewire",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-livewire",
-                "reference": "952b5c8760da61da12fdafb9239cb4b365a757b9"
+                "reference": "0cdf8bc2cac995b35cae890dcbf51b56340c0ff4"
             },
             "require": {
                 "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0",
                 "livewire/livewire": "^4.0",
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
             },
             "type": "liberu-module",
             "extra": {
@@ -8689,6 +8847,16 @@
                 "psr-4": {
                     "Liberu\\Platform\\RevenueAndCareOrchestration\\Livewire\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Platform\\RevenueAndCareOrchestration\\Livewire\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -9887,16 +10055,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v4.4.1",
+            "version": "v4.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "0c925c55b4a5c134f2fb147efa4b9f53a837d866"
+                "reference": "4a030935e6c255c89a114b00ece66326f78157c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/0c925c55b4a5c134f2fb147efa4b9f53a837d866",
-                "reference": "0c925c55b4a5c134f2fb147efa4b9f53a837d866",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/4a030935e6c255c89a114b00ece66326f78157c0",
+                "reference": "4a030935e6c255c89a114b00ece66326f78157c0",
                 "shasum": ""
             },
             "require": {
@@ -9951,7 +10119,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v4.4.1"
+                "source": "https://github.com/livewire/livewire/tree/v4.4.2"
             },
             "funding": [
                 {
@@ -9959,7 +10127,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-18T11:39:06+00:00"
+            "time": "2026-08-24T15:02:06+00:00"
         },
         {
             "name": "mobiledetect/mobiledetectlib",
@@ -12991,16 +13159,16 @@
         },
         {
             "name": "spatie/invade",
-            "version": "2.1.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/invade.git",
-                "reference": "b920f6411d21df4e8610a138e2e87ae4957d7f63"
+                "reference": "f929c7b6e75fceeefa7b41a491e91274bafb17af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/invade/zipball/b920f6411d21df4e8610a138e2e87ae4957d7f63",
-                "reference": "b920f6411d21df4e8610a138e2e87ae4957d7f63",
+                "url": "https://api.github.com/repos/spatie/invade/zipball/f929c7b6e75fceeefa7b41a491e91274bafb17af",
+                "reference": "f929c7b6e75fceeefa7b41a491e91274bafb17af",
                 "shasum": ""
             },
             "require": {
@@ -13038,7 +13206,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/invade/tree/2.1.0"
+                "source": "https://github.com/spatie/invade/tree/2.1.1"
             },
             "funding": [
                 {
@@ -13046,7 +13214,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-17T09:06:10+00:00"
+            "time": "2026-08-24T12:39:05+00:00"
         },
         {
             "name": "spatie/laravel-activitylog",
@@ -16165,16 +16333,16 @@
         },
         {
             "name": "symfony/polyfill-intl-idn",
-            "version": "v1.38.1",
+            "version": "v1.42.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-idn.git",
-                "reference": "dc21118016c039a66235cf93d96b435ffb282412"
+                "reference": "51b5ff5ba85452b31ec6f55490b08148612339d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/dc21118016c039a66235cf93d96b435ffb282412",
-                "reference": "dc21118016c039a66235cf93d96b435ffb282412",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/51b5ff5ba85452b31ec6f55490b08148612339d9",
+                "reference": "51b5ff5ba85452b31ec6f55490b08148612339d9",
                 "shasum": ""
             },
             "require": {
@@ -16228,7 +16396,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.38.1"
+                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.42.0"
             },
             "funding": [
                 {
@@ -16248,20 +16416,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-25T15:22:23+00:00"
+            "time": "2026-08-24T10:51:20+00:00"
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
-            "version": "v1.38.0",
+            "version": "v1.42.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
-                "reference": "2d446c214bdbe5b71bde5011b060a05fece3ae6b"
+                "reference": "aa20edea75bd9c48cfecc8360922e5a6e5c44502"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/2d446c214bdbe5b71bde5011b060a05fece3ae6b",
-                "reference": "2d446c214bdbe5b71bde5011b060a05fece3ae6b",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/aa20edea75bd9c48cfecc8360922e5a6e5c44502",
+                "reference": "aa20edea75bd9c48cfecc8360922e5a6e5c44502",
                 "shasum": ""
             },
             "require": {
@@ -16313,7 +16481,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.38.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.42.0"
             },
             "funding": [
                 {
@@ -16333,7 +16501,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-25T13:48:31+00:00"
+            "time": "2026-08-07T06:33:24+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -18137,16 +18305,16 @@
         },
         {
             "name": "ueberdosis/tiptap-php",
-            "version": "2.1.1",
+            "version": "2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ueberdosis/tiptap-php.git",
-                "reference": "74bfb7be1c8c6102b240f3879b7f984a6ab87b97"
+                "reference": "0561e2146edbcdc622b5d4008d0ee02582f8642b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ueberdosis/tiptap-php/zipball/74bfb7be1c8c6102b240f3879b7f984a6ab87b97",
-                "reference": "74bfb7be1c8c6102b240f3879b7f984a6ab87b97",
+                "url": "https://api.github.com/repos/ueberdosis/tiptap-php/zipball/0561e2146edbcdc622b5d4008d0ee02582f8642b",
+                "reference": "0561e2146edbcdc622b5d4008d0ee02582f8642b",
                 "shasum": ""
             },
             "require": {
@@ -18186,7 +18354,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ueberdosis/tiptap-php/issues",
-                "source": "https://github.com/ueberdosis/tiptap-php/tree/2.1.1"
+                "source": "https://github.com/ueberdosis/tiptap-php/tree/2.1.2"
             },
             "funding": [
                 {
@@ -18202,7 +18370,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2026-06-12T18:19:46+00:00"
+            "time": "2026-08-11T08:47:45+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
