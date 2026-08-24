@@ -16,7 +16,7 @@ use Liberu\Genealogy\Relationships\Models\Relationship;
 final class GraphValidator
 {
     /** @return array{valid: bool, reason: string|null} */
-    public function validate(string $personId, string $relatedPersonId, string $type): array
+    public function validate(string $personId, string $relatedPersonId, string $type, ?string $ignoreRelationshipId = null): array
     {
         if ($personId === $relatedPersonId) {
             return ['valid' => false, 'reason' => 'A relationship must connect two different people.'];
@@ -30,6 +30,7 @@ final class GraphValidator
             ->where('person_id', $personId)
             ->where('related_person_id', $relatedPersonId)
             ->where('type', $type)
+            ->when($ignoreRelationshipId !== null, fn ($query) => $query->where($query->getModel()->getQualifiedKeyName(), '<>', $ignoreRelationshipId))
             ->exists()) {
             return ['valid' => false, 'reason' => 'This relationship already exists.'];
         }
@@ -41,9 +42,9 @@ final class GraphValidator
         return ['valid' => true, 'reason' => null];
     }
 
-    public function assertValid(string $personId, string $relatedPersonId, string $type): void
+    public function assertValid(string $personId, string $relatedPersonId, string $type, ?string $ignoreRelationshipId = null): void
     {
-        $result = $this->validate($personId, $relatedPersonId, $type);
+        $result = $this->validate($personId, $relatedPersonId, $type, $ignoreRelationshipId);
 
         if (! $result['valid']) {
             throw new InvalidArgumentException($result['reason'] ?? 'The relationship is invalid.');
