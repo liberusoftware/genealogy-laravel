@@ -6196,11 +6196,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-collaboration-api",
-                "reference": "945728b77e4b13764d46850c5dd7be94882a35e3"
+                "reference": "c601b588b5735233f4edc09d56594a15ef88be86"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-collaboration": "^1.0",
                 "php": "^8.5"
             },
@@ -6468,11 +6469,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery-api",
-                "reference": "6bc49b9eef7a518055a705fbce28fd1561f2128b"
+                "reference": "e58ca531e8b8b44926c2053a60ffeef43f2e9f7b"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-discovery": "^1.0",
                 "php": "^8.5"
             },
@@ -6605,11 +6607,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-dna-api",
-                "reference": "e489fc22f3131140b5d6c70b4c47d4713a966bb5"
+                "reference": "1eed6bca619733bf91d16c476b5e916301a3e058"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-dna": "^1.0",
                 "php": "^8.5"
             },
@@ -6742,11 +6745,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-evidence-api",
-                "reference": "905f8a91e18fed043f759269c022ffb582b28806"
+                "reference": "5eac9a523679b0cb9d19f9060bd9670906118c74"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-evidence": "^1.0",
                 "php": "^8.5"
             },
@@ -6879,11 +6883,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-import-export-api",
-                "reference": "b89f904be47db6ad26eadd0cfaf3b66c43fc1097"
+                "reference": "fe5fd29c8c2ec22124d6609a5f1f4b48eb198ace"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-import-export": "^1.0",
                 "php": "^8.5"
             },
@@ -7016,11 +7021,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-media-api",
-                "reference": "666539aee1e07c810b52abef571d6b590792a930"
+                "reference": "ca2730949cff9dec7a6a66c89cf4bcc1ec5e8eea"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-media": "^1.0",
                 "php": "^8.5"
             },
@@ -7154,10 +7160,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-people-api",
-                "reference": "135a4b7bbc49b0e460f15a2c54a3a5120cc74914"
+                "reference": "fa31de1ca0bba2aba82ec1198ffaf9218a307557"
             },
             "require": {
+                "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-people": "^1.0",
                 "php": "^8.5"
             },
@@ -7290,11 +7298,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-places-api",
-                "reference": "2515abc5562b189a52c0df51af845ed8007ae45a"
+                "reference": "70abac26c852c63f32bf9b6216a97a16f74c9f65"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-places": "^1.0",
                 "php": "^8.5"
             },
@@ -7428,11 +7437,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-relationships-api",
-                "reference": "2af1e2b6806954615d6e0cba3b2353564a89be43"
+                "reference": "86baff6ac5b247016c2cbb2b4741db2155a1b5f1"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-relationships": "^1.0",
                 "php": "^8.5"
             },
@@ -7565,11 +7575,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-reports-api",
-                "reference": "eb7e7d808c3d3e511ebf37f75fdfbace091f6251"
+                "reference": "afd9de7f248602ba95463d5edc8392751cc24a0e"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-reports": "^1.0",
                 "php": "^8.5"
             },
@@ -7702,11 +7713,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-research-api",
-                "reference": "ffd6ca346b90781e65120e9f668e62a59d057fa1"
+                "reference": "c5aa76c2fe92746bd52986810d42a25d6275de58"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-research": "^1.0",
                 "php": "^8.5"
             },
@@ -7839,11 +7851,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-timeline-api",
-                "reference": "b76a703bbbfd02bea3daad0a2d86c50218c5f1d3"
+                "reference": "11cc005ce71ac1cb1e98fca9567b309591de1fd4"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-timeline": "^1.0",
                 "php": "^8.5"
             },
@@ -7976,11 +7989,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer-api",
-                "reference": "4899d4d82de03930110ca493cdee620c3b49ad1c"
+                "reference": "659e99c294ca85d0ec21116080c702f28e862837"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-genealogy-tree-viewer": "^1.0",
                 "php": "^8.5"
             },
@@ -8113,11 +8127,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation-api",
-                "reference": "e5c3f38402fea97763da9120ce2901bb5fe1acd7"
+                "reference": "1ed2cdec7b9862ead39949537cdf75fedf379818"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0",
                 "php": "^8.5"
             },
@@ -8250,11 +8265,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights-api",
-                "reference": "28a7a0d77d3dafbc9f321da425a76906e3c154ce"
+                "reference": "739544ce5af0cd3941ec334ce6b9ad98a7c57b03"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-executive-insights": "^1.0",
                 "php": "^8.5"
             },
@@ -8387,11 +8403,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration-api",
-                "reference": "44ae87a102b0a30b98ddc9ec496978663b86ebf7"
+                "reference": "ac9ccc054ba52fbd94210d9441fdcd551e89b69e"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-platform-orchestration": "^1.0",
                 "php": "^8.5"
             },
@@ -8524,11 +8541,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration-api",
-                "reference": "4e3dee449376db096646472d87af65f6653b9508"
+                "reference": "784f35b098dc6e6224ea0b2130a5a851fddae487"
             },
             "require": {
                 "illuminate/http": "^13.0",
                 "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
                 "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0",
                 "php": "^8.5"
             },

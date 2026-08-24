@@ -11,7 +11,7 @@ final class MediaApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware('api')->group(function () use ($router): void {
+        $router->middleware(['api', 'auth:sanctum'])->group(function () use ($router): void {
             $router->apiResource('api/v1/media-assets', MediaAssetController::class)
                 ->parameters(['media-assets' => 'record']);
         });

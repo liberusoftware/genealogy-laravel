@@ -11,7 +11,7 @@ final class ResearchApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware('api')->group(function () use ($router): void {
+        $router->middleware(['api', 'auth:sanctum'])->group(function () use ($router): void {
             $router->apiResource('api/v1/research-projects', ResearchProjectController::class)
                 ->parameters(['research-projects' => 'record']);
         });

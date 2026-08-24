@@ -11,7 +11,7 @@ final class TreeViewerApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware('api')->group(function () use ($router): void {
+        $router->middleware(['api', 'auth:sanctum'])->group(function () use ($router): void {
             $router->apiResource('api/v1/trees', TreeViewController::class)
                 ->parameters(['trees' => 'record']);
         });
