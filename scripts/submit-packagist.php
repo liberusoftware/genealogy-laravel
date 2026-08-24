@@ -41,7 +41,9 @@ foreach ($config['components'] ?? [] as $component) {
 }
 
 $rootComposer = json_decode((string) file_get_contents($root.'/composer.json'), true, 512, JSON_THROW_ON_ERROR);
-$packages[(string) $rootComposer['name']] = (string) $config['repository'];
+if (($config['publishHost'] ?? true) === true) {
+    $packages[(string) $rootComposer['name']] = (string) $config['repository'];
+}
 $packages += $config['additionalPackages'] ?? [];
 ksort($packages);
 

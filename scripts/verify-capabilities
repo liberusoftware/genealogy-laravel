@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
+
+composer validate --strict
+php artisan module:validate
+vendor/bin/pint --test
+
+find modules/genealogy-* modules/liberu-* -name '*.php' -print0 \
+    | xargs -0 -n1 php -l >/dev/null
+
+route_count="$(php artisan route:list --path=api/v1 | awk '/Showing \[/ { gsub(/[^0-9]/, "", $2); print $2 }')"
+if [[ -z "$route_count" || "$route_count" -lt 80 ]]; then
+    echo "Expected at least 80 capability API routes; found ${route_count:-0}." >&2
+    exit 1
+fi
+
+php -r '
+require "vendor/autoload.php";
+$resources = glob("modules/*-filament/src/Resources/*Resource.php") ?: [];
+$components = glob("modules/*-livewire/src/*List.php") ?: [];
+foreach ($resources as $file) {
+    $source = file_get_contents($file);
+    preg_match("/^namespace ([^;]+);/m", $source, $namespace);
+    preg_match("/^(?:final )?class ([A-Za-z0-9_]+)/m", $source, $class);
+    if (! isset($namespace[1], $class[1]) || ! class_exists($namespace[1]."\\".$class[1])) {
+        throw new RuntimeException("Unable to load Filament resource: {$file}");
+    }
+}
+foreach ($components as $file) {
+    $source = file_get_contents($file);
+    preg_match("/^namespace ([^;]+);/m", $source, $namespace);
+    preg_match("/^(?:final )?class ([A-Za-z0-9_]+)/m", $source, $class);
+    $name = ($namespace[1] ?? "")."\\".($class[1] ?? "");
+    $component = "Livewire"."\\Component";
+    if (! class_exists($name) || ! is_subclass_of($name, $component)) {
+        throw new RuntimeException("Unable to load Livewire component: {$file}");
+    }
+}
+printf("Loaded %d Filament resources and %d Livewire components.\n", count($resources), count($components));
+' 
+
+php artisan test --compact

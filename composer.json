@@ -1,12 +1,13 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "liberusoftware/boilerplate-laravel",
+    "name": "liberusoftware/genealogy-laravel",
     "type": "project",
-    "description": "Liberu boilerplate Laravel application.",
+    "description": "Liberu genealogy and family history application.",
     "keywords": [
         "laravel",
         "framework",
-        "boilerplate"
+        "genealogy",
+        "family-history"
     ],
     "license": "MIT",
     "repositories": [
