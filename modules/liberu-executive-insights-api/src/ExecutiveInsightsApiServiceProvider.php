@@ -12,8 +12,8 @@ final class ExecutiveInsightsApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware(['api', 'auth:sanctum'])->group(function () use ($router): void {
-            $router->apiResource('api/v1/insight-snapshots', InsightSnapshotController::class)
-                ->parameters(['insight-snapshots' => 'record']);
+            $router->apiResource('api/v1/liberu/executive-insights', InsightSnapshotController::class)
+                ->parameters(['executive-insights' => 'record']);
         });
     }
 }

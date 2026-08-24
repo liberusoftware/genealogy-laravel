@@ -12,8 +12,8 @@ final class RevenueAndCareOrchestrationApiServiceProvider extends ServiceProvide
     public function boot(Router $router): void
     {
         $router->middleware(['api', 'auth:sanctum'])->group(function () use ($router): void {
-            $router->apiResource('api/v1/care-plans', CarePlanController::class)
-                ->parameters(['care-plans' => 'record']);
+            $router->apiResource('api/v1/liberu/revenue-and-care-orchestration', CarePlanController::class)
+                ->parameters(['revenue-and-care-orchestration' => 'record']);
         });
     }
 }

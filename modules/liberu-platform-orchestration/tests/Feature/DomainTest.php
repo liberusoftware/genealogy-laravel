@@ -13,6 +13,8 @@ it('creates and hydrates its aggregate through the domain action', function (): 
     $database->bootEloquent();
     $database->schema()->create('liberu_platform_workflows', function ($table): void {
         $table->uuid('id')->primary();
+        $table->string('tenant_id');
+        $table->string('idempotency_key')->nullable();
         $table->string('name');
         $table->string('status');
         $table->json('metadata')->nullable();
@@ -21,6 +23,8 @@ it('creates and hydrates its aggregate through the domain action', function (): 
     });
 
     $record = (new CreatePlatformWorkflow())->execute([
+        'tenant_id' => 'team-1',
+        'idempotency_key' => 'request-1',
         'name' => 'Sample record',
         'status' => 'active',
         'metadata' => ['source' => 'archive'],
@@ -28,6 +32,7 @@ it('creates and hydrates its aggregate through the domain action', function (): 
 
     expect($record)->toBeInstanceOf(PlatformWorkflow::class)
         ->and($record->exists)->toBeTrue()
+        ->and($record->tenant_id)->toBe('team-1')
         ->and($record->name)->toBe('Sample record')
         ->and($record->status)->toBe('active');
 });

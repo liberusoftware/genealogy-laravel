@@ -11,6 +11,6 @@ final class CreateInsightSnapshot
 {
     public function execute(array $attributes): InsightSnapshot
     {
-        return InsightSnapshot::query()->create(Arr::only($attributes, ['name', 'status', 'metadata']));
+        return InsightSnapshot::query()->create(Arr::only($attributes, ['tenant_id', 'idempotency_key', 'name', 'status', 'metadata']));
     }
 }

@@ -12,8 +12,8 @@ final class PlatformOrchestrationApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware(['api', 'auth:sanctum'])->group(function () use ($router): void {
-            $router->apiResource('api/v1/platform-workflows', PlatformWorkflowController::class)
-                ->parameters(['platform-workflows' => 'record']);
+            $router->apiResource('api/v1/liberu/platform-orchestration', PlatformWorkflowController::class)
+                ->parameters(['platform-orchestration' => 'record']);
         });
     }
 }

@@ -15,7 +15,12 @@ final class InsightSnapshot extends Model
 
     protected $table = 'liberu_insight_snapshots';
 
-    protected $fillable = ['name', 'status', 'metadata'];
+    protected $fillable = ['tenant_id', 'idempotency_key', 'name', 'status', 'metadata'];
+
+    public function scopeForTenant($query, string|int $tenantId): void
+    {
+        $query->where($this->qualifyColumn('tenant_id'), (string) $tenantId);
+    }
 
     protected function casts(): array
     {

@@ -11,6 +11,6 @@ final class CreateCarePlan
 {
     public function execute(array $attributes): CarePlan
     {
-        return CarePlan::query()->create(Arr::only($attributes, ['name', 'status', 'metadata']));
+        return CarePlan::query()->create(Arr::only($attributes, ['tenant_id', 'idempotency_key', 'name', 'status', 'metadata']));
     }
 }

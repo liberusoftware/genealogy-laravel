@@ -12,12 +12,15 @@ return new class() extends Migration
     {
         Schema::create('liberu_insight_snapshots', function (Blueprint $table): void {
             $table->uuid('id')->primary();
+            $table->string('tenant_id')->index();
+            $table->string('idempotency_key')->nullable();
             $table->string('name');
             $table->string('status')->default('draft');
             $table->json('metadata')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->index('status');
+            $table->unique(['tenant_id', 'idempotency_key']);
         });
     }
 

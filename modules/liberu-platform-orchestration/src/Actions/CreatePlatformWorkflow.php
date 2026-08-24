@@ -11,6 +11,6 @@ final class CreatePlatformWorkflow
 {
     public function execute(array $attributes): PlatformWorkflow
     {
-        return PlatformWorkflow::query()->create(Arr::only($attributes, ['name', 'status', 'metadata']));
+        return PlatformWorkflow::query()->create(Arr::only($attributes, ['tenant_id', 'idempotency_key', 'name', 'status', 'metadata']));
     }
 }

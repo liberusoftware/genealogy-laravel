@@ -11,6 +11,6 @@ final class CreateReconciliationCase
 {
     public function execute(array $attributes): ReconciliationCase
     {
-        return ReconciliationCase::query()->create(Arr::only($attributes, ['name', 'status', 'metadata']));
+        return ReconciliationCase::query()->create(Arr::only($attributes, ['tenant_id', 'idempotency_key', 'name', 'status', 'metadata']));
     }
 }
