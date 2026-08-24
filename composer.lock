@@ -6162,9 +6162,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-collaboration",
-                "reference": "193ab859f9f5617b7352725163e1f735a6b16349"
+                "reference": "a04f44d64e194328c506fd0673626858a6971365"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -6432,9 +6433,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery",
-                "reference": "2499b7badc1ed94b666ff533d67badd424be3cbc"
+                "reference": "d679d331b862f161d1a229a27453f75cea5b46a5"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -6567,9 +6569,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-dna",
-                "reference": "5938f91a7ce281538240bd8abc4a2376ebdf2ce5"
+                "reference": "4c6157abeaaac394517114491f4ed460048d9972"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -6702,9 +6705,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-evidence",
-                "reference": "a22bdb4ffc2ec57ebc555f2eb565893a5828625a"
+                "reference": "e9a751c828fcfdffe464a28b208dfceeba0e766b"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -6837,9 +6841,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-import-export",
-                "reference": "7f7c0fdff9e13c48fba04efb4a20fbffbd8973c1"
+                "reference": "68f2dbffbec7f812a5f541c98d4f6f8af3bdea0e"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -6972,9 +6977,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-media",
-                "reference": "9aa5185f70fb5b69976cef268a33c3c80c3e897f"
+                "reference": "8970a8b5d25fab46d59954230f461fbb0a773902"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -7244,9 +7250,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-places",
-                "reference": "a083064c276db1cf401520a0eb29fff68aa41e57"
+                "reference": "212cab90b8113a4826154b2ae1e3fc9726467723"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -7516,9 +7523,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-reports",
-                "reference": "f14aa4cb9866f80c5d5ce397c68fa3d65efd3e11"
+                "reference": "603cc7a9b112d22efdb6181575c2f6cd00099c55"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -7651,9 +7659,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-research",
-                "reference": "2328d031d4e8b43fcd57ff18938140b07b101696"
+                "reference": "522f8ffe6977ec0719433e709301f477e4ab3337"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -7786,9 +7795,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-timeline",
-                "reference": "7c2ef70873d9db4af6aa6286b51b0a86b58e2662"
+                "reference": "e7705f81e223c713e6ce719c14e1d91f4cd74edf"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -7921,9 +7931,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer",
-                "reference": "6da3c1e22cd4781f79e47e42cf5189744fc332ff"
+                "reference": "a80d57520e70cfcc5eb51deae3015fcb6c730c45"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -8056,9 +8067,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-business-workflow-reconciliation",
-                "reference": "c9af5818f71441ff3d8f58fed2df5b7f2a468e09"
+                "reference": "473bb8adbe6e9ccad97957eb97ef2bfaee4c7ccc"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -8191,9 +8203,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-executive-insights",
-                "reference": "2ec9f7f70aeb80686c96f3de51dc76093836c354"
+                "reference": "045ab46801755490c3d1ccbf9d5182086cbeeac7"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -8326,9 +8339,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-platform-orchestration",
-                "reference": "22611f1a08786cf4e3c9f8e49b82a11aa097518e"
+                "reference": "f51f0d96b902335fcb5a58ca0765d0e5b9f07569"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },
@@ -8461,9 +8475,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/liberu-revenue-and-care-orchestration",
-                "reference": "e10552423a8611bcebe09a2a3005bca2455c4bb8"
+                "reference": "ff6d333d2e4afad41e6b110e8c5736ee41f9a124"
             },
             "require": {
+                "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "php": "^8.5"
             },

@@ -6,6 +6,7 @@
   "license": "MIT",
   "require": {
     "php": "^8.5",
+    "illuminate/database": "^13.0",
     "illuminate/support": "^13.0"
   },
   "autoload": {

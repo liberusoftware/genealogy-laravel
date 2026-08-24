@@ -11,7 +11,8 @@ final class PeopleLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-people-livewire-status', Status::class);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-people-livewire');
+        Livewire::component('genealogy-people-search', PersonSearch::class);
     }
 }
 
