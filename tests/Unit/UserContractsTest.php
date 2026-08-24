@@ -18,3 +18,10 @@ it('implements the Filament tenancy contracts', function () {
         ->toContain(HasTenants::class)
         ->toContain(HasDefaultTenant::class);
 });
+
+it('preserves an externally hosted profile photo URL', function () {
+    $user = new User();
+    $user->profile_photo_path = 'https://cdn.example.test/profile.png';
+
+    expect($user->profile_photo_url)->toBe('https://cdn.example.test/profile.png');
+});
