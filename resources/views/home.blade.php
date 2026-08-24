@@ -30,7 +30,7 @@
     <div class="mx-auto grid max-w-6xl gap-14 px-6 py-20 lg:grid-cols-12 lg:items-center lg:gap-16 lg:py-28">
         <div class="lg:col-span-7">
             <h1 class="text-display text-balance text-paper">
-                Every name, with the record that proves it.
+                Build your family history with confidence.
             </h1>
 
             <p class="mt-6 max-w-[58ch] text-pretty text-body text-emerald-100">
