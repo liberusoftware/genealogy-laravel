@@ -54,7 +54,10 @@ jobs:
       # phpstan.neon existed and was configured at level 9 while nothing ever
       # ran it. Scope and level are explained in that file.
       - name: Static analysis
-        run: vendor/bin/phpstan analyse --no-progress
+        # The default CLI limit is too small for Laravel's generated type
+        # graph. Keep the gate enabled and give PHPStan enough memory to
+        # complete instead of treating a worker crash as a passing check.
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=512M
 
       - name: Generate application key
         run: php artisan key:generate
