@@ -1,0 +1,28 @@
+{
+  "name": "liberusoftware/module-genealogy-people-api",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-people-api module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "liberusoftware/module-genealogy-people": "^1.0",
+    "illuminate/routing": "^13.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\People\\Api\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-people-api",
+      "provider": "Liberu\\Genealogy\\People\\Api\\PeopleApiServiceProvider"
+    }
+  }
+}

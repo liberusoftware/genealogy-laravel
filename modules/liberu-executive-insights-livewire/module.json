@@ -1,0 +1,23 @@
+{
+  "name": "liberu-executive-insights-livewire",
+  "display_name": "Liberu ExecutiveInsights livewire",
+  "description": "One-to-one livewire adapter for Liberu ExecutiveInsights.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\ExecutiveInsights\\Livewire\\ExecutiveInsightsLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-executive-insights": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.executive-insights.livewire"
+  ],
+  "features": [
+    "livewire presentation for executive-insights"
+  ],
+  "default_enabled": true
+}
+

@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-timeline",
+  "display_name": "Genealogy Timeline",
+  "description": "Provider-neutral Genealogy Timeline capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Timeline\\TimelineServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.timeline",
+    "genealogy.timeline.lifecycle"
+  ],
+  "features": [
+    "genealogy timeline",
+    "genealogy timeline lifecycle"
+  ],
+  "default_enabled": true
+}
+

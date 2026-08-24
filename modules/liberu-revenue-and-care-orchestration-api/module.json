@@ -1,0 +1,23 @@
+{
+  "name": "liberu-revenue-and-care-orchestration-api",
+  "display_name": "Liberu RevenueAndCareOrchestration api",
+  "description": "One-to-one api adapter for Liberu RevenueAndCareOrchestration.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\RevenueAndCareOrchestration\\Api\\RevenueAndCareOrchestrationApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.revenue-and-care-orchestration.api"
+  ],
+  "features": [
+    "api presentation for revenue-and-care-orchestration"
+  ],
+  "default_enabled": true
+}
+

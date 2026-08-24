@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-tree-viewer",
+  "display_name": "Genealogy Tree Viewer",
+  "description": "Provider-neutral Genealogy Tree Viewer capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\TreeViewer\\TreeViewerServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.tree-viewer",
+    "genealogy.tree-viewer.lifecycle"
+  ],
+  "features": [
+    "genealogy tree viewer",
+    "genealogy tree viewer lifecycle"
+  ],
+  "default_enabled": true
+}
+

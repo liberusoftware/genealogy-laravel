@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-evidence-livewire",
+  "display_name": "Genealogy Evidence livewire",
+  "description": "One-to-one livewire adapter for Genealogy Evidence.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Evidence\\Livewire\\EvidenceLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-evidence": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.evidence.livewire"
+  ],
+  "features": [
+    "livewire presentation for evidence"
+  ],
+  "default_enabled": true
+}
+

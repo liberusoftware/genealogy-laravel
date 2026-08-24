@@ -1,0 +1,28 @@
+{
+  "name": "liberusoftware/module-liberu-revenue-and-care-orchestration-filament",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu liberu-revenue-and-care-orchestration-filament module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0",
+    "filament/filament": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Platform\\RevenueAndCareOrchestration\\Filament\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "liberu-revenue-and-care-orchestration-filament",
+      "provider": "Liberu\\Platform\\RevenueAndCareOrchestration\\Filament\\RevenueAndCareOrchestrationFilamentServiceProvider"
+    }
+  }
+}

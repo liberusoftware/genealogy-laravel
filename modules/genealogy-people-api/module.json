@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-people-api",
+  "display_name": "Genealogy People api",
+  "description": "One-to-one api adapter for Genealogy People.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\People\\Api\\PeopleApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-people": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.people.api"
+  ],
+  "features": [
+    "api presentation for people"
+  ],
+  "default_enabled": true
+}
+

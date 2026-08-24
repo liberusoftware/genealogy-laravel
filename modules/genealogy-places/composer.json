@@ -1,0 +1,27 @@
+{
+  "name": "liberusoftware/module-genealogy-places",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-places module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "illuminate/support": "^13.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\Places\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-places",
+      "provider": "Liberu\\Genealogy\\Places\\PlacesServiceProvider"
+    }
+  }
+}

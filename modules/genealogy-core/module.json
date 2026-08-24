@@ -1,0 +1,22 @@
+{
+  "name": "genealogy-core",
+  "display_name": "Genealogy Genealogy Core",
+  "description": "Provider-neutral Genealogy Genealogy Core capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\GenealogyCore\\GenealogyCoreServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.genealogy-core",
+    "genealogy.genealogy-core.lifecycle"
+  ],
+  "features": [
+    "genealogy genealogy core",
+    "genealogy genealogy core lifecycle"
+  ],
+  "default_enabled": true
+}

@@ -1,0 +1,23 @@
+{
+  "name": "liberu-executive-insights-api",
+  "display_name": "Liberu ExecutiveInsights api",
+  "description": "One-to-one api adapter for Liberu ExecutiveInsights.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\ExecutiveInsights\\Api\\ExecutiveInsightsApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-executive-insights": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.executive-insights.api"
+  ],
+  "features": [
+    "api presentation for executive-insights"
+  ],
+  "default_enabled": true
+}
+

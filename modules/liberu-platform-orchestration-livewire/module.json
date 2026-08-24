@@ -1,0 +1,23 @@
+{
+  "name": "liberu-platform-orchestration-livewire",
+  "display_name": "Liberu PlatformOrchestration livewire",
+  "description": "One-to-one livewire adapter for Liberu PlatformOrchestration.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\PlatformOrchestration\\Livewire\\PlatformOrchestrationLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-platform-orchestration": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.platform-orchestration.livewire"
+  ],
+  "features": [
+    "livewire presentation for platform-orchestration"
+  ],
+  "default_enabled": true
+}
+

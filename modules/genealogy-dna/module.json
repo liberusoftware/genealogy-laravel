@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-dna",
+  "display_name": "Genealogy Dna",
+  "description": "Provider-neutral Genealogy Dna capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Dna\\DnaServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.dna",
+    "genealogy.dna.lifecycle"
+  ],
+  "features": [
+    "genealogy dna",
+    "genealogy dna lifecycle"
+  ],
+  "default_enabled": true
+}
+

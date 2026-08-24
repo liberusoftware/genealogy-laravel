@@ -1,0 +1,28 @@
+{
+  "name": "liberusoftware/module-genealogy-core-api",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-core-api module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "liberusoftware/module-genealogy-core": "^1.0",
+    "illuminate/routing": "^13.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\GenealogyCore\\Api\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-core-api",
+      "provider": "Liberu\\Genealogy\\GenealogyCore\\Api\\GenealogyCoreApiServiceProvider"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-tree-viewer-api",
+  "display_name": "Genealogy TreeViewer api",
+  "description": "One-to-one api adapter for Genealogy TreeViewer.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\TreeViewer\\Api\\TreeViewerApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-tree-viewer": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.tree-viewer.api"
+  ],
+  "features": [
+    "api presentation for tree-viewer"
+  ],
+  "default_enabled": true
+}
+

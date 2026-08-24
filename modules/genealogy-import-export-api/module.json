@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-import-export-api",
+  "display_name": "Genealogy ImportExport api",
+  "description": "One-to-one api adapter for Genealogy ImportExport.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\ImportExport\\Api\\ImportExportApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-import-export": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.import-export.api"
+  ],
+  "features": [
+    "api presentation for import-export"
+  ],
+  "default_enabled": true
+}
+

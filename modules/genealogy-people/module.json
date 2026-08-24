@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-people",
+  "display_name": "Genealogy People",
+  "description": "Provider-neutral Genealogy People capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\People\\PeopleServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.people",
+    "genealogy.people.lifecycle"
+  ],
+  "features": [
+    "genealogy people",
+    "genealogy people lifecycle"
+  ],
+  "default_enabled": true
+}
+

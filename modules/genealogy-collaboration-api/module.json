@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-collaboration-api",
+  "display_name": "Genealogy Collaboration api",
+  "description": "One-to-one api adapter for Genealogy Collaboration.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Collaboration\\Api\\CollaborationApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-collaboration": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.collaboration.api"
+  ],
+  "features": [
+    "api presentation for collaboration"
+  ],
+  "default_enabled": true
+}
+

@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-dna-api",
+  "display_name": "Genealogy Dna api",
+  "description": "One-to-one api adapter for Genealogy Dna.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Dna\\Api\\DnaApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-dna": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.dna.api"
+  ],
+  "features": [
+    "api presentation for dna"
+  ],
+  "default_enabled": true
+}
+

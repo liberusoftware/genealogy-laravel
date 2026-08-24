@@ -1,0 +1,22 @@
+{
+  "name": "genealogy-core-api",
+  "display_name": "Genealogy GenealogyCore api",
+  "description": "One-to-one api adapter for Genealogy GenealogyCore.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\GenealogyCore\\Api\\GenealogyCoreApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-core": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.genealogy-core.api"
+  ],
+  "features": [
+    "api presentation for genealogy-core"
+  ],
+  "default_enabled": true
+}

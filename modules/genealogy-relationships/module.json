@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-relationships",
+  "display_name": "Genealogy Relationships",
+  "description": "Provider-neutral Genealogy Relationships capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Relationships\\RelationshipsServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.relationships",
+    "genealogy.relationships.lifecycle"
+  ],
+  "features": [
+    "genealogy relationships",
+    "genealogy relationships lifecycle"
+  ],
+  "default_enabled": true
+}
+

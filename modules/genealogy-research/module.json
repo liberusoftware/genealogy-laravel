@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-research",
+  "display_name": "Genealogy Research",
+  "description": "Provider-neutral Genealogy Research capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Research\\ResearchServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.research",
+    "genealogy.research.lifecycle"
+  ],
+  "features": [
+    "genealogy research",
+    "genealogy research lifecycle"
+  ],
+  "default_enabled": true
+}
+

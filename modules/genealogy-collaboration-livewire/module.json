@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-collaboration-livewire",
+  "display_name": "Genealogy Collaboration livewire",
+  "description": "One-to-one livewire adapter for Genealogy Collaboration.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Collaboration\\Livewire\\CollaborationLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-collaboration": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.collaboration.livewire"
+  ],
+  "features": [
+    "livewire presentation for collaboration"
+  ],
+  "default_enabled": true
+}
+

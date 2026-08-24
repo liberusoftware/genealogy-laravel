@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-discovery",
+  "display_name": "Genealogy Discovery",
+  "description": "Provider-neutral Genealogy Discovery capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Discovery\\DiscoveryServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.discovery",
+    "genealogy.discovery.lifecycle"
+  ],
+  "features": [
+    "genealogy discovery",
+    "genealogy discovery lifecycle"
+  ],
+  "default_enabled": true
+}
+

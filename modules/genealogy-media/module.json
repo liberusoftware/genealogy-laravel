@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-media",
+  "display_name": "Genealogy Media",
+  "description": "Provider-neutral Genealogy Media capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Media\\MediaServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.media",
+    "genealogy.media.lifecycle"
+  ],
+  "features": [
+    "genealogy media",
+    "genealogy media lifecycle"
+  ],
+  "default_enabled": true
+}
+

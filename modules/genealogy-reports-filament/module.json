@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-reports-filament",
+  "display_name": "Genealogy Reports filament",
+  "description": "One-to-one filament adapter for Genealogy Reports.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Reports\\Filament\\ReportsFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-reports": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.reports.filament"
+  ],
+  "features": [
+    "filament presentation for reports"
+  ],
+  "default_enabled": true
+}
+

@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-tree-viewer-livewire",
+  "display_name": "Genealogy TreeViewer livewire",
+  "description": "One-to-one livewire adapter for Genealogy TreeViewer.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\TreeViewer\\Livewire\\TreeViewerLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-tree-viewer": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.tree-viewer.livewire"
+  ],
+  "features": [
+    "livewire presentation for tree-viewer"
+  ],
+  "default_enabled": true
+}
+

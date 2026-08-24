@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-discovery-livewire",
+  "display_name": "Genealogy Discovery livewire",
+  "description": "One-to-one livewire adapter for Genealogy Discovery.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Discovery\\Livewire\\DiscoveryLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-discovery": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.discovery.livewire"
+  ],
+  "features": [
+    "livewire presentation for discovery"
+  ],
+  "default_enabled": true
+}
+

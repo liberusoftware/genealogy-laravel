@@ -2,15 +2,15 @@
     "$schema": "https://schemas.liberu.dev/theme/v1.json",
     "name": "default",
     "display_name": "Liberu Default",
-    "version": "1.5.1",
+    "version": "1.5.2",
     "provider": "Liberu\\Themes\\DefaultTheme\\DefaultThemeServiceProvider",
     "type": "public",
     "parent": "base",
     "optimized_for": [
-        "liberusoftware/boilerplate-laravel:^1.0"
+        "liberusoftware/automation-laravel:^1.0"
     ],
     "tested_with": [
-        "liberusoftware/boilerplate-laravel:^1.0"
+        "liberusoftware/automation-laravel:^1.0"
     ],
     "required_capabilities": [],
     "optional_capabilities": [

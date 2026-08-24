@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-reports-livewire",
+  "display_name": "Genealogy Reports livewire",
+  "description": "One-to-one livewire adapter for Genealogy Reports.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Reports\\Livewire\\ReportsLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-reports": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.reports.livewire"
+  ],
+  "features": [
+    "livewire presentation for reports"
+  ],
+  "default_enabled": true
+}
+

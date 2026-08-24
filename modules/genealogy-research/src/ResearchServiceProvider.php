@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Liberu\Genealogy\Research;
+
+use Illuminate\Support\ServiceProvider;
+
+final class ResearchServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->app->singleton(Capability::class, fn (): Capability => new Capability(
+            'genealogy-research',
+            'Genealogy Research',
+            ['genealogy.research', 'genealogy.research.lifecycle'],
+        ));
+    }
+}

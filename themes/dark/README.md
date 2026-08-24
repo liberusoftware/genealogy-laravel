@@ -32,8 +32,8 @@ The trusted `liberusoftware/composer-installer` places the package in `/themes/d
 
 - Type: `public`
 - Parent: `base`
-- Optimised for: `liberusoftware/boilerplate-laravel:^1.0`
-- Tested with: `liberusoftware/boilerplate-laravel:^1.0`
+- Optimised for: `liberusoftware/automation-laravel:^1.0`
+- Tested with: `liberusoftware/automation-laravel:^1.0`
 - Required capabilities: none
 - Optional capabilities: foundation.localization, foundation.theme-support
 - Supported surfaces: application.shell, identity.auth, foundation.account

@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-research-livewire",
+  "display_name": "Genealogy Research livewire",
+  "description": "One-to-one livewire adapter for Genealogy Research.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Research\\Livewire\\ResearchLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-research": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.research.livewire"
+  ],
+  "features": [
+    "livewire presentation for research"
+  ],
+  "default_enabled": true
+}
+

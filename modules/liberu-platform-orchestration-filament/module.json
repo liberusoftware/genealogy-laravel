@@ -1,0 +1,23 @@
+{
+  "name": "liberu-platform-orchestration-filament",
+  "display_name": "Liberu PlatformOrchestration filament",
+  "description": "One-to-one filament adapter for Liberu PlatformOrchestration.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\PlatformOrchestration\\Filament\\PlatformOrchestrationFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-platform-orchestration": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.platform-orchestration.filament"
+  ],
+  "features": [
+    "filament presentation for platform-orchestration"
+  ],
+  "default_enabled": true
+}
+

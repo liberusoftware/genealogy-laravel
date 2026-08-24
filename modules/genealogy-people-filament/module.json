@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-people-filament",
+  "display_name": "Genealogy People filament",
+  "description": "One-to-one filament adapter for Genealogy People.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\People\\Filament\\PeopleFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-people": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.people.filament"
+  ],
+  "features": [
+    "filament presentation for people"
+  ],
+  "default_enabled": true
+}
+

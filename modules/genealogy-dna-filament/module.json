@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-dna-filament",
+  "display_name": "Genealogy Dna filament",
+  "description": "One-to-one filament adapter for Genealogy Dna.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Dna\\Filament\\DnaFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-dna": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.dna.filament"
+  ],
+  "features": [
+    "filament presentation for dna"
+  ],
+  "default_enabled": true
+}
+

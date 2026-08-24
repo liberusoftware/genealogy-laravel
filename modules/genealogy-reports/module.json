@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-reports",
+  "display_name": "Genealogy Reports",
+  "description": "Provider-neutral Genealogy Reports capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Reports\\ReportsServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "genealogy.reports",
+    "genealogy.reports.lifecycle"
+  ],
+  "features": [
+    "genealogy reports",
+    "genealogy reports lifecycle"
+  ],
+  "default_enabled": true
+}
+

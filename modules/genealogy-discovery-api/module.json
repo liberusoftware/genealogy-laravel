@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-discovery-api",
+  "display_name": "Genealogy Discovery api",
+  "description": "One-to-one api adapter for Genealogy Discovery.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Discovery\\Api\\DiscoveryApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-discovery": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.discovery.api"
+  ],
+  "features": [
+    "api presentation for discovery"
+  ],
+  "default_enabled": true
+}
+

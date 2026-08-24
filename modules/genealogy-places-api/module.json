@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-places-api",
+  "display_name": "Genealogy Places api",
+  "description": "One-to-one api adapter for Genealogy Places.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Places\\Api\\PlacesApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-places": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.places.api"
+  ],
+  "features": [
+    "api presentation for places"
+  ],
+  "default_enabled": true
+}
+

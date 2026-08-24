@@ -1,0 +1,23 @@
+{
+  "name": "liberu-executive-insights",
+  "display_name": "Liberu Executive Insights",
+  "description": "Provider-neutral Liberu Executive Insights capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Platform\\ExecutiveInsights\\ExecutiveInsightsServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "liberu.executive-insights",
+    "liberu.executive-insights.lifecycle"
+  ],
+  "features": [
+    "liberu executive insights",
+    "liberu executive insights lifecycle"
+  ],
+  "default_enabled": true
+}
+
