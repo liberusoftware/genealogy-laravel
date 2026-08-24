@@ -2,10 +2,10 @@ name: Docker
 
 on:
   push:
-    branches: [main]
+    branches: [main, development]
     tags: ['*']
   pull_request:
-    branches: [main]
+    branches: [main, development]
   workflow_dispatch:
 
 permissions:
