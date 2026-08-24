@@ -1,0 +1,43 @@
+{
+  "name": "liberusoftware/settings-filament",
+  "description": "Filament administration adapter for Liberu Settings.",
+  "type": "liberu-module",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "filament/filament": "^5.1",
+    "filament/spatie-laravel-settings-plugin": "^5.0",
+    "liberusoftware/settings": "^1.0",
+    "liberusoftware/theme-support": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Foundation\\SettingsFilament\\": "src/"
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "settings-filament"
+    }
+  },
+  "version": "1.4.1",
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Foundation\\SettingsFilament\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0",
+    "liberusoftware/theme-base": "^2.0",
+    "liberusoftware/theme-default": "^1.5"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}

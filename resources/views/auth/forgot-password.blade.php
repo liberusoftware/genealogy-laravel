@@ -1,41 +1,34 @@
-@extends('layouts.home')
+<x-guest-layout>
+    <x-authentication-card>
+        <x-slot name="logo">
+            <x-authentication-card-logo />
+        </x-slot>
 
-@section('content')
-    <x-auth.card
-        :title="__('Reset your password')"
-        :subtitle="__('Give us the email address on your account and we will send a link to choose a new password.')"
-    >
+        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+        </div>
+
         @session('status')
-            <p role="status" class="mb-6 rounded-md border border-registry-green bg-registry-tint px-4 py-3 text-body text-registry-green-deep">
+            <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
                 {{ $value }}
-            </p>
+            </div>
         @endsession
 
-        <x-validation-errors class="mb-6" />
+        <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-5">
+        <form method="POST" action="{{ route('password.email') }}">
             @csrf
 
-            <x-auth.field
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                :value="old('email')"
-                autocomplete="username"
-                autofocus
-            />
+            <div class="block">
+                <x-label for="email" value="{{ __('Email') }}" />
+                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            </div>
 
-            <button type="submit"
-                    class="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
-                {{ __('Email password reset link') }}
-            </button>
+            <div class="flex items-center justify-end mt-4">
+                <x-button>
+                    {{ __('Email Password Reset Link') }}
+                </x-button>
+            </div>
         </form>
-
-        <x-slot name="footer">
-            <a href="{{ route('login') }}"
-               class="rounded-sm font-semibold text-registry-green transition-colors duration-150 ease-out-quart hover:text-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
-                {{ __('Back to sign in') }}
-            </a>
-        </x-slot>
-    </x-auth.card>
-@endsection
+    </x-authentication-card>
+</x-guest-layout>

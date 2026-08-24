@@ -3,8 +3,6 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
-         displayDetailsOnTestsThatTriggerWarnings="true"
-         displayDetailsOnPhpunitDeprecations="true"
 >
     <testsuites>
         <testsuite name="Unit">
@@ -13,10 +11,13 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
-        <testsuite name="Filament">
-            <directory>tests/Filament</directory>
+        <testsuite name="Architecture">
+            <directory>tests/Architecture</directory>
         </testsuite>
     </testsuites>
+    <!-- The host measures the host. Each package runs and measures itself, against its
+         own phpunit.xml and its own coverage threshold — a package's numbers are not
+         the composition's to report. -->
     <source>
         <include>
             <directory>app</directory>
@@ -24,31 +25,19 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:3xVFJ5tTr05dWL1gsJqF+UvWdv3X0Cz/CBaUG47hb3U="/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
+        <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
-        <!-- Without a from address every rendered mailable throws "An email must
-             have a From or a Sender header", so no test could exercise the mail
-             channel at all. The array mailer still sends nothing. -->
-        <env name="MAIL_FROM_ADDRESS" value="testing@example.com"/>
-        <env name="MAIL_FROM_NAME" value="Testing"/>
-        <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
-        <env name="REVERB_APP_ID" value="test"/>
-        <env name="REVERB_APP_KEY" value="test"/>
-        <env name="REVERB_APP_SECRET" value="test"/>
-        <env name="STRIPE_WEBHOOK_SECRET" value="whsec_test_secret"/>
-        <!-- Off by default so rendering a price page never reaches for the live ECB
-             feed (#1636). Tests that want the estimate set the config themselves
-             and fake the HTTP call. -->
-        <env name="SUBSCRIPTION_DISPLAY_CURRENCIES" value=""/>
-        <!-- The suite exercises the paywalled posture this deployment ships
-             (#1638). Tests for the open posture turn it off themselves. -->
-        <env name="SUBSCRIPTION_PAYWALL_ENABLED" value="true"/>
+        <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>
 </phpunit>

@@ -1,23 +1,20 @@
 includes:
     - vendor/larastan/larastan/extension.neon
-    - phpstan-baseline.neon
+    - vendor/nesbot/carbon/extension.neon
 
 parameters:
-    level: 4
+
+    # app/ only. modules/ and themes/ are Composer output — analysing them from
+    # here uses the host's resolution rather than the package's own, and the
+    # package is the only place its source can be analysed against the tree a
+    # consumer actually installs. Each package carries its own measured level in
+    # its tests.yml, as the reusable workflow's phpstan-level input.
     paths:
-        - app
-    excludePaths:
-        analyse:
-            - app/Modules/*/vendor/*
-    # larastan teaches PHPStan about Eloquent: without it, every Model::where(),
-    # ->find() and $model->column read as an undefined symbol, which drowned real
-    # findings ~60% noise (1568 -> 624). It also adds checks plain PHPStan cannot
-    # do at all — notably relationExistence, which resolves relation names inside
-    # with()/whereHas(). Eloquent only resolves those at query time, so a dead
-    # relation name is invisible until it throws in production; that check alone
-    # found three live fatals here.
-    #
-    # The baseline still covers pre-existing drift. It is a debt ledger, not a
-    # verdict: it once swallowed a genuine "class not found" that PHPStan had
-    # correctly reported. Shrink it rather than grow it, and prefer fixing a
-    # finding to re-baselining it. Ratchet: raise the level once it is thinner.
+        - app/
+
+    # Measured, not aspired to. This was 9 while CI ran phpstan never; app/ has
+    # 5 errors at 9, 2 at 6, and none at 5. Level 5 is the first level this code
+    # has ever actually met, and the ratchet is what moves it back up — the same
+    # policy every package is now held to. The five level-9 errors are audit
+    # findings, not a reason to keep a number nothing enforced.
+    level: 5

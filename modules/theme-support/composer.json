@@ -1,0 +1,47 @@
+{
+  "name": "liberusoftware/theme-support",
+  "description": "Theme discovery and host presentation support for Liberu applications.",
+  "type": "liberu-module",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "liberusoftware/module-manager": "^1.0",
+    "liberusoftware/settings": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Foundation\\Theme\\": "src/"
+    },
+    "files": [
+      "src/Support/theme_helpers.php"
+    ]
+  },
+  "extra": {
+    "liberu": {
+      "name": "theme-support"
+    }
+  },
+  "version": "1.4.2",
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Foundation\\Theme\\Tests\\": "tests/"
+    },
+    "files": [
+      "tests/Helpers.php"
+    ]
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.7",
+    "liberusoftware/theme-dark": "^1.0",
+    "liberusoftware/theme-default": "^1.0",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
