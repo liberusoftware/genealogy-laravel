@@ -7,7 +7,9 @@ namespace Liberu\Genealogy\Dna\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\Dna\Filament\Resources\DnaGroupResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaKitResource;
+use Liberu\Genealogy\Dna\Filament\Resources\DnaMatchResource;
 
 final class DnaFilamentServiceProvider extends ServiceProvider
 {
@@ -28,7 +30,11 @@ final class DnaFilamentPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->resources([DnaKitResource::class]);
+        $panel->resources([
+            DnaKitResource::class,
+            DnaMatchResource::class,
+            DnaGroupResource::class,
+        ]);
     }
 
     public function boot(Panel $panel): void {}

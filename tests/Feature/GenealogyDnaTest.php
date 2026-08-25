@@ -3,7 +3,13 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Genealogy\Dna\Actions\CreateDnaGroup;
+use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
+use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
+use Liberu\Genealogy\Dna\Models\DnaGroup;
+use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -86,4 +92,34 @@ it('rejects an oversized nested page size on DNA kit collections', function (): 
         ->getJson('/api/v1/genealogy/dna/kits?page%5Bsize%5D=101')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['page.size']);
+});
+
+it('filters DNA matches and groups through their Livewire presentation components', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Family kit']);
+    app(CreateDnaMatch::class)->execute([
+        'kit_id' => $kit->id,
+        'external_id' => 'match-1',
+        'display_name' => 'Maternal match',
+        'status' => 'active',
+        'confidence' => 88,
+        'is_private' => false,
+    ]);
+    app(CreateDnaGroup::class)->execute(['name' => 'Maternal group', 'status' => 'active']);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-match-list')
+        ->set('search', 'Maternal')
+        ->assertSee('Maternal match');
+
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-group-list')
+        ->set('status', 'active')
+        ->assertSee('Maternal group');
+
+    expect(DnaKit::query()->count())->toBe(1)
+        ->and(DnaGroup::query()->count())->toBe(1);
 });
