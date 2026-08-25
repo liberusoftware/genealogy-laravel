@@ -6,6 +6,8 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Dna\Actions\CreateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
@@ -94,6 +96,19 @@ it('rejects an oversized nested page size on DNA kit collections', function (): 
         ->getJson('/api/v1/genealogy/dna/kits?page%5Bsize%5D=101')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['page.size']);
+});
+
+it('keeps DNA kit CRUD mutations behind tenant-safe domain actions', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Original kit']);
+
+    $updated = app(UpdateDnaKit::class)->execute($kit, ['name' => 'Updated kit']);
+    app(DeleteDnaKit::class)->execute($updated);
+
+    expect(DnaKit::query()->withTrashed()->find($kit->getKey())->name)->toBe('Updated kit')
+        ->and(DnaKit::query()->find($kit->getKey()))->toBeNull();
 });
 
 it('filters DNA matches and groups through their Livewire presentation components', function (): void {

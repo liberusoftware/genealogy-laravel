@@ -7,8 +7,10 @@ namespace Liberu\Genealogy\Dna\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\RevokeDnaKit;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Services\DnaFileValidator;
 
@@ -49,21 +51,21 @@ final class DnaKitController
         return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, DnaKit $record): JsonResponse
+    public function update(Request $request, DnaKit $record, UpdateDnaKit $update): JsonResponse
     {
-        $record->update($request->validate([
+        $values = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'external_id' => ['nullable', 'string', 'max:255'],
             'person_id' => ['nullable', 'uuid'], 'test_type' => ['nullable', 'string', 'max:100'], 'consent_status' => ['sometimes', 'in:'.implode(',', DnaKit::CONSENT_STATUSES)],
             'status' => ['sometimes', 'string', 'max:50'],
             'metadata' => ['nullable', 'array'],
-        ]));
+        ]);
 
-        return response()->json(['data' => $this->resource($record->refresh())]);
+        return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }
 
-    public function destroy(DnaKit $record): JsonResponse
+    public function destroy(DnaKit $record, DeleteDnaKit $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }
