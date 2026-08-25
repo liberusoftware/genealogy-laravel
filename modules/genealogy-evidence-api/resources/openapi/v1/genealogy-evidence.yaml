@@ -3,7 +3,7 @@ info: { title: Genealogy Evidence API, version: 1.0.0 }
 paths:
   /api/v1/genealogy/evidence/{entity}:
     parameters: [{ name: entity, in: path, required: true, schema: { type: string, enum: [sources, repositories, citations, extracts, assertions, proof-conclusions] } }]
-    get: { operationId: genealogy.evidence.entity.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    get: { operationId: genealogy.evidence.entity.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }, { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
     post: { operationId: genealogy.evidence.entity.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/EntityInput' } } } }, responses: { '201': { $ref: '#/components/responses/EntityResource' } } }
   /api/v1/genealogy/evidence/{entity}/{record}:
     parameters: [{ name: entity, in: path, required: true, schema: { type: string, enum: [sources, repositories, citations, extracts, assertions, proof-conclusions] } }, { name: record, in: path, required: true, schema: { type: string, format: uuid } }]

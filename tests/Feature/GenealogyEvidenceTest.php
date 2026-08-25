@@ -225,3 +225,15 @@ it('exposes evidence subdomains through explicit API resources', function (): vo
         ->assertCreated()
         ->assertJsonPath('data.type', 'genealogy-evidence-genealogy_evidence_sources');
 });
+
+it('bounds evidence entity pagination through the API contract', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/genealogy/evidence/sources?per_page=101')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['per_page']);
+});
