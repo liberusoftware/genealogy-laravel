@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaMatchResource\Pages\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaMatchResource\Pages\EditDnaMatch;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaMatchResource\Pages\ListDnaMatches;
@@ -56,7 +57,7 @@ final class DnaMatchResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (DnaMatch $record): mixed => app(DeleteDnaMatch::class)->execute($record)),
         ]);
     }
 

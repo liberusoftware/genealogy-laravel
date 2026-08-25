@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaGroup;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaGroupResource\Pages\CreateDnaGroup;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaGroupResource\Pages\EditDnaGroup;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaGroupResource\Pages\ListDnaGroups;
@@ -50,7 +51,7 @@ final class DnaGroupResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (DnaGroup $record): mixed => app(DeleteDnaGroup::class)->execute($record)),
         ]);
     }
 

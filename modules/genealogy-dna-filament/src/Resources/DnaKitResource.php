@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaKitResource\Pages\CreateDnaKit;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaKitResource\Pages\EditDnaKit;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaKitResource\Pages\ListDnaKits;
@@ -46,7 +47,7 @@ final class DnaKitResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (DnaKit $record): mixed => app(DeleteDnaKit::class)->execute($record)),
         ]);
     }
 
