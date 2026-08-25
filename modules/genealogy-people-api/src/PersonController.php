@@ -8,8 +8,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\People\Actions\DeletePerson;
+use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
 use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
+use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Models\MergeCandidate;
 use Liberu\Genealogy\People\Models\Person;
 
@@ -68,6 +70,21 @@ final class PersonController
         $delete->execute($person);
 
         return response()->json(status: 204);
+    }
+
+    public function updateAttributes(Request $request, Person $person, UpdatePersonAttributes $update): JsonResponse
+    {
+        $values = $request->validate([
+            'attributes' => ['required', 'array'],
+            'replace' => ['sometimes', 'boolean'],
+        ]);
+
+        return response()->json(['data' => $this->resource($update->execute($person, $values['attributes'], $values['replace'] ?? false))]);
+    }
+
+    public function removeAttribute(Person $person, string $attribute, RemovePersonAttribute $remove): JsonResponse
+    {
+        return response()->json(['data' => $this->resource($remove->execute($person, $attribute))]);
     }
 
     public function reviewMergeCandidate(

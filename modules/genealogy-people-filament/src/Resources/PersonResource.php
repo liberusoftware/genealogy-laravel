@@ -48,6 +48,7 @@ final class PersonResource extends Resource
             TextInput::make('birth_place')->maxLength(255),
             TextInput::make('death_place')->maxLength(255),
             Toggle::make('is_public')->default(false),
+            Textarea::make('attributes')->json()->columnSpanFull(),
             Textarea::make('metadata')->json()->columnSpanFull(),
         ]);
     }

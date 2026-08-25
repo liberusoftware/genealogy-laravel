@@ -16,6 +16,10 @@ final class PeopleApiServiceProvider extends ServiceProvider
         $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class, 'throttle:60,1'])->group(function () use ($router): void {
             $router->post('api/v1/genealogy/people/{person}/merge-candidates/{candidate}/review', [PersonController::class, 'reviewMergeCandidate'])
                 ->name('genealogy.people.merge-candidates.review');
+            $router->match(['put', 'patch'], 'api/v1/genealogy/people/{person}/attributes', [PersonController::class, 'updateAttributes'])
+                ->name('genealogy.people.attributes.update');
+            $router->delete('api/v1/genealogy/people/{person}/attributes/{attribute}', [PersonController::class, 'removeAttribute'])
+                ->name('genealogy.people.attributes.delete');
             $router->get('api/v1/genealogy/people/{person}/{supporting}', [PersonSupportingRecordController::class, 'index']);
             $router->post('api/v1/genealogy/people/{person}/{supporting}', [PersonSupportingRecordController::class, 'store']);
             $router->match(['put', 'patch'], 'api/v1/genealogy/people/{person}/{supporting}/{record}', [PersonSupportingRecordController::class, 'update']);

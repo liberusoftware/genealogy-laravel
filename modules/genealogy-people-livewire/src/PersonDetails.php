@@ -9,6 +9,8 @@ use Liberu\Genealogy\People\Actions\CreateMergeCandidate;
 use Liberu\Genealogy\People\Actions\CreatePersonIdentity;
 use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
 use Liberu\Genealogy\People\Actions\CreatePersonName;
+use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
+use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Models\Person;
 use Livewire\Component;
 
@@ -31,6 +33,8 @@ final class PersonDetails extends Component
     public string $lifeEventDescription = '';
 
     public string $candidatePersonId = '';
+
+    public string $attributesJson = '{}';
 
     public function addName(CreatePersonName $create): void
     {
@@ -64,9 +68,36 @@ final class PersonDetails extends Component
         $this->dispatch('person-merge-candidate-created');
     }
 
+    public function updateAttributes(UpdatePersonAttributes $update): void
+    {
+        $this->validate(['personId' => ['required', 'uuid'], 'attributesJson' => ['required', 'json']]);
+        $attributes = json_decode($this->attributesJson, true, 512, JSON_THROW_ON_ERROR);
+        if (! is_array($attributes) || ($attributes !== [] && array_is_list($attributes))) {
+            $this->addError('attributesJson', 'Attributes must be a JSON object.');
+
+            return;
+        }
+
+        $update->execute(Person::query()->findOrFail($this->personId), $attributes, true);
+        $this->dispatch('person-attributes-updated');
+    }
+
+    public function removeAttribute(string $attribute, RemovePersonAttribute $remove): void
+    {
+        $this->validate(['personId' => ['required', 'uuid']]);
+        if (trim($attribute) === '' || mb_strlen($attribute) > 100) {
+            $this->addError('attributesJson', 'An attribute name between 1 and 100 characters is required.');
+
+            return;
+        }
+        $remove->execute(Person::query()->findOrFail($this->personId), $attribute);
+        $this->dispatch('person-attributes-updated');
+    }
+
     public function render(): View
     {
         $person = Person::query()->with(['names', 'identities', 'lifeEvents', 'mergeCandidates'])->findOrFail($this->personId);
+        $this->attributesJson = json_encode($person->attributes ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
 
         return view('genealogy-people-livewire::person-details', compact('person'));
     }

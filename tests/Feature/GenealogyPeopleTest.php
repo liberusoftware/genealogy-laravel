@@ -11,9 +11,12 @@ use Liberu\Genealogy\People\Actions\CreatePersonIdentity;
 use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
 use Liberu\Genealogy\People\Actions\CreatePersonName;
 use Liberu\Genealogy\People\Actions\DeletePerson;
+use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
 use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
+use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Events\MergeCandidateReviewed;
+use Liberu\Genealogy\People\Events\PersonAttributesUpdated;
 use Liberu\Genealogy\People\Events\PersonDeleted;
 use Liberu\Genealogy\People\Events\PersonMerged;
 use Liberu\Genealogy\People\Events\PersonUpdated;
@@ -111,6 +114,24 @@ it('publishes person update and deletion events after transactional mutations', 
     expect($person->fresh()->trashed())->toBeTrue();
 });
 
+it('manages person attributes through an explicit tenant-safe lifecycle', function (): void {
+    Event::fake();
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada', 'attributes' => ['occupation' => 'mathematician']]);
+
+    (new UpdatePersonAttributes())->execute($person, ['occupation' => 'writer', 'language' => 'English']);
+    expect($person->fresh()->attributes)->toBe(['occupation' => 'writer', 'language' => 'English']);
+
+    (new UpdatePersonAttributes())->execute($person, ['language' => 'French'], true);
+    expect($person->fresh()->attributes)->toBe(['language' => 'French']);
+
+    (new RemovePersonAttribute())->execute($person, 'language');
+    expect($person->fresh()->attributes)->toBe([]);
+    Event::assertDispatched(PersonAttributesUpdated::class, 3);
+});
+
 it('exposes merge-candidate review through the authenticated API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -154,6 +175,11 @@ it('exposes every people supporting capability through tenant-scoped API resourc
     $this->actingAs($user)->postJson("/api/v1/genealogy/people/{$person->id}/merge-candidates", [
         'candidate_person_id' => $candidate->id,
     ])->assertCreated()->assertJsonPath('data.type', 'genealogy-person-merge-candidates');
+    $this->actingAs($user)->patchJson("/api/v1/genealogy/people/{$person->id}/attributes", [
+        'attributes' => ['occupation' => 'mathematician'],
+    ])->assertOk()->assertJsonPath('data.attributes.attributes.occupation', 'mathematician');
+    $this->actingAs($user)->deleteJson("/api/v1/genealogy/people/{$person->id}/attributes/occupation")
+        ->assertOk()->assertJsonPath('data.attributes.attributes', []);
 
     app(TeamContext::class)->set($team->id);
     expect(PersonName::query()->where('person_id', $person->id)->count())->toBe(1)
