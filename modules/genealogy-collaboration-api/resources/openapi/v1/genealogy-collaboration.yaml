@@ -3,6 +3,15 @@ info:
   title: Genealogy Collaboration API
   version: 1.0.0
 paths:
+  /api/v1/genealogy/collaboration/proposals:
+    get: { operationId: genealogy.collaboration.proposals.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }, { name: status, in: query, schema: { type: string } }, { name: pending_review, in: query, schema: { type: boolean } }], responses: { '200': { $ref: '#/components/responses/ProposalCollection' } } }
+    post: { operationId: genealogy.collaboration.proposals.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProposalInput' } } } }, responses: { '201': { $ref: '#/components/responses/ProposalResource' } } }
+  /api/v1/genealogy/collaboration/proposals/{record}:
+    get: { operationId: genealogy.collaboration.proposals.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/ProposalResource' } } }
+    patch: { operationId: genealogy.collaboration.proposals.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ProposalInput' } } } }, responses: { '200': { $ref: '#/components/responses/ProposalResource' } } }
+    delete: { operationId: genealogy.collaboration.proposals.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+  /api/v1/genealogy/collaboration/proposals/{record}/review:
+    post: { operationId: genealogy.collaboration.proposals.review, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [in_review, approved, rejected] } } } } } }, responses: { '200': { $ref: '#/components/responses/ProposalResource' } } }
   /api/v1/genealogy/collaboration:
     get:
       operationId: genealogy.collaboration.list
@@ -25,8 +34,12 @@ paths:
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   schemas:
+    ProposalInput: { type: object, required: [title], properties: { title: { type: string, maxLength: 255 }, description: { type: [string, 'null'] }, metadata: { type: [object, 'null'] } } }
     Input: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, status: { type: string, maxLength: 50 }, metadata: { type: object, nullable: true } } }
     Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-collaboration-space }, attributes: { $ref: '#/components/schemas/Input' } } }
+    ProposalResource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-collaboration-proposal }, attributes: { $ref: '#/components/schemas/ProposalInput' } } }
   responses:
     Resource: { description: Collaboration space, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
     Collection: { description: Paginated collaboration spaces, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }
+    ProposalResource: { description: Collaboration proposal resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/ProposalResource' } } } } } }
+    ProposalCollection: { description: Paginated collaboration proposals, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/ProposalResource' } }, meta: { type: object } } } } } }

@@ -14,6 +14,11 @@ final class CollaborationApiServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class])->group(function () use ($router): void {
+            $router->apiResource('api/v1/genealogy/collaboration/proposals', CollaborationProposalController::class)
+                ->only(['index', 'store', 'show', 'update', 'destroy'])
+                ->parameters(['proposals' => 'record']);
+            $router->post('api/v1/genealogy/collaboration/proposals/{record}/review', [CollaborationProposalController::class, 'review'])
+                ->name('genealogy.collaboration.proposals.review');
             $router->apiResource('api/v1/genealogy/collaboration', CollaborationSpaceController::class)
                 ->parameters(['collaboration-spaces' => 'record']);
         });

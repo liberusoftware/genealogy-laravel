@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Collaboration\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationProposalResource;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationSpaceResource;
 
 final class CollaborationFilamentServiceProvider extends ServiceProvider
@@ -28,7 +29,7 @@ final class CollaborationFilamentPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->resources([CollaborationSpaceResource::class]);
+        $panel->resources([CollaborationSpaceResource::class, CollaborationProposalResource::class]);
     }
 
     public function boot(Panel $panel): void {}
