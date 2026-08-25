@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Validation\ValidationException;
+use Liberu\Foundation\ApiAccess\Http\Middleware\ApiContract;
 use Liberu\Foundation\ApplicationCore\Http\Middleware\SecurityHeaders;
 use Liberu\Foundation\Localization\Http\Middleware\SetLocale;
 use Liberu\Genealogy\GenealogyCore\Http\Middleware\EstablishTeamContext;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             Authenticate::class,
             EstablishTeamContext::class,
             SubstituteBindings::class,
+            ApiContract::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -22,6 +22,7 @@ final class ImportExportServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        $this->mergeConfigFrom(__DIR__.'/../config/genealogy-import-export.php', 'genealogy-import-export');
         $this->app->singleton(GenealogyDocumentParser::class);
         $this->app->singleton(GenealogyImportService::class);
         $this->app->singleton(GrampsExporter::class);

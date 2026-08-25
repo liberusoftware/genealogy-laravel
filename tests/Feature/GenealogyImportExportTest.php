@@ -5,6 +5,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
 use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyDocumentParser;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
@@ -87,4 +88,36 @@ it('round trips GEDCOM people and relationship edges without duplicate creation'
 
     $gedcom = app(GedcomExporter::class)->export(Person::query()->get(), Relationship::query()->get());
     expect($gedcom)->toContain('0 @I1@ INDI')->toContain('1 HUSB')->toContain('1 NAME Parent /Example/');
+});
+
+it('supports an audited undo window for completed imports', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $transfer = app(CreateDataTransfer::class)->execute([
+        'name' => 'Undoable archive',
+        'format' => 'gedcom',
+        'direction' => 'import',
+        'status' => 'active',
+    ]);
+    $content = implode("\n", [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Parent /Example/',
+        '0 @I2@ INDI', '1 NAME Child /Example/',
+        '0 @F1@ FAM', '1 HUSB @I1@', '1 CHIL @I2@',
+        '0 TRLR',
+    ]);
+
+    app(GenealogyImportService::class)->import($content, false, $transfer);
+    $transfer->refresh();
+
+    expect($transfer->status)->toBe('completed')
+        ->and($transfer->metadata['undo']['created_people'])->toHaveCount(2)
+        ->and(Relationship::query()->count())->toBe(1);
+
+    $undone = app(UndoDataTransfer::class)->execute($transfer);
+
+    expect($undone->status)->toBe('rolled_back')
+        ->and(Person::withTrashed()->count())->toBe(0)
+        ->and(Relationship::query()->count())->toBe(0);
 });

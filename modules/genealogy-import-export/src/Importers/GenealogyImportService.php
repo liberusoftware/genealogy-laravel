@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\ImportExport\Importers;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Liberu\Genealogy\ImportExport\Actions\UpdateDataTransfer;
@@ -72,6 +73,9 @@ final class GenealogyImportService
             $byXref = [];
             $created = 0;
             $updated = 0;
+            $createdPeople = [];
+            $updatedPeople = [];
+            $createdRelationships = [];
 
             foreach ($document['people'] as $attributes) {
                 $xref = $attributes['xref'];
@@ -87,10 +91,18 @@ final class GenealogyImportService
                 ];
 
                 if ($person) {
+                    $updatedPeople[] = [
+                        'id' => (string) $person->getKey(),
+                        'attributes' => Arr::only($person->getAttributes(), [
+                            'given_name', 'family_name', 'display_name', 'sex', 'aliases', 'attributes',
+                            'birth_date', 'death_date', 'birth_place', 'death_place', 'is_public', 'metadata',
+                        ]),
+                    ];
                     ($this->updatePerson ?? new UpdatePerson())->execute($person, $values);
                     $updated++;
                 } else {
                     $person = ($this->createPerson ?? new CreatePerson())->execute($values);
+                    $createdPeople[] = (string) $person->getKey();
                     $created++;
                 }
 
@@ -137,31 +149,47 @@ final class GenealogyImportService
                         continue;
                     }
                     foreach ($parents as $parentXref) {
-                        if ($this->createRelationshipIfMissing([
+                        if (($relationship = $this->createRelationshipIfMissing([
                             'person_id' => $byXref[$parentXref]->getKey(),
                             'related_person_id' => $byXref[$childXref]->getKey(),
                             'type' => 'parent',
                             'confidence' => 100,
                             'metadata' => ['gedcom_xref' => $family['xref']],
-                        ])) {
+                        ])) !== null) {
+                            $createdRelationships[] = (string) $relationship->getKey();
                             $relationships++;
                         }
                     }
                 }
                 if (count($parents) === 2) {
-                    if ($this->createRelationshipIfMissing([
+                    if (($relationship = $this->createRelationshipIfMissing([
                         'person_id' => $byXref[$parents[0]]->getKey(),
                         'related_person_id' => $byXref[$parents[1]]->getKey(),
                         'type' => 'partner',
                         'confidence' => 100,
                         'metadata' => ['gedcom_xref' => $family['xref']],
-                    ])) {
+                    ])) !== null) {
+                        $createdRelationships[] = (string) $relationship->getKey();
                         $relationships++;
                     }
                 }
             }
 
-            return array_merge($report, ['dry_run' => false, 'created' => $created, 'updated' => $updated, 'relationships_created' => $relationships]);
+            $undo = [
+                'expires_at' => now()->addHours((int) config('genealogy-import-export.undo_hours', 24))->toISOString(),
+                'created_people' => $createdPeople,
+                'updated_people' => $updatedPeople,
+                'created_relationships' => $createdRelationships,
+            ];
+
+            return array_merge($report, [
+                'dry_run' => false,
+                'created' => $created,
+                'updated' => $updated,
+                'relationships_created' => $relationships,
+                'undo_expires_at' => $undo['expires_at'],
+                'undo' => $undo,
+            ]);
         });
 
         if ($transfer) {
@@ -182,18 +210,16 @@ final class GenealogyImportService
     }
 
     /** @param array<string, mixed> $attributes */
-    private function createRelationshipIfMissing(array $attributes): bool
+    private function createRelationshipIfMissing(array $attributes): ?Relationship
     {
         if (Relationship::query()
             ->where('person_id', $attributes['person_id'])
             ->where('related_person_id', $attributes['related_person_id'])
             ->where('type', $attributes['type'])
             ->exists()) {
-            return false;
+            return null;
         }
 
-        ($this->createRelationship ?? new CreateRelationship())->execute($attributes);
-
-        return true;
+        return ($this->createRelationship ?? new CreateRelationship())->execute($attributes);
     }
 }

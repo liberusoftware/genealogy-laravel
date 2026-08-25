@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\ImportExport\Livewire;
 
 use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
 use Liberu\Genealogy\ImportExport\Actions\UpdateDataTransfer;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
+use Liberu\Genealogy\ImportExport\Models\DataTransfer;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -18,6 +20,8 @@ final class DataTransferImport extends Component
 
     /** @var array<string, mixed>|null */
     public ?array $report = null;
+
+    public ?string $transferId = null;
 
     public function preview(GenealogyImportService $service): void
     {
@@ -38,7 +42,16 @@ final class DataTransferImport extends Component
             throw $exception;
         }
         $this->report = $report;
+        $this->transferId = (string) $transfer->getKey();
         $this->dispatch('genealogy-import-completed', report: $report);
+    }
+
+    public function undo(UndoDataTransfer $undo): void
+    {
+        $this->validate(['transferId' => ['required', 'uuid']]);
+        $transfer = DataTransfer::query()->findOrFail($this->transferId);
+        $this->report = ['undone' => true, 'transfer' => $undo->execute($transfer)->getKey()];
+        $this->dispatch('genealogy-import-undone', transfer: $this->transferId);
     }
 
     public function render(): mixed

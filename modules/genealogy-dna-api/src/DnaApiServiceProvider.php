@@ -6,13 +6,14 @@ namespace Liberu\Genealogy\Dna\Api;
 
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Foundation\ApiAccess\Http\Middleware\ApiContract;
 use Liberu\Genealogy\GenealogyCore\Http\Middleware\EstablishTeamContext;
 
 final class DnaApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, 'throttle:api'])->group(function () use ($router): void {
+        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class, 'throttle:api'])->group(function () use ($router): void {
             $router->post('api/v1/genealogy/dna/kits/{kit}/consent', [DnaKitController::class, 'consent'])->name('genealogy.dna.consent');
             $router->post('api/v1/genealogy/dna/kits/{kit}/revoke', [DnaKitController::class, 'revoke'])->name('genealogy.dna.revoke');
             $router->apiResource('api/v1/genealogy/dna/kits', DnaKitController::class)->parameters(['kits' => 'record']);

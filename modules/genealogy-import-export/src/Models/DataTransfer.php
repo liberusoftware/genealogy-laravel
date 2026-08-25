@@ -15,7 +15,7 @@ final class DataTransfer extends Model
 
     public const DIRECTIONS = ['import', 'export'];
 
-    public const STATUSES = ['draft', 'active', 'completed', 'failed'];
+    public const STATUSES = ['draft', 'active', 'completed', 'failed', 'rolled_back'];
 
     use BelongsToTeam;
     use HasUuids;

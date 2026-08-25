@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
 use Liberu\Genealogy\ImportExport\Actions\DeleteDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
 use Liberu\Genealogy\ImportExport\Actions\UpdateDataTransfer;
 use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
 use Liberu\Genealogy\ImportExport\Exporters\GrampsExporter;
@@ -81,6 +82,11 @@ final class DataTransferController
         return response()->streamDownload(function () use ($exporter, $people, $relationships): void {
             echo $exporter->export($people, $relationships);
         }, $filename, ['Content-Type' => $contentType]);
+    }
+
+    public function undo(DataTransfer $record, UndoDataTransfer $undo): JsonResponse
+    {
+        return response()->json(['data' => $this->resource($undo->execute($record))]);
     }
 
     public function show(DataTransfer $record): JsonResponse
