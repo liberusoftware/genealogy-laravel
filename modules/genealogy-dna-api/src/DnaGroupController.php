@@ -7,6 +7,8 @@ namespace Liberu\Genealogy\Dna\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Dna\Actions\CreateDnaGroup;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaGroup;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 
 final class DnaGroupController
@@ -38,16 +40,16 @@ final class DnaGroupController
         return response()->json(['data' => $this->resource($record->load('matches'))]);
     }
 
-    public function update(Request $request, DnaGroup $record): JsonResponse
+    public function update(Request $request, DnaGroup $record, UpdateDnaGroup $update): JsonResponse
     {
-        $record->update($request->validate(['name' => ['sometimes', 'string', 'max:255'], 'description' => ['sometimes', 'nullable', 'string'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['sometimes', 'nullable', 'array']]));
+        $values = $request->validate(['name' => ['sometimes', 'string', 'max:255'], 'description' => ['sometimes', 'nullable', 'string'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['sometimes', 'nullable', 'array']]);
 
-        return response()->json(['data' => $this->resource($record->refresh())]);
+        return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }
 
-    public function destroy(DnaGroup $record): JsonResponse
+    public function destroy(DnaGroup $record, DeleteDnaGroup $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }

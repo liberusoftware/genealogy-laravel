@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\CreateDnaSegment;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Services\AnalyzeDnaMatch;
 use Liberu\Genealogy\Dna\Services\TriangulateDna;
@@ -58,16 +60,16 @@ final class DnaMatchController
         return response()->json(['data' => $this->resource($record->load('segments'))]);
     }
 
-    public function update(Request $request, DnaMatch $record): JsonResponse
+    public function update(Request $request, DnaMatch $record, UpdateDnaMatch $update): JsonResponse
     {
-        $record->update($request->validate(['display_name' => ['sometimes', 'nullable', 'string', 'max:255'], 'predicted_relationship' => ['sometimes', 'nullable', 'string', 'max:100'], 'confidence' => ['sometimes', 'nullable', 'integer', 'between:0,100'], 'status' => ['sometimes', 'string', 'max:50'], 'is_private' => ['sometimes', 'boolean'], 'notes' => ['sometimes', 'nullable', 'string'], 'metadata' => ['sometimes', 'nullable', 'array']]));
+        $values = $request->validate(['display_name' => ['sometimes', 'nullable', 'string', 'max:255'], 'predicted_relationship' => ['sometimes', 'nullable', 'string', 'max:100'], 'confidence' => ['sometimes', 'nullable', 'integer', 'between:0,100'], 'status' => ['sometimes', 'string', 'max:50'], 'is_private' => ['sometimes', 'boolean'], 'notes' => ['sometimes', 'nullable', 'string'], 'metadata' => ['sometimes', 'nullable', 'array']]);
 
-        return response()->json(['data' => $this->resource($record->refresh())]);
+        return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }
 
-    public function destroy(DnaMatch $record): JsonResponse
+    public function destroy(DnaMatch $record, DeleteDnaMatch $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }

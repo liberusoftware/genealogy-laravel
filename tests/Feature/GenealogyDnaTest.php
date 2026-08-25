@@ -6,8 +6,12 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Dna\Actions\CreateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaGroup;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
@@ -139,6 +143,23 @@ it('filters DNA matches and groups through their Livewire presentation component
 
     expect(DnaKit::query()->count())->toBe(1)
         ->and(DnaGroup::query()->count())->toBe(1);
+});
+
+it('keeps DNA group and match CRUD mutations behind domain actions', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Group test kit']);
+    $group = app(CreateDnaGroup::class)->execute(['name' => 'Original group']);
+    $match = app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'group-test-match']);
+
+    $updatedGroup = app(UpdateDnaGroup::class)->execute($group, ['name' => 'Updated group']);
+    $updatedMatch = app(UpdateDnaMatch::class)->execute($match, ['confidence' => 77]);
+    app(DeleteDnaGroup::class)->execute($updatedGroup);
+    app(DeleteDnaMatch::class)->execute($updatedMatch);
+
+    expect(DnaGroup::query()->find($group->getKey()))->toBeNull()
+        ->and(DnaMatch::query()->find($match->getKey()))->toBeNull();
 });
 
 it('exposes DNA notes and person relationship annotations through the API', function (): void {
