@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Dna\Livewire;
 
+use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaNote;
 use Liberu\Genealogy\Dna\Models\DnaRelationship;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
@@ -22,7 +23,13 @@ final class DnaAnnotationList extends Component
 
         [$notes, $relationships] = app(TeamContext::class)->run($teamId, function (): array {
             return [
-                DnaNote::query()->when($this->matchId !== null, fn ($query) => $query->where('noteable_id', $this->matchId))->latest()->limit(25)->get(),
+                DnaNote::query()
+                    ->when($this->matchId !== null, fn ($query) => $query
+                        ->where('noteable_type', DnaMatch::class)
+                        ->where('noteable_id', $this->matchId))
+                    ->latest()
+                    ->limit(25)
+                    ->get(),
                 DnaRelationship::query()->when($this->matchId !== null, fn ($query) => $query->where('match_id', $this->matchId))->latest()->limit(25)->get(),
             ];
         });
