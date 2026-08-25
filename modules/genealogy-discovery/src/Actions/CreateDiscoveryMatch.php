@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Discovery\Actions;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Liberu\Genealogy\Discovery\Models\DiscoveryMatch;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 
 final class CreateDiscoveryMatch
 {
@@ -22,6 +23,9 @@ final class CreateDiscoveryMatch
         }
         if (isset($values['confidence']) && ($values['confidence'] < 0 || $values['confidence'] > 100)) {
             throw ValidationException::withMessages(['confidence' => 'Confidence must be between 0 and 100.']);
+        }
+        if (DiscoveryMatch::query()->getModel()->getConnection()->getSchemaBuilder()->hasColumn('genealogy_discovery_matches', 'team_id')) {
+            $values['team_id'] = app(TeamContext::class)->require();
         }
 
         return DiscoveryMatch::query()->create($values);

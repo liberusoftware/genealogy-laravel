@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Discovery\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Discovery\Actions\CreateDiscoveryMatch;
+use Liberu\Genealogy\Discovery\Actions\ReviewDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Models\DiscoveryMatch;
 use Liberu\Genealogy\Discovery\Queries\DiscoverySearch;
 use Liberu\Genealogy\Discovery\Queries\DuplicateCandidates;
@@ -68,6 +69,13 @@ final class DiscoveryMatchController
         $record->delete();
 
         return response()->json(status: 204);
+    }
+
+    public function review(Request $request, DiscoveryMatch $record, ReviewDiscoveryMatch $review): JsonResponse
+    {
+        $values = $request->validate(['status' => ['required', 'in:active,completed,dismissed']]);
+
+        return response()->json(['data' => $this->resource($review->execute($record, $values['status']))]);
     }
 
     public function search(Request $request, DiscoverySearch $search): JsonResponse

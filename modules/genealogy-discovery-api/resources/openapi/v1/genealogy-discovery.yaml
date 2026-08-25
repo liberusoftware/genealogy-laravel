@@ -23,6 +23,12 @@ paths:
       security: [{ sanctum: [] }]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DiscoveryCreate' } } } }
       responses: { '201': { $ref: '#/components/responses/Discovery' }, '422': { $ref: '#/components/responses/Problem' } }
+  /api/v1/genealogy/discovery/{record}/review:
+    post:
+      operationId: genealogy.discovery.review
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [active, completed, dismissed] } } } } } }
+      responses: { '200': { $ref: '#/components/responses/Discovery' }, '422': { $ref: '#/components/responses/Problem' } }
   /api/v1/genealogy/discovery/search:
     get:
       operationId: genealogy.discovery.search
