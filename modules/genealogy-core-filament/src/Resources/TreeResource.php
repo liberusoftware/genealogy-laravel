@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\GenealogyCore\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -19,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Liberu\Genealogy\GenealogyCore\Actions\DeleteTree;
+use Liberu\Genealogy\GenealogyCore\Actions\SetTreeVisibility;
 use Liberu\Genealogy\GenealogyCore\Filament\Resources\TreeResource\Pages\CreateTree;
 use Liberu\Genealogy\GenealogyCore\Filament\Resources\TreeResource\Pages\EditTree;
 use Liberu\Genealogy\GenealogyCore\Filament\Resources\TreeResource\Pages\ListTrees;
@@ -52,6 +54,11 @@ final class TreeResource extends Resource
             IconColumn::make('is_public')->boolean(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
+            Action::make('toggleVisibility')
+                ->label(fn (Tree $record): string => $record->is_public ? 'Make private' : 'Make public')
+                ->icon(fn (Tree $record): string => $record->is_public ? 'heroicon-o-lock-closed' : 'heroicon-o-globe-alt')
+                ->requiresConfirmation()
+                ->action(fn (Tree $record): Tree => app(SetTreeVisibility::class)->execute($record, ! $record->is_public)),
             EditAction::make(),
             DeleteAction::make()->action(fn (Model $record): mixed => app(DeleteTree::class)->execute($record)),
         ])->toolbarActions([

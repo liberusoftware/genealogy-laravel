@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\Actions\CreateTree;
+use Liberu\Genealogy\GenealogyCore\Actions\SetTreeVisibility;
 use Liberu\Genealogy\GenealogyCore\Actions\UpdateTree;
 use Liberu\Genealogy\GenealogyCore\Events\TreeCreated;
 use Liberu\Genealogy\GenealogyCore\Events\TreeUpdated;
@@ -44,6 +45,20 @@ it('allows public reads and updates only by the owner', function (): void {
     expect(Tree::public()->whereKey($updated)->value('status'))->toBe('active')
         ->and((new TreePolicy())->view(null, $updated))->toBeTrue()
         ->and((new TreePolicy())->manage(User::factory()->make(), $updated))->toBeFalse();
+});
+
+it('changes visibility through the dedicated privacy action and emits the update event', function (): void {
+    Event::fake();
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $tree = (new CreateTree())->execute(['name' => 'Privacy action', 'user_id' => $user->id]);
+
+    $updated = (new SetTreeVisibility())->execute($tree, true);
+
+    expect($updated->is_public)->toBeTrue()
+        ->and((new TreePolicy())->view(null, $updated))->toBeTrue();
+    Event::assertDispatched(TreeUpdated::class);
 });
 
 it('keeps identifiers unique per team, stores terminology, and emits lifecycle events', function (): void {

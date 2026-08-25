@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Genealogy\GenealogyCore\Actions\CreateTree;
 use Liberu\Genealogy\GenealogyCore\Actions\DeleteTree;
+use Liberu\Genealogy\GenealogyCore\Actions\SetTreeVisibility;
 use Liberu\Genealogy\GenealogyCore\Actions\UpdateTree;
 use Liberu\Genealogy\GenealogyCore\Api\Http\Resources\TreeResource;
 use Liberu\Genealogy\GenealogyCore\Models\Tree;
@@ -83,6 +84,14 @@ final class TreeController extends Controller
         ]);
 
         return new TreeResource($updateTree->execute($tree, $attributes));
+    }
+
+    public function visibility(Request $request, Tree $tree, SetTreeVisibility $visibility): TreeResource
+    {
+        abort_unless((new TreePolicy())->manage($request->user(), $tree), 403);
+        $values = $request->validate(['is_public' => ['required', 'boolean']]);
+
+        return new TreeResource($visibility->execute($tree, $values['is_public']));
     }
 
     public function destroy(Request $request, Tree $tree, DeleteTree $delete): void
