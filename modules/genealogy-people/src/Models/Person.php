@@ -44,6 +44,16 @@ final class Person extends Model
         return $this->hasMany(MergeCandidate::class);
     }
 
+    public function associations(): HasMany
+    {
+        return $this->hasMany(PersonAssociation::class);
+    }
+
+    public function associatedWith(): HasMany
+    {
+        return $this->hasMany(PersonAssociation::class, 'associated_person_id');
+    }
+
     protected function casts(): array
     {
         return [
