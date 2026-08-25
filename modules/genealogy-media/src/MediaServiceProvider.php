@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Liberu\Genealogy\GenealogyCore\Policies\TeamOwnedPolicy;
 use Liberu\Genealogy\Media\Models\MediaAsset;
+use Liberu\Genealogy\Media\Models\MediaFaceTag;
 use Liberu\Genealogy\Media\Models\MediaLink;
 
 final class MediaServiceProvider extends ServiceProvider
@@ -17,6 +18,7 @@ final class MediaServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Gate::policy(MediaAsset::class, TeamOwnedPolicy::class);
         Gate::policy(MediaLink::class, TeamOwnedPolicy::class);
+        Gate::policy(MediaFaceTag::class, TeamOwnedPolicy::class);
     }
 
     public function register(): void

@@ -6,12 +6,15 @@ namespace Liberu\Genealogy\Media\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Liberu\Genealogy\Media\Actions\AnalyzeMediaFaces;
 use Liberu\Genealogy\Media\Actions\CreateMediaAsset;
 use Liberu\Genealogy\Media\Actions\CreateMediaLink;
 use Liberu\Genealogy\Media\Actions\DeleteMediaAsset;
+use Liberu\Genealogy\Media\Actions\ReviewMediaFaceTag;
 use Liberu\Genealogy\Media\Actions\StoreMediaUpload;
 use Liberu\Genealogy\Media\Actions\UpdateMediaAsset;
 use Liberu\Genealogy\Media\Models\MediaAsset;
+use Liberu\Genealogy\Media\Models\MediaFaceTag;
 use Liberu\Genealogy\Media\Queries\MediaLibrary;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -96,6 +99,24 @@ final class MediaAssetController
         return response()->json(['data' => ['id' => $link->getKey(), 'media_asset_id' => $link->media_asset_id, 'linkable_type' => $link->linkable_type, 'linkable_id' => $link->linkable_id, 'role' => $link->role]], 201);
     }
 
+    public function analyzeFaces(MediaAsset $record, AnalyzeMediaFaces $analyze): JsonResponse
+    {
+        return response()->json(['data' => $analyze->execute($record)]);
+    }
+
+    public function faceTags(MediaAsset $record): JsonResponse
+    {
+        return response()->json(['data' => $record->faceTags()->latest()->get()->map(fn (MediaFaceTag $tag): array => $this->faceTagResource($tag))->values()->all()]);
+    }
+
+    public function reviewFaceTag(Request $request, MediaFaceTag $tag, ReviewMediaFaceTag $review): JsonResponse
+    {
+        $values = $request->validate(['status' => ['required', 'in:confirmed,rejected'], 'person_id' => ['nullable', 'uuid']]);
+        $tag = $review->execute($tag, $values['status'], $values['person_id'] ?? null, auth()->id() ? (string) auth()->id() : null);
+
+        return response()->json(['data' => $this->faceTagResource($tag)]);
+    }
+
     /** @return array<string, list<string>> */
     private function rules(bool $sometimes = false): array
     {
@@ -122,5 +143,11 @@ final class MediaAssetController
             'license_url' => $asset->license_url, 'rights_expires_at' => $asset->rights_expires_at?->toDateString(), 'is_public' => $asset->is_public,
             'preservation_metadata' => $asset->preservation_metadata, 'status' => $asset->status, 'metadata' => $asset->metadata,
         ]];
+    }
+
+    /** @return array<string, mixed> */
+    private function faceTagResource(MediaFaceTag $tag): array
+    {
+        return ['id' => $tag->getKey(), 'type' => 'genealogy-media-face-tag', 'attributes' => ['media_asset_id' => $tag->media_asset_id, 'person_id' => $tag->person_id, 'confidence' => $tag->confidence, 'bounding_box' => $tag->bounding_box, 'status' => $tag->status, 'confirmed_by' => $tag->confirmed_by, 'confirmed_at' => $tag->confirmed_at?->toISOString()]];
     }
 }
