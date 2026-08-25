@@ -16,6 +16,7 @@ use Liberu\Genealogy\Collaboration\Actions\ToggleCollaborationWatch;
 use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalCreated;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalReviewed;
+use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationInvitationResource;
 use Liberu\Genealogy\Collaboration\Models\CollaborationInvitation;
 use Liberu\Genealogy\Collaboration\Models\CollaborationMembership;
 use Liberu\Genealogy\Collaboration\Models\CollaborationProposal;
@@ -106,6 +107,11 @@ it('supports tenant-scoped collaboration invitations, roles, discussions, watche
         ->and($watch)->not->toBeNull()
         ->and($attribution->action)->toBe('created')
         ->and(CollaborationInvitation::query()->count())->toBe(1);
+});
+
+it('does not expose direct invitation editing in the Filament adapter', function (): void {
+    expect(CollaborationInvitationResource::getPages())->toHaveKeys(['index', 'create'])
+        ->not->toHaveKey('edit');
 });
 
 it('exposes collaboration workflow operations through the authenticated API', function (): void {

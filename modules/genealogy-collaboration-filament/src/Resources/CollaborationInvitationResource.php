@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Collaboration\Filament\Resources;
 
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\PageRegistration;
@@ -15,7 +14,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Liberu\Genealogy\Collaboration\Actions\RevokeCollaborationInvitation;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationInvitationResource\Pages\CreateCollaborationInvitation;
-use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationInvitationResource\Pages\EditCollaborationInvitation;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationInvitationResource\Pages\ListCollaborationInvitations;
 use Liberu\Genealogy\Collaboration\Models\CollaborationInvitation;
 
@@ -46,13 +44,12 @@ final class CollaborationInvitationResource extends Resource
             TextColumn::make('expires_at')->dateTime()->sortable(),
         ])->recordActions([
             Action::make('revoke')->visible(fn (CollaborationInvitation $record): bool => $record->status === 'pending')->requiresConfirmation()->action(fn (CollaborationInvitation $record): CollaborationInvitation => app(RevokeCollaborationInvitation::class)->execute($record)),
-            EditAction::make(),
         ]);
     }
 
     /** @return array<string, PageRegistration> */
     public static function getPages(): array
     {
-        return ['index' => ListCollaborationInvitations::route('/'), 'create' => CreateCollaborationInvitation::route('/create'), 'edit' => EditCollaborationInvitation::route('/{record}/edit')];
+        return ['index' => ListCollaborationInvitations::route('/'), 'create' => CreateCollaborationInvitation::route('/create')];
     }
 }
