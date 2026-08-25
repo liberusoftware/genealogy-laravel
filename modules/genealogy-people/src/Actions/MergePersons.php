@@ -10,6 +10,7 @@ use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Events\PersonMerged;
 use Liberu\Genealogy\People\Models\MergeCandidate;
 use Liberu\Genealogy\People\Models\Person;
+use Liberu\Genealogy\People\Models\PersonAssociation;
 
 final class MergePersons
 {
@@ -34,6 +35,7 @@ final class MergePersons
             $this->moveIdentities($primary, $duplicate);
             $this->moveLifeEvents($primary, $duplicate);
             $this->moveMergeCandidates($primary, $duplicate);
+            $this->moveAssociations($primary, $duplicate);
             $duplicate->forceFill([
                 'metadata' => array_merge($duplicate->metadata ?? [], [
                     'merged_into' => (string) $primary->getKey(),
@@ -99,5 +101,32 @@ final class MergePersons
         MergeCandidate::query()->where('team_id', $primary->team_id)->where('status', '!=', 'accepted')->where(function ($query) use ($duplicate): void {
             $query->where('person_id', $duplicate->getKey())->orWhere('candidate_person_id', $duplicate->getKey());
         })->delete();
+    }
+
+    private function moveAssociations(Person $primary, Person $duplicate): void
+    {
+        foreach ($duplicate->associations()->get() as $association) {
+            $alreadyExists = $primary->associations()
+                ->where('relationship', $association->relationship)
+                ->where('associated_person_id', $association->associated_person_id)
+                ->where('associated_external_id', $association->associated_external_id)
+                ->exists();
+
+            $alreadyExists ? $association->delete() : $association->update(['person_id' => $primary->getKey()]);
+        }
+
+        PersonAssociation::query()
+            ->where('team_id', $primary->team_id)
+            ->where('associated_person_id', $duplicate->getKey())
+            ->get()
+            ->each(function (PersonAssociation $association) use ($primary): void {
+                if ((string) $association->person_id === (string) $primary->getKey()) {
+                    $association->delete();
+
+                    return;
+                }
+
+                $association->update(['associated_person_id' => $primary->getKey()]);
+            });
     }
 }

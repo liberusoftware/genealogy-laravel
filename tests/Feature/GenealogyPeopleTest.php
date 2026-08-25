@@ -13,6 +13,7 @@ use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
 use Liberu\Genealogy\People\Actions\CreatePersonName;
 use Liberu\Genealogy\People\Actions\DeletePerson;
 use Liberu\Genealogy\People\Actions\DeletePersonAssociation;
+use Liberu\Genealogy\People\Actions\MergePersons;
 use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
 use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
 use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
@@ -102,6 +103,23 @@ it('reviews merge candidates through an explicit lifecycle action', function ():
         ->and($person->identities()->where('value', 'T-2')->exists())->toBeTrue();
     Event::assertDispatched(MergeCandidateReviewed::class);
     Event::assertDispatched(PersonMerged::class, fn (PersonMerged $event): bool => $event->primary->is($person) && $event->duplicateId === (string) $candidate->id);
+});
+
+it('repoints associations in both directions when people are merged', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $primary = (new CreatePerson())->execute(['given_name' => 'Primary']);
+    $duplicate = (new CreatePerson())->execute(['given_name' => 'Duplicate']);
+    $other = (new CreatePerson())->execute(['given_name' => 'Other']);
+    (new CreatePersonAssociation())->execute(['person_id' => $duplicate->id, 'associated_person_id' => $other->id, 'relationship' => 'witness']);
+    (new CreatePersonAssociation())->execute(['person_id' => $other->id, 'associated_person_id' => $duplicate->id, 'relationship' => 'relative']);
+
+    (new MergePersons())->execute($primary, $duplicate);
+
+    expect($primary->fresh()->associations()->where('associated_person_id', $other->id)->exists())->toBeTrue()
+        ->and($other->fresh()->associatedWith()->where('person_id', $primary->id)->exists())->toBeTrue()
+        ->and($duplicate->fresh()->trashed())->toBeTrue();
 });
 
 it('publishes person update and deletion events after transactional mutations', function (): void {
