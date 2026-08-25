@@ -27,7 +27,7 @@ final class DiscoveryMatchController
         $perPage = $values['page']['size'] ?? 25;
         $records = DiscoveryMatch::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))->latest()->paginate($perPage);
 
-        return response()->json(['data' => $records->through(fn (DiscoveryMatch $record): array => $this->resource($record)), 'meta' => ['current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total()]]);
+        return response()->json(['data' => $records->getCollection()->map(fn (DiscoveryMatch $record): array => $this->resource($record))->values()->all(), 'meta' => ['current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total()]]);
     }
 
     public function store(Request $request, CreateDiscoveryMatch $create): JsonResponse

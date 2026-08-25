@@ -13,9 +13,12 @@ use Liberu\Genealogy\Collaboration\Models\CollaborationSpace;
 
 final class CollaborationSpaceController
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => CollaborationSpace::query()->latest()->paginate()]);
+        $values = $request->validate(['page' => ['sometimes', 'array'], 'page.size' => ['sometimes', 'integer', 'between:1,100']]);
+        $spaces = CollaborationSpace::query()->latest()->paginate($values['page']['size'] ?? 25);
+
+        return response()->json(['data' => $spaces->getCollection()->map(fn (CollaborationSpace $space): array => $space->toArray())->values()->all(), 'meta' => ['current_page' => $spaces->currentPage(), 'per_page' => $spaces->perPage(), 'total' => $spaces->total()]]);
     }
 
     public function store(Request $request, CreateCollaborationSpace $create): JsonResponse

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Normalize paginated discovery responses to the standard data/meta envelope.
+
+## Unreleased
+
 - Expose optional external discovery search and use a defined per-route throttle.
 - Normalize nested `page[size]` validation for bounded match collections.
 - Expose authenticated discovery match review operations.

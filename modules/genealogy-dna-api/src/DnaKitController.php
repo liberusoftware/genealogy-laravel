@@ -25,7 +25,7 @@ final class DnaKitController
         ]);
         $kits = DnaKit::query()->latest()->paginate($values['page']['size'] ?? 25);
 
-        return response()->json(['data' => $kits->through(fn (DnaKit $kit): array => $this->resource($kit)), 'meta' => ['current_page' => $kits->currentPage(), 'per_page' => $kits->perPage(), 'total' => $kits->total()]]);
+        return response()->json(['data' => $kits->getCollection()->map(fn (DnaKit $kit): array => $this->resource($kit))->values()->all(), 'meta' => ['current_page' => $kits->currentPage(), 'per_page' => $kits->perPage(), 'total' => $kits->total()]]);
     }
 
     public function store(Request $request, CreateDnaKit $create): JsonResponse

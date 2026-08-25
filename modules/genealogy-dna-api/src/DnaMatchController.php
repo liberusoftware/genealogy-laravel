@@ -27,7 +27,7 @@ final class DnaMatchController
         ]);
         $matches = DnaMatch::query()->when(! $request->boolean('include_private'), fn ($query) => $query->where('is_private', false))->latest()->paginate($values['page']['size'] ?? 25);
 
-        return response()->json(['data' => $matches->through(fn (DnaMatch $match): array => $this->resource($match)), 'meta' => ['current_page' => $matches->currentPage(), 'per_page' => $matches->perPage(), 'total' => $matches->total()]]);
+        return response()->json(['data' => $matches->getCollection()->map(fn (DnaMatch $match): array => $this->resource($match))->values()->all(), 'meta' => ['current_page' => $matches->currentPage(), 'per_page' => $matches->perPage(), 'total' => $matches->total()]]);
     }
 
     public function store(Request $request, CreateDnaMatch $create): JsonResponse

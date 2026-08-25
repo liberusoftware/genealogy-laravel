@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Expose consent history and the complete DNA segment lifecycle through the versioned API.
+- Normalize paginated kit and match responses to the standard data/meta envelope.
 
 ## Unreleased
 

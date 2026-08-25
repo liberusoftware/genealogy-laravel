@@ -113,6 +113,17 @@ it('rejects an oversized nested page size on DNA kit collections', function (): 
         ->assertJsonValidationErrors(['page.size']);
 });
 
+it('returns DNA collection resources as a flat data/meta envelope', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->getKey());
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Envelope kit']);
+    app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'envelope-match']);
+
+    $this->actingAs($user)->getJson('/api/v1/genealogy/dna/kits')->assertOk()->assertJsonPath('data.0.type', 'genealogy-dna-kit')->assertJsonPath('meta.total', 1);
+    $this->actingAs($user)->getJson('/api/v1/genealogy/dna/matches?include_private=1')->assertOk()->assertJsonPath('data.0.type', 'genealogy-dna-match')->assertJsonPath('meta.total', 1);
+});
+
 it('keeps DNA kit CRUD mutations behind tenant-safe domain actions', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
