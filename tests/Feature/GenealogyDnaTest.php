@@ -58,3 +58,20 @@ it('validates DNA content without persisting the sensitive file', function (): v
         ->assertJsonPath('data.valid', true)
         ->assertJsonPath('data.format', '23andme');
 });
+
+it('returns bounded DNA group resource envelopes through the API', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/genealogy/dna/groups', ['name' => 'Maternal matches'])
+        ->assertCreated()
+        ->assertJsonPath('data.type', 'genealogy-dna-group');
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/genealogy/dna/groups?page%5Bsize%5D=101')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['page.size']);
+});
