@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Reconcile relationship endpoints and duplicate edges after a person merge.
+- Enforce active-team ownership when updating relationship edges directly.
 
 ## 1.0.1 - 2026-08-24
 

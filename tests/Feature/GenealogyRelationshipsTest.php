@@ -8,6 +8,7 @@ use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\People\Actions\MergePersons;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
+use Liberu\Genealogy\Relationships\Actions\UpdateRelationship;
 use Liberu\Genealogy\Relationships\Events\RelationshipCreated;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
@@ -66,6 +67,24 @@ it('rejects duplicate and cyclic parent edges while allowing uncertain links', f
     expect($validator->validate($child->id, $grandparent->id, 'parent')['valid'])->toBeFalse()
         ->and($validator->validate($grandparent->id, $parent->id, 'parent')['valid'])->toBeFalse()
         ->and($validator->validate($grandparent->id, $child->id, 'uncertain')['valid'])->toBeTrue();
+});
+
+it('rejects direct relationship updates outside the active team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $left = (new CreatePerson())->execute(['given_name' => 'Left']);
+    $right = (new CreatePerson())->execute(['given_name' => 'Right']);
+    $relationship = (new CreateRelationship())->execute([
+        'person_id' => $left->id,
+        'related_person_id' => $right->id,
+        'type' => 'household',
+    ]);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => app(UpdateRelationship::class)->execute($relationship->withoutRelations(), ['confidence' => 50]))
+        ->toThrow(InvalidArgumentException::class, 'active team');
 });
 
 it('reconciles relationship endpoints when a person is merged', function (): void {
