@@ -1,0 +1,22 @@
+{
+  "name": "liberu-platform-orchestration",
+  "display_name": "Liberu Platform Orchestration",
+  "description": "Provider-neutral Liberu Platform Orchestration capability.",
+  "version": "1.1.1",
+  "category": "capability",
+  "provider": "Liberu\\Platform\\PlatformOrchestration\\PlatformOrchestrationServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "liberu.platform-orchestration",
+    "liberu.platform-orchestration.lifecycle"
+  ],
+  "features": [
+    "liberu platform orchestration",
+    "liberu platform orchestration lifecycle"
+  ],
+  "default_enabled": true
+}

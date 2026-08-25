@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
-use App\Models\Team;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Support\Utils;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Spatie\Permission\PermissionRegistrar;
+use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Foundation\RolesPermissions\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -17,40 +17,41 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-
         $adminPassword = Str::random(12);
-        $adminUser = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => Hash::make($adminPassword),
-            'email_verified_at' => now(),
-        ]);
+
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'password' => Hash::make($adminPassword),
+                'email_verified_at' => now(),
+            ],
+        );
 
         $team = Team::firstOrFail();
 
-        // With an explicit collaboration tier. This attached the admin with no
-        // tier at all, which was harmless while nothing read the column and is
-        // not any more: AppResource resolves every app-panel permission through
-        // it, and a membership carrying none is refused even reading. A fresh
-        // install would have seeded an administrator who could not open a
-        // single resource.
-        $adminUser->teams()->syncWithoutDetaching([$team->id => ['role' => 'admin']]);
+        // TeamSeeder runs first and may have created a throwaway owner to satisfy
+        // the team's user_id. Hand ownership to the admin and drop that placeholder.
+        $placeholderOwnerId = $team->user_id;
+        $team->forceFill(['user_id' => $adminUser->id])->save();
+
+        $adminUser->teams()->syncWithoutDetaching([$team->id]);
         $adminUser->forceFill(['current_team_id' => $team->id])->save();
 
-        // Role assignments carry a team now, and seeding has no request to take
-        // one from, so it is named explicitly. Without this the assignment
-        // writes a null team into a column that is part of the primary key and
-        // the seed aborts — which is a cold install, not an edge case.
-        //
-        // The role itself stays team-less (see RolesSeeder); only this grant of
-        // it is scoped. The admin panel gate reads the role rather than the
-        // grant, so this admin keeps the panel from whichever team they are in.
-        app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+        if ($placeholderOwnerId !== null && $placeholderOwnerId !== $adminUser->id) {
+            User::where('id', $placeholderOwnerId)
+                ->where('email', 'owner@example.com')
+                ->whereDoesntHave('ownedTeams')
+                ->delete();
+        }
 
+        // Assign the role in the team's permission context (team-scoped roles).
+        if (Utils::isTenancyEnabled()) {
+            setPermissionsTeamId($team->id);
+        }
         $role = Role::where('name', 'super_admin')->firstOrFail();
         $adminUser->assignRole($role);
 
-        // Print passwords to console
         echo "Admin password: {$adminPassword}\n";
     }
 }

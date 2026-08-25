@@ -1,0 +1,22 @@
+{
+  "name": "liberu-business-workflow-reconciliation-api",
+  "display_name": "Liberu BusinessWorkflowReconciliation api",
+  "description": "One-to-one api adapter for Liberu BusinessWorkflowReconciliation.",
+  "version": "1.1.1",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\BusinessWorkflowReconciliation\\Api\\BusinessWorkflowReconciliationApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.business-workflow-reconciliation.api"
+  ],
+  "features": [
+    "api presentation for business-workflow-reconciliation"
+  ],
+  "default_enabled": true
+}

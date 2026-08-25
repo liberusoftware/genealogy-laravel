@@ -1,0 +1,25 @@
+{
+  "name": "genealogy-evidence",
+  "display_name": "Genealogy Evidence",
+  "description": "Provider-neutral Genealogy Evidence capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Evidence\\EvidenceServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-core": "^1.0",
+      "liberusoftware/module-genealogy-people": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.evidence",
+    "genealogy.evidence.lifecycle"
+  ],
+  "features": [
+    "genealogy evidence",
+    "genealogy evidence lifecycle"
+  ],
+  "default_enabled": true
+}

@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Liberu\Genealogy\TreeViewer\Livewire;
+
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+
+final class TreeViewerLivewireServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-tree-viewer-livewire');
+        Livewire::component('module-genealogy-tree-viewer::tree-view-list', TreeViewList::class);
+        Livewire::component('module-genealogy-tree-viewer::tree-graph', TreeGraphView::class);
+        Livewire::component('genealogy-tree-viewer-list', TreeViewList::class);
+        Livewire::component('genealogy-tree-viewer-graph', TreeGraphView::class);
+    }
+}

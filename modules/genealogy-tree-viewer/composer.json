@@ -1,0 +1,43 @@
+{
+  "name": "liberusoftware/module-genealogy-tree-viewer",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-tree-viewer module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "illuminate/database": "^13.0",
+    "illuminate/support": "^13.0",
+    "liberusoftware/module-genealogy-core": "^1.0",
+    "liberusoftware/module-genealogy-people": "^1.0",
+    "liberusoftware/module-genealogy-relationships": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\TreeViewer\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Genealogy\\TreeViewer\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-tree-viewer",
+      "provider": "Liberu\\Genealogy\\TreeViewer\\TreeViewerServiceProvider"
+    }
+  }
+}

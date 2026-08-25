@@ -1,0 +1,40 @@
+{
+  "name": "liberusoftware/developer-experience",
+  "description": "Foundation diagnostics and reproducible development/quality conventions.",
+  "type": "liberu-module",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "illuminate/console": "^13.0",
+    "illuminate/support": "^13.0",
+    "liberusoftware/module-manager": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Foundation\\DeveloperExperience\\": "src/"
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "developer-experience"
+    }
+  },
+  "version": "1.4.1",
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Foundation\\DeveloperExperience\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}

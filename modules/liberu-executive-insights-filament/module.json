@@ -1,0 +1,22 @@
+{
+  "name": "liberu-executive-insights-filament",
+  "display_name": "Liberu ExecutiveInsights filament",
+  "description": "One-to-one filament adapter for Liberu ExecutiveInsights.",
+  "version": "1.1.1",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\ExecutiveInsights\\Filament\\ExecutiveInsightsFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-executive-insights": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.executive-insights.filament"
+  ],
+  "features": [
+    "filament presentation for executive-insights"
+  ],
+  "default_enabled": true
+}

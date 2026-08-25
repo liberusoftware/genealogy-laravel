@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info: { title: Genealogy Media API, version: 1.0.0 }
+paths:
+  /api/v1/genealogy/media/upload:
+    post:
+      operationId: genealogy.media.upload
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, required: [file], properties: { file: { type: string, format: binary }, name: { type: string }, kind: { type: string, enum: [document, photograph, audio, video] }, storage_disk: { type: string }, storage_directory: { type: string }, captured_at: { type: string, format: date-time }, captured_place_id: { type: string, format: uuid }, rights_holder: { type: string }, rights_status: { type: string, enum: [unknown, owned, licensed, public_domain, restricted, orphaned] }, is_public: { type: boolean }, preservation_metadata: { type: object }, metadata: { type: object } } } } } }
+      responses: { '201': { $ref: '#/components/responses/Resource' } }
+  /api/v1/genealogy/media:
+    get:
+      operationId: genealogy.media.list
+      security: [{ sanctum: [] }]
+      parameters: [{ $ref: '#/components/parameters/PageSize' }, { name: kind, in: query, schema: { type: string, enum: [document, photograph, audio, video] } }, { name: public_only, in: query, schema: { type: boolean } }]
+      responses: { '200': { $ref: '#/components/responses/Collection' } }
+    post:
+      operationId: genealogy.media.create
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/MediaInput' } } } }
+      responses: { '201': { $ref: '#/components/responses/Resource' } }
+  /api/v1/genealogy/media/library:
+    get:
+      operationId: genealogy.media.library
+      security: [{ sanctum: [] }]
+      parameters: [{ name: q, in: query, schema: { type: string } }, { name: kind, in: query, schema: { type: string } }, { name: public_only, in: query, schema: { type: boolean } }]
+      responses: { '200': { description: Privacy-filtered media library results } }
+  /api/v1/genealogy/media/{record}/links:
+    post:
+      operationId: genealogy.media.link
+      security: [{ sanctum: [] }]
+      parameters: [{ name: record, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [linkable_type, linkable_id], properties: { linkable_type: { type: string }, linkable_id: { type: string, format: uuid }, role: { type: string }, metadata: { type: object } } } } } }
+      responses: { '201': { description: Link created } }
+components:
+  securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
+  parameters: { PageSize: { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } } }
+  schemas:
+    MediaInput:
+      type: object
+      required: [name]
+      properties:
+        kind: { type: string, enum: [document, photograph, audio, video], default: document }
+        name: { type: string, maxLength: 255 }
+        storage_disk: { type: string, nullable: true }
+        storage_path: { type: string, nullable: true }
+        mime_type: { type: string, nullable: true }
+        byte_size: { type: integer, minimum: 0, nullable: true }
+        checksum: { type: string, nullable: true }
+        captured_at: { type: string, format: date-time, nullable: true }
+        transcription: { type: string, nullable: true }
+        transcription_status: { type: string, enum: [not_started, pending, in_progress, completed, failed] }
+        rights_holder: { type: string, nullable: true }
+        rights_status: { type: string, enum: [unknown, owned, licensed, public_domain, restricted, orphaned], nullable: true }
+        license_url: { type: string, format: uri, nullable: true }
+        is_public: { type: boolean, default: false }
+        preservation_metadata: { type: object, nullable: true }
+    MediaResource:
+      type: object
+      required: [id, type, attributes]
+      properties: { id: { type: string }, type: { type: string, const: genealogy-media-asset }, attributes: { $ref: '#/components/schemas/MediaInput' } }
+  responses:
+    Resource: { description: Media resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/MediaResource' } } } } } }
+    Collection: { description: Paginated media resources, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/MediaResource' } }, meta: { type: object } } } } } }

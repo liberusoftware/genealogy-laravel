@@ -1,0 +1,28 @@
+name: Publish packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: packagist
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.5'
+
+      - name: Validate package metadata
+        run: composer validate --strict
+
+      - name: Submit packages to Packagist
+        env:
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
+        run: php scripts/submit-packagist.php

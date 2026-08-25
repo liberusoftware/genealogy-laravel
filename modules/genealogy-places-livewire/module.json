@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-places-livewire",
+  "display_name": "Genealogy Places livewire",
+  "description": "One-to-one livewire adapter for Genealogy Places.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Places\\Livewire\\PlacesLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-places": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.places.livewire"
+  ],
+  "features": [
+    "livewire presentation for places"
+  ],
+  "default_enabled": true
+}
+

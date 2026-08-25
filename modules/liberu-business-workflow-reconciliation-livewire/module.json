@@ -1,0 +1,22 @@
+{
+  "name": "liberu-business-workflow-reconciliation-livewire",
+  "display_name": "Liberu BusinessWorkflowReconciliation livewire",
+  "description": "One-to-one livewire adapter for Liberu BusinessWorkflowReconciliation.",
+  "version": "1.1.1",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\BusinessWorkflowReconciliation\\Livewire\\BusinessWorkflowReconciliationLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-business-workflow-reconciliation": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.business-workflow-reconciliation.livewire"
+  ],
+  "features": [
+    "livewire presentation for business-workflow-reconciliation"
+  ],
+  "default_enabled": true
+}

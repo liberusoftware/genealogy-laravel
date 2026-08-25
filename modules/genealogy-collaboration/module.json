@@ -1,0 +1,22 @@
+{
+  "name": "genealogy-collaboration",
+  "display_name": "Genealogy Collaboration",
+  "description": "Provider-neutral Genealogy Collaboration capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Collaboration\\CollaborationServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {"liberusoftware/module-genealogy-core": "^1.0"}
+  },
+  "capabilities": [
+    "genealogy.collaboration",
+    "genealogy.collaboration.lifecycle"
+  ],
+  "features": [
+    "genealogy collaboration",
+    "genealogy collaboration lifecycle"
+  ],
+  "default_enabled": true
+}

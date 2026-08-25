@@ -4,9 +4,9 @@ set -e
 container_mode=${CONTAINER_MODE:-"http"}
 running_migrations_and_seeders=${RUNNING_MIGRATIONS_AND_SEEDERS:-"false"}
 
-echo "Container mode: $container_mode"
-
 initialStuff() {
+    echo "Container mode: $container_mode"
+
     if [ "${running_migrations_and_seeders}" = "true" ]; then
         echo "Running migrations and seeding database ..."
         php artisan migrate --isolated --seed --force || php artisan migrate --seed --force
@@ -20,8 +20,7 @@ if [ "$1" != "" ]; then
     exec "$@"
 elif [ "${container_mode}" = "http" ]; then
     initialStuff
-    echo "Octane Server: ${OCTANE_SERVER}"
-
+    echo "Octane Server: $OCTANE_SERVER"
     if [ "${OCTANE_SERVER}" = "frankenphp" ]; then
         exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.frankenphp.conf
     elif [ "${OCTANE_SERVER}" = "swoole" ]; then
@@ -29,7 +28,7 @@ elif [ "${container_mode}" = "http" ]; then
     elif [ "${OCTANE_SERVER}" = "roadrunner" ]; then
         exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.roadrunner.conf
     else
-        echo "Invalid Octane server: ${OCTANE_SERVER}"
+        echo "Invalid Octane server supplied."
         exit 1
     fi
 elif [ "${container_mode}" = "horizon" ]; then
@@ -49,6 +48,6 @@ elif [ "${container_mode}" = "worker" ]; then
     initialStuff
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.worker.conf
 else
-    echo "Container mode mismatched: ${container_mode}"
+    echo "Container mode mismatched."
     exit 1
 fi

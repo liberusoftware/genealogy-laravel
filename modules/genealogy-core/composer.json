@@ -1,0 +1,42 @@
+{
+  "name": "liberusoftware/module-genealogy-core",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-core module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "illuminate/database": "^13.0",
+    "illuminate/http": "^13.0",
+    "illuminate/support": "^13.0",
+    "liberusoftware/organizations-teams": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\GenealogyCore\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Genealogy\\GenealogyCore\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-core",
+      "provider": "Liberu\\Genealogy\\GenealogyCore\\GenealogyCoreServiceProvider"
+    }
+  }
+}

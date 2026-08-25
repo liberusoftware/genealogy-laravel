@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-dna-livewire",
+  "display_name": "Genealogy Dna livewire",
+  "description": "One-to-one livewire adapter for Genealogy Dna.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Dna\\Livewire\\DnaLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-dna": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.dna.livewire"
+  ],
+  "features": [
+    "livewire presentation for dna"
+  ],
+  "default_enabled": true
+}
+

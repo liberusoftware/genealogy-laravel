@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
 
     /*
@@ -16,6 +14,18 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Emails
+    |--------------------------------------------------------------------------
+    |
+    | Comma-separated emails granted admin access (e.g. the Telescope / Pulse
+    | dashboards) in addition to any super_admin role. See User::isAdmin().
+    |
+    */
+
+    'admin_emails' => array_filter(array_map('trim', explode(',', (string) env('ADMIN_EMAILS', '')))),
 
     /*
     |--------------------------------------------------------------------------
@@ -86,6 +96,13 @@ return [
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    'supported_locales' => [
+        'en' => 'English',
+        'es' => 'Español',
+        'fr' => 'Français',
+        'de' => 'Deutsch',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
@@ -116,7 +133,7 @@ return [
     | manage Laravel's "maintenance mode" status. The "cache" driver will
     | allow maintenance mode to be controlled across multiple machines.
     |
-    | Supported drivers: "file", "cache"
+    | Supported drivers: "file", "cache", "array"
     |
     */
 

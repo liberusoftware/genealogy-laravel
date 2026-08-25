@@ -1,0 +1,22 @@
+{
+  "name": "genealogy-core-livewire",
+  "display_name": "Genealogy GenealogyCore livewire",
+  "description": "One-to-one livewire adapter for Genealogy GenealogyCore.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\GenealogyCore\\Livewire\\GenealogyCoreLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-core": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.genealogy-core.livewire"
+  ],
+  "features": [
+    "livewire presentation for genealogy-core"
+  ],
+  "default_enabled": true
+}

@@ -2,62 +2,70 @@ name: Install
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, development]
   pull_request:
-    branches: [ main ]
+    branches: [main, development]
 
 jobs:
-
   install:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.5'
-        extensions: mbstring, bcmath, pdo_sqlite, sqlite3, redis, intl, gd, zip
-        tools: composer:v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.5'
+          extensions: mbstring, bcmath, pdo, pdo_sqlite, sqlite3, mysql, dom, curl, intl, gd
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v7
-      with:
-        node-version: '22'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 'latest'
+          cache: 'npm'
 
-    - name: Get Composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-    - name: Cache Composer dependencies
-      uses: actions/cache@v6
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-composer-
+      - name: Cache Composer dependencies
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
-    - name: Copy environment file
-      run: cp .env.testing .env
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      # §6.2: modules/ and themes/ are Composer output that happens to be tracked. A
+      # clean install must reproduce them byte for byte — a diff here means someone
+      # edited an installed package instead of its repository, and the next install
+      # would silently discard the change.
+      - name: Installed packages match the tracked source
+        run: |
+          if ! git diff --exit-code --stat -- modules themes; then
+            echo "::error::A clean install rewrote tracked files under modules/ or themes/."
+            echo "Edit the package repository and release it; do not edit installed files here."
+            exit 1
+          fi
 
-    - name: Generate application key
-      run: php artisan key:generate
+      - name: Copy environment file
+        run: cp .env.testing .env
 
-    - name: Create SQLite database
-      run: touch database/database.sqlite
+      - name: Generate application key
+        run: php artisan key:generate
 
-    - name: Run database migrations
-      run: php artisan migrate --force
+      - name: Run database migrations (SQLite)
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
 
-    - name: Seed database
-      run: php artisan db:seed --force
+      - name: Install npm dependencies
+        run: npm ci
 
-    - name: Install npm dependencies
-      run: npm ci
-
-    - name: Build frontend assets
-      run: npm run build
+      - name: Build frontend assets
+        run: npm run build

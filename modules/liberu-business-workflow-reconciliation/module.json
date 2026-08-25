@@ -1,0 +1,22 @@
+{
+  "name": "liberu-business-workflow-reconciliation",
+  "display_name": "Liberu Business Workflow Reconciliation",
+  "description": "Provider-neutral Liberu Business Workflow Reconciliation capability.",
+  "version": "1.1.1",
+  "category": "capability",
+  "provider": "Liberu\\Platform\\BusinessWorkflowReconciliation\\BusinessWorkflowReconciliationServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "liberu.business-workflow-reconciliation",
+    "liberu.business-workflow-reconciliation.lifecycle"
+  ],
+  "features": [
+    "liberu business workflow reconciliation",
+    "liberu business workflow reconciliation lifecycle"
+  ],
+  "default_enabled": true
+}

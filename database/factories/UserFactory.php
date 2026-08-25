@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\ConnectedAccount;
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use JoelButcher\Socialstream\Providers;
+use Laravel\Jetstream\Features as JetstreamFeatures;
+use Liberu\Foundation\Identity\Socialstream\Models\ConnectedAccount;
+use Liberu\Foundation\Organizations\Models\Team;
 
 /**
  * @extends Factory<User>
@@ -30,6 +31,7 @@ class UserFactory extends Factory
             'two_factor_recovery_codes' => null,
             'remember_token' => Str::random(10),
             'profile_photo_path' => null,
+            'current_team_id' => null,
         ];
     }
 
@@ -38,7 +40,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
@@ -48,22 +50,20 @@ class UserFactory extends Factory
      */
     public function withPersonalTeam(?callable $callback = null): static
     {
+        if (! JetstreamFeatures::hasTeamFeatures()) {
+            return $this->state([]);
+        }
+
         return $this->has(
             Team::factory()
-                ->state(fn (array $attributes, User $user): array => [
+                ->state(fn (array $attributes, User $user) => [
                     'name' => $user->name.'\'s Team',
                     'user_id' => $user->id,
                     'personal_team' => true,
                 ])
                 ->when(is_callable($callback), $callback),
             'ownedTeams'
-        )->afterCreating(function (User $user): void {
-            $personalTeam = $user->ownedTeams()->where('personal_team', true)->first();
-            if ($personalTeam) {
-                $user->current_team_id = $personalTeam->id;
-                $user->save();
-            }
-        });
+        );
     }
 
     /**
@@ -77,7 +77,7 @@ class UserFactory extends Factory
 
         return $this->has(
             ConnectedAccount::factory()
-                ->state(fn (array $attributes, User $user): array => [
+                ->state(fn (array $attributes, User $user) => [
                     'provider' => $provider,
                     'user_id' => $user->id,
                 ])

@@ -1,0 +1,26 @@
+{
+  "name": "genealogy-import-export",
+  "display_name": "Genealogy Import Export",
+  "description": "Provider-neutral Genealogy Import Export capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\ImportExport\\ImportExportServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-core": "^1.0",
+      "liberusoftware/module-genealogy-people": "^1.0",
+      "liberusoftware/module-genealogy-relationships": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.import-export",
+    "genealogy.import-export.lifecycle"
+  ],
+  "features": [
+    "genealogy import export",
+    "genealogy import export lifecycle"
+  ],
+  "default_enabled": true
+}

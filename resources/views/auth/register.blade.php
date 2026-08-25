@@ -1,74 +1,64 @@
-@extends('layouts.home')
+<x-guest-layout>
+    <x-authentication-card>
+        <x-slot name="logo">
+            <x-authentication-card-logo />
+        </x-slot>
 
-@section('content')
-    <x-auth.card
-        :title="__('Start your tree')"
-        :subtitle="__('Free forever. No card, and nothing to cancel.')"
-    >
-        <x-validation-errors class="mb-6" />
+        <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('register') }}" class="flex flex-col gap-5">
+        <form method="POST" action="{{ route('register') }}">
             @csrf
 
-            <x-auth.field
-                name="name"
-                :label="__('Your name')"
-                :value="old('name')"
-                autocomplete="name"
-                autofocus
-            />
+            <div>
+                <x-label for="name" value="{{ __('Name') }}" />
+                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+            </div>
 
-            <x-auth.field
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                :value="old('email')"
-                autocomplete="username"
-            />
+            <div class="mt-4">
+                <x-label for="email" value="{{ __('Email') }}" />
+                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            </div>
 
-            <x-auth.field
-                name="password"
-                :label="__('Password')"
-                type="password"
-                :hint="__('At least 8 characters.')"
-                autocomplete="new-password"
-            />
+            <div class="mt-4">
+                <x-label for="password" value="{{ __('Password') }}" />
+                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+            </div>
 
-            <x-auth.field
-                name="password_confirmation"
-                :label="__('Confirm password')"
-                type="password"
-                autocomplete="new-password"
-            />
+            <div class="mt-4">
+                <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
+                <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+            </div>
 
-            <button type="submit"
-                    class="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-registry-green px-5 py-3 text-label text-paper transition-colors duration-150 ease-out-quart hover:bg-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
-                {{ __('Create account') }}
-            </button>
+            @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
+                <div class="mt-4">
+                    <x-label for="terms">
+                        <div class="flex items-center">
+                            <x-checkbox name="terms" id="terms" required />
 
-            {{-- Informational, not a checkbox: Features::termsAndPrivacyPolicy() is
-                 disabled in config/jetstream.php and CreateNewUser does not
-                 validate acceptance, so a required-looking control would be a lie. --}}
-            <p class="text-label text-ink-muted">
-                {{ __('By creating an account you agree to our') }}
-                <a href="{{ route('terms.and.conditions') }}"
-                   class="rounded-sm text-registry-green underline underline-offset-2 transition-colors duration-150 ease-out-quart hover:text-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">{{ __('Terms of Service') }}</a>
-                {{ __('and') }}
-                <a href="{{ route('privacy') }}"
-                   class="rounded-sm text-registry-green underline underline-offset-2 transition-colors duration-150 ease-out-quart hover:text-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">{{ __('Privacy Policy') }}</a>.
-            </p>
+                            <div class="ml-2">
+                                {!! __('I agree to the :terms_of_service and :privacy_policy', [
+                                        'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Terms of Service').'</a>',
+                                        'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Privacy Policy').'</a>',
+                                ]) !!}
+                            </div>
+                        </div>
+                    </x-label>
+                </div>
+            @endif
+
+            <div class="flex items-center justify-end mt-4">
+                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
+                    {{ __('Already registered?') }}
+                </a>
+
+                <x-button class="ml-4">
+                    {{ __('Register') }}
+                </x-button>
+            </div>
         </form>
 
-        @if (\JoelButcher\Socialstream\Socialstream::show() && ! empty(\JoelButcher\Socialstream\Socialstream::providers()))
+        @if (JoelButcher\Socialstream\Socialstream::show())
             <x-socialstream />
         @endif
-
-        <x-slot name="footer">
-            {{ __('Already have an account?') }}
-            <a href="{{ route('login') }}"
-               class="rounded-sm font-semibold text-registry-green transition-colors duration-150 ease-out-quart hover:text-registry-green-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-registry-green">
-                {{ __('Sign in') }}
-            </a>
-        </x-slot>
-    </x-auth.card>
-@endsection
+    </x-authentication-card>
+</x-guest-layout>

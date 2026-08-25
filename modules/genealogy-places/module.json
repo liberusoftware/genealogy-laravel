@@ -1,0 +1,22 @@
+{
+  "name": "genealogy-places",
+  "display_name": "Genealogy Places",
+  "description": "Provider-neutral Genealogy Places capability.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Places\\PlacesServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {"liberusoftware/module-genealogy-core": "^1.0"}
+  },
+  "capabilities": [
+    "genealogy.places",
+    "genealogy.places.lifecycle"
+  ],
+  "features": [
+    "genealogy places",
+    "genealogy places lifecycle"
+  ],
+  "default_enabled": true
+}

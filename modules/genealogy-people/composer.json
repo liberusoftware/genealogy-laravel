@@ -1,0 +1,41 @@
+{
+  "name": "liberusoftware/module-genealogy-people",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-people module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "illuminate/database": "^13.0",
+    "illuminate/support": "^13.0",
+    "liberusoftware/module-genealogy-core": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\People\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Genealogy\\People\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-people",
+      "provider": "Liberu\\Genealogy\\People\\PeopleServiceProvider"
+    }
+  }
+}

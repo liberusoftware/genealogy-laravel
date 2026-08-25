@@ -1,0 +1,17 @@
+{
+    "organization": "liberusoftware",
+    "repository": "genealogy-laravel",
+    "genre": "genealogy",
+    "scriptsRepository": "boilerplate-scripts",
+    "components": {
+        "modules": { "path": "modules", "repositoryPrefix": "module-" },
+        "themes": { "path": "themes", "repositoryPrefix": "theme-" },
+        "scripts": { "path": "scripts", "repository": "boilerplate-scripts" }
+    },
+    "publishHost": false,
+    "additionalPackages": {
+        "liberusoftware/analytics-contracts": "analytics-contracts",
+        "liberusoftware/localization-contracts": "localization-contracts",
+        "liberusoftware/composer-installer": "composer-installer"
+    }
+}

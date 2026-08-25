@@ -1,63 +1,76 @@
 <?php
 
-use App\Exceptions\PremiumRequiredException;
-use App\Http\Middleware\CaptureReferral;
-use App\Http\Middleware\SecurityHeaders;
-use Filament\Forms\Form;
-use Filament\Schemas\Schema;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
-
-if (! class_exists(Form::class) && class_exists(Schema::class)) {
-    class_alias(Schema::class, Form::class);
-}
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Validation\ValidationException;
+use Liberu\Foundation\ApplicationCore\Http\Middleware\SecurityHeaders;
+use Liberu\Foundation\Localization\Http\Middleware\SetLocale;
+use Liberu\Genealogy\GenealogyCore\Http\Middleware\EstablishTeamContext;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    // Register the /broadcasting/auth route and load routes/channels.php so the
-    // private-channel authorization (e.g. research-space.{id}) actually runs.
-    // Enforcement still requires a real driver (BROADCAST_DRIVER=reverb — the env
-    // key config/broadcasting.php reads — plus a running Reverb server).
-    ->withBroadcasting(__DIR__.'/../routes/channels.php')
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(SecurityHeaders::class);
-        // Capture ?ref=CODE affiliate links into a cookie for guests (issue #1621).
-        $middleware->web(append: CaptureReferral::class);
-        $middleware->validateCsrfTokens(except: [
-            'stripe/*',
+    ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->appendToGroup('web', [SetLocale::class, SecurityHeaders::class, EstablishTeamContext::class]);
+        $middleware->priority([
+            Authenticate::class,
+            EstablishTeamContext::class,
+            SubstituteBindings::class,
         ]);
-        $middleware->statefulApi();
-        // api RateLimiter lives in RouteServiceProvider, which is never registered;
-        // inline 60/min throttle avoids that dependency (mirrors its perMinute(60)).
-        $middleware->throttleApi('60,1');
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-        // A non-premium user who reaches a gated premium surface is redirected
-        // to sign-up rather than shown a bare 403 (upstream #1630). Keyed on the
-        // exception type, so tenant/team 403s (TeamMembers, TreePrivacy) fall
-        // through untouched. Target mirrors PremiumDashboardPage::mount().
-        $exceptions->render(function (PremiumRequiredException $e) {
-            $user = auth()->user();
-
-            if (! $user) {
-                return new Response('Forbidden', 403);
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+        );
+        $exceptions->render(function (Throwable $exception, Request $request): ?JsonResponse {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null;
             }
 
-            $route = $user->hasExpiredTrial()
-                ? 'filament.app.pages.trial-expired'
-                : 'filament.app.pages.subscription';
+            $status = match (true) {
+                $exception instanceof ValidationException => 422,
+                $exception instanceof AuthenticationException => 401,
+                $exception instanceof AuthorizationException => 403,
+                $exception instanceof ModelNotFoundException => 404,
+                $exception instanceof HttpExceptionInterface => $exception->getStatusCode(),
+                default => 500,
+            };
+            $title = match ($status) {
+                401 => 'Unauthenticated',
+                403 => 'Forbidden',
+                404 => 'Not Found',
+                422 => 'Validation Failed',
+                default => $status >= 500 ? 'Server Error' : 'Request Failed',
+            };
+            $detail = $status >= 500
+                ? 'The request could not be completed.'
+                : ($exception->getMessage() ?: $title);
+            $payload = [
+                'type' => 'https://genealogy.liberu.software/problems/'.strtolower(str_replace(' ', '-', $title)),
+                'title' => $title,
+                'status' => $status,
+                'detail' => $detail,
+                'instance' => $request->getUri(),
+            ];
 
-            // Build the RedirectResponse directly: the redirect() helper resolves
-            // Livewire's Redirector inside a Livewire request, which is not a
-            // Symfony Response and breaks the panel's typed middleware.
-            return new RedirectResponse(route($route, ['tenant' => $user->currentTeam]));
+            if ($exception instanceof ValidationException) {
+                $payload['errors'] = $exception->errors();
+            }
+
+            return response()->json($payload, $status, ['Content-Type' => 'application/problem+json']);
         });
     })->create();

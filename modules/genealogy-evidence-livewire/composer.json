@@ -1,0 +1,40 @@
+{
+  "name": "liberusoftware/module-genealogy-evidence-livewire",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-evidence-livewire module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "liberusoftware/module-genealogy-evidence": "^1.0",
+    "livewire/livewire": "^4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\Evidence\\Livewire\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Genealogy\\Evidence\\Livewire\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-evidence-livewire",
+      "provider": "Liberu\\Genealogy\\Evidence\\Livewire\\EvidenceLivewireServiceProvider"
+    }
+  }
+}

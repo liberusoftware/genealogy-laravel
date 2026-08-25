@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-evidence-api",
+  "display_name": "Genealogy Evidence api",
+  "description": "One-to-one api adapter for Genealogy Evidence.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Evidence\\Api\\EvidenceApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-evidence": "^1.0",
+      "liberusoftware/module-genealogy-core": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.evidence.api"
+  ],
+  "features": [
+    "api presentation for evidence"
+  ],
+  "default_enabled": true
+}

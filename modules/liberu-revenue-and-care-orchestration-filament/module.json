@@ -1,0 +1,22 @@
+{
+  "name": "liberu-revenue-and-care-orchestration-filament",
+  "display_name": "Liberu RevenueAndCareOrchestration filament",
+  "description": "One-to-one filament adapter for Liberu RevenueAndCareOrchestration.",
+  "version": "1.1.1",
+  "category": "presentation",
+  "provider": "Liberu\\Platform\\RevenueAndCareOrchestration\\Filament\\RevenueAndCareOrchestrationFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-liberu-revenue-and-care-orchestration": "^1.0"
+    }
+  },
+  "capabilities": [
+    "liberu.revenue-and-care-orchestration.filament"
+  ],
+  "features": [
+    "filament presentation for revenue-and-care-orchestration"
+  ],
+  "default_enabled": true
+}

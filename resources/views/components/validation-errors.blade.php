@@ -1,8 +1,9 @@
-@if ($errors->any())
-    <div {{ $attributes }}>
-        <div class="font-medium text-red-600 dark:text-red-400">{{ __('Whoops! Something went wrong.') }}</div>
+@if ($errors->has('socialstream'))
+@elseif ($errors->any())
+    <div {{ $attributes->merge(['class' => 'cs-errors']) }}>
+        <div class="cs-errors__title">{{ __('Whoops! Something went wrong.') }}</div>
 
-        <ul class="mt-3 list-disc list-inside text-sm text-red-600 dark:text-red-400">
+        <ul>
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach

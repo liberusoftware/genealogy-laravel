@@ -1,0 +1,40 @@
+{
+  "name": "liberusoftware/module-genealogy-dna-filament",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-dna-filament module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "liberusoftware/module-genealogy-dna": "^1.0",
+    "filament/filament": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\Dna\\Filament\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Genealogy\\Dna\\Filament\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-dna-filament",
+      "provider": "Liberu\\Genealogy\\Dna\\Filament\\DnaFilamentServiceProvider"
+    }
+  }
+}

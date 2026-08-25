@@ -2,156 +2,70 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Admin\Pages\CreateTeam;
-use App\Filament\Admin\Pages\EditProfile;
-use App\Filament\Admin\Pages\EditTeam;
-use App\Http\Middleware\TeamsPermission;
-use App\Models\Team;
-use App\Settings\GeneralSettings;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Actions\Action;
-use Filament\Facades\Filament;
+use App\Filament\ModulePlugins;
+use App\Support\ThemeColors;
+use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
 use Filament\Http\Middleware\Authenticate;
+use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\MenuItem;
-use Filament\Pages as FilamentPage;
+use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Widgets;
-use Illuminate\Contracts\Routing\UrlGenerator;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Laravel\Fortify\Fortify;
-use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
-use Laravel\Jetstream\Features;
-use Laravel\Jetstream\Jetstream;
+use Liberu\Foundation\ApplicationCore\Http\Middleware\SecurityHeaders;
+use Liberu\Foundation\Localization\Http\Middleware\SetLocale;
+use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Genealogy\GenealogyCore\Http\Middleware\EstablishTeamContext;
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $panel
+        return $panel
+            ->default()
             ->id('admin')
             ->path('admin')
-            ->login([AuthenticatedSessionController::class, 'create'])
-            ->passwordReset()
-            ->emailVerification()
-            // DESIGN.md is light-only; Filament ships dark mode on and follows
-            // the OS, serving a theme with no defined palette or verified contrast.
-            ->darkMode(false)
-            ->viteTheme('resources/css/filament/admin/theme.css')
-            ->brandName(fn () => app(GeneralSettings::class)->site_name)
-            ->colors([
-                'primary' => Color::Emerald,
-                'gray' => Color::Slate,
-            ])
-            ->brandName(fn () => app(GeneralSettings::class)->site_name)
-            ->brandLogo(asset('build/images/logo.svg')) // vite-plugin-static-copy writes to build/images/; asset('images/..') was 404 on every panel page
-            ->favicon(asset('favicon.ico')) // public/favicon.ico is the only .ico that exists; images/favicon.ico was 404
-            ->userMenuItems([
-                Action::make('profile')
-                    ->label('Profile')
-                    ->icon('heroicon-o-user-circle')
-                    ->url(fn (): UrlGenerator|string => $this->shouldRegisterMenuItem()
-                        ? url(EditProfile::getUrl())
-                        : url($panel->getPath())),
-            ])
-            ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
-            ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
+            ->login()
+            ->colors(app(ThemeColors::class)->forSite())
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
-                FilamentPage\Dashboard::class,
-                EditProfile::class,
-                // Pages\ApiTokenManagerPage::class,
-            ])->widgets([
-                Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class,
+                Dashboard::class,
             ])
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->widgets([
+                AccountWidget::class,
+                FilamentInfoWidget::class,
+            ])
+            ->tenant(Team::class, ownershipRelationship: 'team')
+            ->tenantMiddleware([
+                SyncShieldTenant::class,
+            ], isPersistent: true)
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
+                PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                SetLocale::class,
+                SecurityHeaders::class,
+                EstablishTeamContext::class,
             ])
+            ->plugins(app(ModulePlugins::class)->forPanel('admin'))
             ->authMiddleware([
                 Authenticate::class,
-                TeamsPermission::class,
-                // \App\Http\Middleware\EnsureUserHasAdminRole::class,
-            ])
-            ->plugins([
-                FilamentShieldPlugin::make()
-                    ->navigationGroup('Administration'),
             ]);
-
-        // if (Features::hasApiFeatures()) {
-        //     $panel->userMenuItems([
-        //         MenuItem::make()
-        //             ->label('API Tokens')
-        //             ->icon('heroicon-o-key')
-        //             ->url(fn () => $this->shouldRegisterMenuItem()
-        //                 ? url(Pages\ApiTokenManagerPage::getUrl())
-        //                 : url($panel->getPath())),
-        //     ]);
-        // }
-
-        // if (Features::hasTeamFeatures()) {
-        //     $panel
-        //         ->tenant(Team::class, ownershipRelationship: 'team')
-        //         ->tenantRegistration(CreateTeam::class)
-        //         ->tenantProfile(EditTeam::class)
-        //         ->userMenuItems([
-        //             Action::make('team-settings')
-        //                 ->label('Team Settings')
-        //                 ->icon('heroicon-o-cog-6-tooth')
-        //                 ->url(fn () => $this->shouldRegisterMenuItem()
-        //                     ? url(EditTeam::getUrl())
-        //                     : url($panel->getPath())),
-        //         ]);
-        // }
-
-        return $panel;
-    }
-
-    public function boot(): void
-    {
-        /**
-         * Disable Fortify routes.
-         */
-        Fortify::$registersRoutes = false;
-
-        /**
-         * Disable Jetstream routes.
-         */
-        Jetstream::$registersRoutes = false;
-    }
-
-    public function shouldRegisterMenuItem(): bool
-    {
-        $hasVerifiedEmail = ! is_null(auth()->user()); // ?->hasVerifiedEmail();
-
-        // Check if Filament is properly initialized before using facades
-        if (! app()->bound('filament')) {
-            return $hasVerifiedEmail;
-        }
-
-        try {
-            return Filament::hasTenancy()
-                ? $hasVerifiedEmail && Filament::getTenant()
-                : $hasVerifiedEmail;
-        } catch (\Exception) {
-            // Fallback if facade is not ready
-            return $hasVerifiedEmail;
-        }
     }
 }

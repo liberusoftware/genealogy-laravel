@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-timeline-livewire",
+  "display_name": "Genealogy Timeline livewire",
+  "description": "One-to-one livewire adapter for Genealogy Timeline.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Timeline\\Livewire\\TimelineLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-timeline": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.timeline.livewire"
+  ],
+  "features": [
+    "livewire presentation for timeline"
+  ],
+  "default_enabled": true
+}
+

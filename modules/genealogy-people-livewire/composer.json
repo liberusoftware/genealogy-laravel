@@ -1,0 +1,40 @@
+{
+  "name": "liberusoftware/module-genealogy-people-livewire",
+  "version": "1.0.0",
+  "type": "liberu-module",
+  "description": "Liberu genealogy-people-livewire module.",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "liberusoftware/module-genealogy-people": "^1.0",
+    "livewire/livewire": "^4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Genealogy\\People\\Livewire\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Genealogy\\People\\Livewire\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "genealogy-people-livewire",
+      "provider": "Liberu\\Genealogy\\People\\Livewire\\PeopleLivewireServiceProvider"
+    }
+  }
+}

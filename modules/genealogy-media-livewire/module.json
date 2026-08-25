@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-media-livewire",
+  "display_name": "Genealogy Media livewire",
+  "description": "One-to-one livewire adapter for Genealogy Media.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Media\\Livewire\\MediaLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-media": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.media.livewire"
+  ],
+  "features": [
+    "livewire presentation for media"
+  ],
+  "default_enabled": true
+}
+

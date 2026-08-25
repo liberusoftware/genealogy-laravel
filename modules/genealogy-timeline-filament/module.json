@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-timeline-filament",
+  "display_name": "Genealogy Timeline filament",
+  "description": "One-to-one filament adapter for Genealogy Timeline.",
+  "version": "1.0.0",
+  "category": "presentation",
+ "provider": "Liberu\\Genealogy\\Timeline\\Filament\\TimelineFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\Timeline\\Filament\\TimelineFilamentPlugin"], "app": ["Liberu\\Genealogy\\Timeline\\Filament\\TimelineFilamentPlugin"]}},
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-timeline": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.timeline.filament"
+  ],
+  "features": [
+    "filament presentation for timeline"
+  ],
+  "default_enabled": true
+}

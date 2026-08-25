@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: liberu-revenue-and-care-orchestration-api-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo, pdo_sqlite, sqlite3, dom, curl, intl
+      - run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - run: vendor/bin/pest --coverage --min=100

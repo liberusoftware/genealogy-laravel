@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-research-filament",
+  "display_name": "Genealogy Research filament",
+  "description": "One-to-one filament adapter for Genealogy Research.",
+  "version": "1.0.0",
+  "category": "presentation",
+ "provider": "Liberu\\Genealogy\\Research\\Filament\\ResearchFilamentServiceProvider",
+  "presentation": {"filament": {"admin": ["Liberu\\Genealogy\\Research\\Filament\\ResearchFilamentPlugin"], "app": ["Liberu\\Genealogy\\Research\\Filament\\ResearchFilamentPlugin"]}},
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-research": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.research.filament"
+  ],
+  "features": [
+    "filament presentation for research"
+  ],
+  "default_enabled": true
+}

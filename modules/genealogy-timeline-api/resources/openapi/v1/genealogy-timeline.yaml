@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info: { title: Genealogy Timeline API, version: 1.0.0 }
+paths:
+  /api/v1/genealogy/timeline:
+    get:
+      operationId: genealogy.timeline.list
+      security: [{ sanctum: [] }]
+      parameters: [{ $ref: '#/components/parameters/PageSize' }, { name: kind, in: query, schema: { type: string } }, { name: include_private, in: query, schema: { type: boolean } }]
+      responses: { '200': { $ref: '#/components/responses/Collection' } }
+    post:
+      operationId: genealogy.timeline.create
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TimelineEventInput' } } } }
+      responses: { '201': { $ref: '#/components/responses/Resource' } }
+  /api/v1/genealogy/timeline/events:
+    get:
+      operationId: genealogy.timeline.chronological
+      security: [{ sanctum: [] }]
+      parameters: [{ name: subject_person_id, in: query, schema: { type: string, format: uuid } }, { name: family_key, in: query, schema: { type: string } }, { name: from, in: query, schema: { type: string, format: date } }, { name: to, in: query, schema: { type: string, format: date } }, { name: include_private, in: query, schema: { type: boolean } }]
+      responses: { '200': { description: Chronologically ordered timeline events } }
+  /api/v1/genealogy/timeline/conflicts:
+    get:
+      operationId: genealogy.timeline.conflicts
+      security: [{ sanctum: [] }]
+      parameters: [{ name: subject_person_id, in: query, schema: { type: string, format: uuid } }, { name: include_private, in: query, schema: { type: boolean } }]
+      responses: { '200': { description: Groups of conflicting timeline assertions } }
+components:
+  securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
+  parameters: { PageSize: { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } } }
+  schemas:
+    TimelineEventInput:
+      type: object
+      required: [name]
+      properties:
+        kind: { type: string, enum: [life_event, family_event, historical_context, conflict] }
+        name: { type: string, maxLength: 255 }
+        subject_person_id: { type: string, format: uuid, nullable: true }
+        family_key: { type: string, nullable: true }
+        event_date: { type: string, format: date, nullable: true }
+        date_start: { type: string, format: date, nullable: true }
+        date_end: { type: string, format: date, nullable: true }
+        date_precision: { type: string, enum: [exact, month, year, circa, before, after, range] }
+        description: { type: string, nullable: true }
+        historical_context: { type: string, nullable: true }
+        conflict_group: { type: string, nullable: true }
+        confidence: { type: integer, minimum: 0, maximum: 100, nullable: true }
+        is_private: { type: boolean, default: false }
+    TimelineEventResource:
+      type: object
+      required: [id, type, attributes]
+      properties: { id: { type: string }, type: { type: string, const: genealogy-timeline-event }, attributes: { $ref: '#/components/schemas/TimelineEventInput' } }
+  responses:
+    Resource: { description: Timeline event, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/TimelineEventResource' } } } } } }
+    Collection: { description: Paginated timeline events, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/TimelineEventResource' } }, meta: { type: object } } } } } }

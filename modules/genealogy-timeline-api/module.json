@@ -1,0 +1,23 @@
+{
+  "name": "genealogy-timeline-api",
+  "display_name": "Genealogy Timeline api",
+  "description": "One-to-one api adapter for Genealogy Timeline.",
+  "version": "1.0.0",
+  "category": "presentation",
+  "provider": "Liberu\\Genealogy\\Timeline\\Api\\TimelineApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-genealogy-timeline": "^1.0",
+      "liberusoftware/module-genealogy-core": "^1.0"
+    }
+  },
+  "capabilities": [
+    "genealogy.timeline.api"
+  ],
+  "features": [
+    "api presentation for timeline"
+  ],
+  "default_enabled": true
+}

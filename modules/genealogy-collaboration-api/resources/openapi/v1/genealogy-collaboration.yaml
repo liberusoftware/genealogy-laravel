@@ -1,0 +1,32 @@
+openapi: 3.1.0
+info:
+  title: Genealogy Collaboration API
+  version: 1.0.0
+paths:
+  /api/v1/genealogy/collaboration:
+    get:
+      operationId: genealogy.collaboration.list
+      security: [{ sanctum: [] }]
+      responses: { '200': { $ref: '#/components/responses/Collection' } }
+    post:
+      operationId: genealogy.collaboration.create
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }
+      responses: { '201': { $ref: '#/components/responses/Resource' } }
+  /api/v1/genealogy/collaboration/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+    get: { operationId: genealogy.collaboration.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
+    patch:
+      operationId: genealogy.collaboration.update
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }
+      responses: { '200': { $ref: '#/components/responses/Resource' } }
+    delete: { operationId: genealogy.collaboration.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+components:
+  securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
+  schemas:
+    Input: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, status: { type: string, maxLength: 50 }, metadata: { type: object, nullable: true } } }
+    Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-collaboration-space }, attributes: { $ref: '#/components/schemas/Input' } } }
+  responses:
+    Resource: { description: Collaboration space, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
+    Collection: { description: Paginated collaboration spaces, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }

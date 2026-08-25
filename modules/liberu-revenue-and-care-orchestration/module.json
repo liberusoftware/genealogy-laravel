@@ -1,0 +1,22 @@
+{
+  "name": "liberu-revenue-and-care-orchestration",
+  "display_name": "Liberu Revenue And Care Orchestration",
+  "description": "Provider-neutral Liberu Revenue And Care Orchestration capability.",
+  "version": "1.1.1",
+  "category": "capability",
+  "provider": "Liberu\\Platform\\RevenueAndCareOrchestration\\RevenueAndCareOrchestrationServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {}
+  },
+  "capabilities": [
+    "liberu.revenue-and-care-orchestration",
+    "liberu.revenue-and-care-orchestration.lifecycle"
+  ],
+  "features": [
+    "liberu revenue and care orchestration",
+    "liberu revenue and care orchestration lifecycle"
+  ],
+  "default_enabled": true
+}

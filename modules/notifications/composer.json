@@ -1,0 +1,40 @@
+{
+  "name": "liberusoftware/notifications",
+  "description": "Localized notification preferences, channel policy, inbox delivery state, and quiet hours.",
+  "type": "liberu-module",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "illuminate/database": "^13.0",
+    "illuminate/support": "^13.0",
+    "liberusoftware/module-manager": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Foundation\\Notifications\\": "src/"
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "notifications"
+    }
+  },
+  "version": "1.4.1",
+  "autoload-dev": {
+    "psr-4": {
+      "Liberu\\Foundation\\Notifications\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "liberusoftware/package-testbench": "^1.5",
+    "pestphp/pest": "^5.0"
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
