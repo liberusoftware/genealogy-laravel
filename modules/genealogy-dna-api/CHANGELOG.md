@@ -4,6 +4,7 @@
 
 - Add authenticated provider CRUD endpoints and provider references on kit resources.
 - Add authenticated DNA kit import with encrypted-at-rest raw content handling.
+- Add consent-gated stored-kit comparison to the DNA match API.
 - Expose consent history and the complete DNA segment lifecycle through the versioned API.
 - Normalize paginated kit and match responses to the standard data/meta envelope.
 

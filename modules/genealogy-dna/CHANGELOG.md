@@ -4,6 +4,7 @@
 
 - Add tenant-scoped DNA provider registry with lifecycle actions and kit references.
 - Restore encrypted raw-DNA import storage, metadata, and cleanup through the module boundary.
+- Restore consent-gated comparison of encrypted imported kits through the provider-neutral matching pipeline.
 - Complete DNA segment lifecycle actions with tenant-safe update and deletion boundaries.
 
 - Bound DNA group pagination and return explicit group resource envelopes.

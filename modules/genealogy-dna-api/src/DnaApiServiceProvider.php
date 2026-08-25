@@ -22,6 +22,7 @@ final class DnaApiServiceProvider extends ServiceProvider
             $router->post('api/v1/genealogy/dna/kits/validate', [DnaKitController::class, 'validateFile'])->name('genealogy.dna.kits.validate');
             $router->apiResource('api/v1/genealogy/dna/kits', DnaKitController::class)->parameters(['kits' => 'record']);
             $router->post('api/v1/genealogy/dna/matches/analyze', [DnaMatchController::class, 'analyze'])->name('genealogy.dna.matches.analyze');
+            $router->post('api/v1/genealogy/dna/matches/compare', [DnaMatchController::class, 'compare'])->name('genealogy.dna.matches.compare');
             $router->post('api/v1/genealogy/dna/matches/triangulate', [DnaMatchController::class, 'triangulate'])->name('genealogy.dna.matches.triangulate');
             $router->apiResource('api/v1/genealogy/dna/matches', DnaMatchController::class)->parameters(['matches' => 'record']);
             $router->post('api/v1/genealogy/dna/matches/{record}/segments', [DnaMatchController::class, 'segment'])->name('genealogy.dna.segment');
