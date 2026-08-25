@@ -10,6 +10,7 @@ use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\CreateDnaSegment;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Services\AnalyzeDnaMatch;
+use Liberu\Genealogy\Dna\Services\TriangulateDna;
 
 final class DnaMatchController
 {
@@ -36,6 +37,16 @@ final class DnaMatchController
         ]);
 
         return response()->json(['data' => $analyzer->analyze($values['kit_a'], $values['kit_b'])]);
+    }
+
+    public function triangulate(Request $request, TriangulateDna $triangulator): JsonResponse
+    {
+        $values = $request->validate([
+            'matches' => ['required', 'array', 'min:3'],
+            'minimum_shared_cm' => ['sometimes', 'numeric', 'min:0'],
+        ]);
+
+        return response()->json(['data' => $triangulator->execute($values['matches'], (float) ($values['minimum_shared_cm'] ?? 20.0))]);
     }
 
     public function show(DnaMatch $record): JsonResponse

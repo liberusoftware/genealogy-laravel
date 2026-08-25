@@ -8,6 +8,7 @@ use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Services\AnalyzeDnaMatch;
 use Liberu\Genealogy\Dna\Services\RelationshipEstimator;
 use Liberu\Genealogy\Dna\Services\SegmentMatcher;
+use Liberu\Genealogy\Dna\Services\TriangulateDna;
 
 it('creates and hydrates its aggregate through the domain action', function (): void {
     $database = new Capsule();
@@ -51,4 +52,18 @@ it('matches autosomal segments and estimates a relationship without a provider S
         ->and($result['total_shared_cm'])->toBeGreaterThanOrEqual(7.0)
         ->and($result['predicted_relationship'])->toBe('Distant Cousin')
         ->and(RelationshipEstimator::labels())->toContain('Parent/Child');
+});
+
+it('finds three-way overlapping DNA segments above the shared cM threshold', function (): void {
+    $matches = [
+        ['id' => 'a', 'segments' => [['chromosome' => '1', 'start' => 1_000_000, 'end' => 30_000_000]]],
+        ['id' => 'b', 'segments' => [['chromosome' => '1', 'start' => 5_000_000, 'end' => 35_000_000]]],
+        ['id' => 'c', 'segments' => [['chromosome' => '1', 'start' => 10_000_000, 'end' => 40_000_000]]],
+    ];
+
+    $groups = (new TriangulateDna())->execute($matches);
+
+    expect($groups)->toHaveCount(1)
+        ->and($groups[0]['match_ids'])->toBe(['a', 'b', 'c'])
+        ->and($groups[0]['centimorgans'])->toBe(20.0);
 });

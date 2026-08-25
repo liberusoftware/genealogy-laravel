@@ -7,6 +7,8 @@ It exposes a stable capability descriptor and service provider. Domain persisten
 The domain includes provider-neutral autosomal segment matching and relationship estimation. It
 accepts normalized chromosome/position genotype maps, applies mismatch tolerance and minimum
 segment thresholds, and returns shared cM, segment details, confidence, and relationship labels.
+It also triangulates three or more match segment sets to identify shared groups above a configured
+cM threshold.
 
 - Composer package: `liberusoftware/module-genealogy-dna`
 - Module installer name: `genealogy-dna`
