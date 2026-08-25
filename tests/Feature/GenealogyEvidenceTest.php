@@ -239,9 +239,9 @@ it('bounds evidence entity pagination through the API contract', function (): vo
     app(TeamContext::class)->set($team->id);
 
     $this->actingAs($user)
-        ->getJson('/api/v1/genealogy/evidence/sources?per_page=101')
+        ->getJson('/api/v1/genealogy/evidence/sources?page%5Bsize%5D=101')
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['per_page']);
+        ->assertJsonValidationErrors(['page.size']);
 });
 
 it('registers full Filament page workflows for every evidence entity resource', function (): void {

@@ -23,14 +23,15 @@ final class EvidenceRecordController
             'kind' => ['sometimes', Rule::in(EvidenceRecord::KINDS)],
             'status' => ['sometimes', Rule::in(EvidenceRecord::STATUSES)],
             'min_confidence' => ['sometimes', 'integer', 'between:0,100'],
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
         ]);
         $records = EvidenceRecord::query()
             ->when(isset($values['kind']), fn ($query) => $query->where('kind', $values['kind']))
             ->when(isset($values['status']), fn ($query) => $query->where('status', $values['status']))
             ->when(isset($values['min_confidence']), fn ($query) => $query->where('confidence', '>=', $values['min_confidence']))
             ->latest()
-            ->paginate($values['page[size]'] ?? 25);
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json([
             'data' => $records->getCollection()->map(fn (EvidenceRecord $record): array => $this->resource($record))->values()->all(),

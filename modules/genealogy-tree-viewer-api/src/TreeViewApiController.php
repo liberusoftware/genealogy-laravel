@@ -21,7 +21,8 @@ final class TreeViewApiController
         $values = $request->validate([
             'status' => ['nullable', 'string', 'in:draft,active,completed,archived'],
             'public_only' => ['sometimes', 'boolean'],
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
         ]);
         $query = TreeView::query()->latest('created_at');
 
@@ -32,7 +33,7 @@ final class TreeViewApiController
         }
 
         $trees = $query->when(isset($values['status']), fn ($trees) => $trees->where('status', $values['status']))
-            ->paginate($values['page[size]'] ?? 25);
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json(TreeViewResource::collection($trees)->response()->getData(true));
     }

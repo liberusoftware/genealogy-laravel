@@ -24,10 +24,11 @@ final class EvidenceEntityController
     {
         $model = $this->model($entity);
         $values = $request->validate([
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
             'per_page' => ['sometimes', 'integer', 'between:1,100'],
         ]);
-        $perPage = $values['page[size]'] ?? $values['per_page'] ?? 25;
+        $perPage = $values['page']['size'] ?? $values['per_page'] ?? 25;
         $records = $model::query()->latest()->paginate($perPage);
 
         return response()->json(['data' => $records->getCollection()->map(fn ($record): array => $this->resource($record))->values()->all(), 'meta' => [

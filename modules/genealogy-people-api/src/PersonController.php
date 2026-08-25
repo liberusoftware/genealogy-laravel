@@ -21,7 +21,8 @@ final class PersonController
             'search' => ['nullable', 'string', 'max:200'],
             'public_only' => ['sometimes', 'boolean'],
             'include_living' => ['sometimes', 'boolean'],
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
         ]);
 
         $people = Person::query()
@@ -37,7 +38,7 @@ final class PersonController
             ->when(($values['public_only'] ?? false) === true, fn ($query) => $query->where('is_public', true))
             ->when(($values['include_living'] ?? true) === false, fn ($query) => $query->deceased())
             ->latest()
-            ->paginate($values['page[size]'] ?? 25);
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json([
             'data' => $people->getCollection()->map(fn (Person $person): array => $this->resource($person))->values()->all(),
