@@ -17,7 +17,12 @@ final class CreatePersonAssociation
         $teamId = app(TeamContext::class)->require();
         $values = Arr::only($attributes, ['person_id', 'associated_person_id', 'associated_external_id', 'relationship', 'description', 'metadata']);
         $person = Person::query()->where('team_id', $teamId)->findOrFail($values['person_id'] ?? '');
-        if (empty($values['associated_person_id']) === empty($values['associated_external_id'])) {
+        $associatedPersonId = $values['associated_person_id'] ?? null;
+        $associatedExternalId = $values['associated_external_id'] ?? null;
+        if (filled($associatedPersonId) && filled($associatedExternalId)) {
+            throw new InvalidArgumentException('An association cannot reference both a person and an external identifier.');
+        }
+        if (blank($associatedPersonId) && blank($associatedExternalId)) {
             throw new InvalidArgumentException('An association must reference a person or an external identifier.');
         }
         if (isset($values['associated_person_id'])) {

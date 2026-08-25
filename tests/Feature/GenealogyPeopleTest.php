@@ -193,6 +193,12 @@ it('preserves resolved and unresolved person associations within the active team
         ->and($unresolved->isResolved())->toBeFalse()
         ->and($person->fresh()->associations)->toHaveCount(2)
         ->and($associated->fresh()->associatedWith)->toHaveCount(1);
+    expect(fn () => (new CreatePersonAssociation())->execute([
+        'person_id' => $person->id,
+        'associated_person_id' => $associated->id,
+        'associated_external_id' => '@I100@',
+        'relationship' => 'invalid',
+    ]))->toThrow(InvalidArgumentException::class, 'both');
 
     (new UpdatePersonAssociation())->execute($unresolved, ['associated_person_id' => $associated->id]);
     expect($unresolved->fresh()->associated_external_id)->toBeNull()

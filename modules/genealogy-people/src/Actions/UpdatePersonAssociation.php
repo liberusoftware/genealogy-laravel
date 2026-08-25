@@ -19,6 +19,9 @@ final class UpdatePersonAssociation
             throw new InvalidArgumentException('The association belongs to another team.');
         }
         $values = Arr::only($attributes, ['associated_person_id', 'associated_external_id', 'relationship', 'description', 'metadata']);
+        if (filled($values['associated_person_id'] ?? null) && filled($values['associated_external_id'] ?? null)) {
+            throw new InvalidArgumentException('An association cannot reference both a person and an external identifier.');
+        }
         if (array_key_exists('associated_person_id', $values) && $values['associated_person_id'] !== null) {
             Person::query()->where('team_id', $teamId)->findOrFail($values['associated_person_id']);
         }
