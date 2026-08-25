@@ -24,7 +24,11 @@ final class MediaAssetController
 {
     public function index(Request $request): JsonResponse
     {
-        $perPage = min(max($request->integer('page[size]', 25), 1), 100);
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $perPage = $values['page']['size'] ?? 25;
         $assets = MediaAsset::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when($request->boolean('public_only'), fn ($query) => $query->where('is_public', true))->latest()->paginate($perPage);
 
         return response()->json(['data' => $assets->getCollection()->map(fn (MediaAsset $asset): array => $this->resource($asset))->values()->all(), 'meta' => ['current_page' => $assets->currentPage(), 'per_page' => $assets->perPage(), 'total' => $assets->total()]]);

@@ -16,7 +16,11 @@ final class DnaMatchController
 {
     public function index(Request $request): JsonResponse
     {
-        $matches = DnaMatch::query()->when(! $request->boolean('include_private'), fn ($query) => $query->where('is_private', false))->latest()->paginate(min(max($request->integer('page[size]', 25), 1), 100));
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $matches = DnaMatch::query()->when(! $request->boolean('include_private'), fn ($query) => $query->where('is_private', false))->latest()->paginate($values['page']['size'] ?? 25);
 
         return response()->json(['data' => $matches->through(fn (DnaMatch $match): array => $this->resource($match)), 'meta' => ['current_page' => $matches->currentPage(), 'per_page' => $matches->perPage(), 'total' => $matches->total()]]);
     }

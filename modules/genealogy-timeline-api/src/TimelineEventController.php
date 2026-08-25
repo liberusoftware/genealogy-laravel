@@ -17,7 +17,11 @@ final class TimelineEventController
 {
     public function index(Request $request): JsonResponse
     {
-        $perPage = min(max($request->integer('page[size]', 25), 1), 100);
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $perPage = $values['page']['size'] ?? 25;
         $events = TimelineEvent::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when(! $request->boolean('include_private'), fn ($query) => $query->where('is_private', false))->orderByRaw('COALESCE(event_date, date_start, date_end) desc')->paginate($perPage);
 
         return response()->json(['data' => $events->getCollection()->map(fn (TimelineEvent $event): array => $this->resource($event))->values()->all(), 'meta' => ['current_page' => $events->currentPage(), 'per_page' => $events->perPage(), 'total' => $events->total()]]);

@@ -17,7 +17,11 @@ final class DiscoveryMatchController
 {
     public function index(Request $request): JsonResponse
     {
-        $perPage = min(max($request->integer('page[size]', 25), 1), 100);
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $perPage = $values['page']['size'] ?? 25;
         $records = DiscoveryMatch::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))->latest()->paginate($perPage);
 
         return response()->json(['data' => $records->through(fn (DiscoveryMatch $record): array => $this->resource($record)), 'meta' => ['current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total()]]);

@@ -16,7 +16,11 @@ final class DnaKitController
 {
     public function index(Request $request): JsonResponse
     {
-        $kits = DnaKit::query()->latest()->paginate(min(max($request->integer('page[size]', 25), 1), 100));
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $kits = DnaKit::query()->latest()->paginate($values['page']['size'] ?? 25);
 
         return response()->json(['data' => $kits->through(fn (DnaKit $kit): array => $this->resource($kit)), 'meta' => ['current_page' => $kits->currentPage(), 'per_page' => $kits->perPage(), 'total' => $kits->total()]]);
     }
