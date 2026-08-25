@@ -7,6 +7,8 @@ namespace Liberu\Genealogy\Collaboration\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Collaboration\Actions\CreateCollaborationSpace;
+use Liberu\Genealogy\Collaboration\Actions\DeleteCollaborationSpace;
+use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Models\CollaborationSpace;
 
 final class CollaborationSpaceController
@@ -32,20 +34,20 @@ final class CollaborationSpaceController
         return response()->json(['data' => $record]);
     }
 
-    public function update(Request $request, CollaborationSpace $record): JsonResponse
+    public function update(Request $request, CollaborationSpace $record, UpdateCollaborationSpace $update): JsonResponse
     {
-        $record->update($request->validate([
+        $values = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'status' => ['sometimes', 'string', 'max:50'],
             'metadata' => ['nullable', 'array'],
-        ]));
+        ]);
 
-        return response()->json(['data' => $record->refresh()]);
+        return response()->json(['data' => $update->execute($record, $values)]);
     }
 
-    public function destroy(CollaborationSpace $record): JsonResponse
+    public function destroy(CollaborationSpace $record, DeleteCollaborationSpace $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }

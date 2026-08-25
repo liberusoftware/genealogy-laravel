@@ -7,15 +7,19 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Collaboration\Actions\AcceptCollaborationInvitation;
 use Liberu\Genealogy\Collaboration\Actions\CreateCollaborationDiscussion;
 use Liberu\Genealogy\Collaboration\Actions\CreateCollaborationProposal;
+use Liberu\Genealogy\Collaboration\Actions\CreateCollaborationSpace;
+use Liberu\Genealogy\Collaboration\Actions\DeleteCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Actions\InviteCollaborationMember;
 use Liberu\Genealogy\Collaboration\Actions\RecordCollaborationAttribution;
 use Liberu\Genealogy\Collaboration\Actions\ReviewCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Actions\ToggleCollaborationWatch;
+use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalCreated;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalReviewed;
 use Liberu\Genealogy\Collaboration\Models\CollaborationInvitation;
 use Liberu\Genealogy\Collaboration\Models\CollaborationMembership;
 use Liberu\Genealogy\Collaboration\Models\CollaborationProposal;
+use Liberu\Genealogy\Collaboration\Models\CollaborationSpace;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Livewire\Livewire;
 
@@ -130,4 +134,17 @@ it('exposes collaboration workflow operations through the authenticated API', fu
     $this->actingAs($owner)->getJson('/api/v1/genealogy/collaboration/memberships')->assertOk()->assertJsonCount(1, 'data');
     $this->actingAs($owner)->getJson('/api/v1/genealogy/collaboration/discussions')->assertOk()->assertJsonCount(1, 'data');
     $this->actingAs($owner)->getJson('/api/v1/genealogy/collaboration/watches')->assertOk()->assertJsonCount(1, 'data');
+});
+
+it('keeps collaboration space CRUD mutations behind tenant-safe actions', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $space = app(CreateCollaborationSpace::class)->execute(['name' => 'Original space', 'status' => 'draft']);
+
+    $updated = app(UpdateCollaborationSpace::class)->execute($space, ['name' => 'Updated space', 'status' => 'active']);
+    app(DeleteCollaborationSpace::class)->execute($updated);
+
+    expect($space->refresh()->name)->toBe('Updated space')
+        ->and(CollaborationSpace::query()->find($space->getKey()))->toBeNull();
 });
