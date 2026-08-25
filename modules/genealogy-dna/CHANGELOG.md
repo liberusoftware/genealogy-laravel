@@ -5,6 +5,7 @@
 - Bound DNA group pagination and return explicit group resource envelopes.
 - Add tenant-validated DNA notes and person relationship annotations.
 - Route DNA kit CRUD mutations through tenant-safe domain actions.
+- Route DNA annotation deletion through tenant-safe domain actions.
 
 ## Unreleased
 

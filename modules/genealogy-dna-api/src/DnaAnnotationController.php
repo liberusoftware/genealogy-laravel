@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Dna\Actions\CreateDnaNote;
 use Liberu\Genealogy\Dna\Actions\CreateDnaRelationship;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaNote;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaRelationship;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaNote;
@@ -30,9 +32,9 @@ final class DnaAnnotationController
         return response()->json(['data' => $this->note($record)], 201);
     }
 
-    public function deleteNote(DnaNote $record): JsonResponse
+    public function deleteNote(DnaNote $record, DeleteDnaNote $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }
@@ -52,9 +54,9 @@ final class DnaAnnotationController
         return response()->json(['data' => $this->relationship($record)], 201);
     }
 
-    public function deleteRelationship(DnaRelationship $record): JsonResponse
+    public function deleteRelationship(DnaRelationship $record, DeleteDnaRelationship $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }

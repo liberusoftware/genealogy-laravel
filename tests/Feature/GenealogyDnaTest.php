@@ -6,15 +6,21 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Dna\Actions\CreateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
+use Liberu\Genealogy\Dna\Actions\CreateDnaNote;
+use Liberu\Genealogy\Dna\Actions\CreateDnaRelationship;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaGroup;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaNote;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaRelationship;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
+use Liberu\Genealogy\Dna\Models\DnaNote;
+use Liberu\Genealogy\Dna\Models\DnaRelationship;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Livewire\Livewire;
@@ -180,4 +186,21 @@ it('exposes DNA notes and person relationship annotations through the API', func
     $this->actingAs($user)->getJson('/api/v1/genealogy/dna/relationships?match_id='.$match->getKey())->assertOk()->assertJsonCount(1, 'data');
 
     Livewire::actingAs($user)->test('genealogy-dna-annotation-list', ['matchId' => $match->getKey()])->assertSee('Discuss this match');
+});
+
+it('keeps DNA annotation deletion behind tenant-safe actions', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Deletion kit']);
+    $match = app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'deletion-match']);
+    $person = app(CreatePerson::class)->execute(['given_name' => 'Annotation']);
+    $note = app(CreateDnaNote::class)->execute(['noteable_type' => DnaMatch::class, 'noteable_id' => $match->getKey(), 'body' => 'Temporary note']);
+    $relationship = app(CreateDnaRelationship::class)->execute(['match_id' => $match->getKey(), 'person_id' => $person->getKey(), 'relationship_type' => 'possible_parent']);
+
+    app(DeleteDnaNote::class)->execute($note);
+    app(DeleteDnaRelationship::class)->execute($relationship);
+
+    expect(DnaNote::query()->find($note->getKey()))->toBeNull()
+        ->and(DnaRelationship::query()->find($relationship->getKey()))->toBeNull();
 });
