@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\Collaboration\Actions\DeleteCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Actions\ReviewCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationProposalResource\Pages\CreateCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationProposalResource\Pages\EditCollaborationProposal;
@@ -63,7 +64,7 @@ final class CollaborationProposalResource extends Resource
                 ])
                 ->action(fn (Model $record, array $data): CollaborationProposal => app(ReviewCollaborationProposal::class)->execute($record, $data['status'])),
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (CollaborationProposal $record): mixed => app(DeleteCollaborationProposal::class)->execute($record)),
         ]);
     }
 

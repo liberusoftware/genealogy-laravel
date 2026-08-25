@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaRelationship;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaRelationshipResource\Pages\CreateDnaRelationship;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaRelationshipResource\Pages\EditDnaRelationship;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaRelationshipResource\Pages\ListDnaRelationships;
@@ -48,7 +49,7 @@ final class DnaRelationshipResource extends Resource
             TextColumn::make('relationship_type')->badge(),
             TextColumn::make('confidence')->suffix('%')->sortable(),
             TextColumn::make('status')->badge()->sortable(),
-        ])->recordActions([EditAction::make(), DeleteAction::make()]);
+        ])->recordActions([EditAction::make(), DeleteAction::make()->action(fn (DnaRelationship $record): mixed => app(DeleteDnaRelationship::class)->execute($record))]);
     }
 
     /** @return array<string, PageRegistration> */
