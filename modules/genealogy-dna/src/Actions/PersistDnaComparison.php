@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Dna\Actions;
 
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Liberu\Genealogy\Dna\Events\DnaMatchesPersisted;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Services\CompareDnaKits;
@@ -36,22 +37,36 @@ final class PersistDnaComparison
         }
         $segments = is_array($result['shared_segments'] ?? null) ? $result['shared_segments'] : [];
 
-        $matches = DB::transaction(function () use ($kitA, $kitB, $result, $segments): array {
+        $newMatchIds = [];
+        $matches = DB::transaction(function () use ($kitA, $kitB, $result, $segments, &$newMatchIds): array {
+            [$matchA, $createdA] = $this->persistMatch($kitA, $kitB, $result, $segments);
+            [$matchB, $createdB] = $this->persistMatch($kitB, $kitA, $result, $segments);
+            if ($createdA) {
+                $newMatchIds[] = (string) $matchA->getKey();
+            }
+            if ($createdB) {
+                $newMatchIds[] = (string) $matchB->getKey();
+            }
+
             return [
-                $this->persistMatch($kitA, $kitB, $result, $segments),
-                $this->persistMatch($kitB, $kitA, $result, $segments),
+                $matchA, $matchB,
             ];
         });
+
+        event(new DnaMatchesPersisted($kitA, $kitB, array_map(static fn (DnaMatch $match): string => (string) $match->getKey(), $matches), $newMatchIds));
 
         return [...$result, 'persisted_match_ids' => array_map(static fn (DnaMatch $match): string => (string) $match->getKey(), $matches)];
     }
 
     /** @param array<string, mixed> $result @param list<array<string, mixed>> $segments */
-    private function persistMatch(DnaKit $kit, DnaKit $otherKit, array $result, array $segments): DnaMatch
+    /** @return array{0: DnaMatch, 1: bool} */
+    private function persistMatch(DnaKit $kit, DnaKit $otherKit, array $result, array $segments): array
     {
         $externalId = 'kit:'.$otherKit->getKey();
         $match = DnaMatch::query()->where('kit_id', $kit->getKey())->where('external_id', $externalId)->first();
+        $created = false;
         if ($match === null) {
+            $created = true;
             $match = $this->createMatch->execute([
                 'kit_id' => $kit->getKey(),
                 'external_id' => $externalId,
@@ -67,7 +82,7 @@ final class PersistDnaComparison
         }
 
         if ($match->segments()->exists()) {
-            return $match;
+            return [$match, $created];
         }
 
         foreach ($segments as $segment) {
@@ -82,6 +97,6 @@ final class PersistDnaComparison
             ]);
         }
 
-        return $match->refresh();
+        return [$match->refresh(), $created];
     }
 }
