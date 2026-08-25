@@ -16,8 +16,14 @@ final class CollaborationLivewireServiceProvider extends ServiceProvider
         Livewire::component('module-genealogy-collaboration::collaboration-list', CollaborationSpaceList::class);
         Livewire::component('module-genealogy-collaboration::proposal-list', CollaborationProposalList::class);
         Livewire::component('module-genealogy-collaboration::proposal-editor', CollaborationProposalEditor::class);
+        Livewire::component('module-genealogy-collaboration::invitation-list', CollaborationInvitationList::class);
+        Livewire::component('module-genealogy-collaboration::discussion-board', CollaborationDiscussionBoard::class);
+        Livewire::component('module-genealogy-collaboration::watch-list', CollaborationWatchList::class);
         Livewire::component('genealogy-collaboration-proposal-list', CollaborationProposalList::class);
         Livewire::component('genealogy-collaboration-proposal-editor', CollaborationProposalEditor::class);
+        Livewire::component('genealogy-collaboration-invitation-list', CollaborationInvitationList::class);
+        Livewire::component('genealogy-collaboration-discussion-board', CollaborationDiscussionBoard::class);
+        Livewire::component('genealogy-collaboration-watch-list', CollaborationWatchList::class);
     }
 }
 

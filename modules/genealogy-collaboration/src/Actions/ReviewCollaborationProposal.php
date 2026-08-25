@@ -30,6 +30,7 @@ final class ReviewCollaborationProposal
         });
         $proposal = $proposal->refresh();
         event(new CollaborationProposalReviewed($proposal));
+        app(RecordCollaborationAttribution::class)->execute('proposal', (string) $proposal->getKey(), 'reviewed', ['status' => $status], $reviewerId);
 
         return $proposal;
     }

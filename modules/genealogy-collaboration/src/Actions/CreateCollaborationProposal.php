@@ -24,6 +24,7 @@ final class CreateCollaborationProposal
         $values['team_id'] = app(TeamContext::class)->require();
         $proposal = DB::transaction(fn (): CollaborationProposal => CollaborationProposal::query()->create($values));
         event(new CollaborationProposalCreated($proposal));
+        app(RecordCollaborationAttribution::class)->execute('proposal', (string) $proposal->getKey(), 'created', [], $values['proposer_id'] ?? null);
 
         return $proposal;
     }
