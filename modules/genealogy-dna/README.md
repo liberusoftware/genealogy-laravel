@@ -11,6 +11,10 @@ It also triangulates three or more match segment sets to identify shared groups 
 cM threshold.
 Raw DNA content can be validated in memory for supported 23andMe, Ancestry, MyHeritage, FTDNA,
 and generic rsID formats before any persistence workflow is selected.
+Provider records are tenant-scoped and can be associated with kits while retaining the
+legacy provider label. `ImportDnaKit` validates raw content, encrypts it through
+`DnaFileVault` on the private disk, records a SHA-256 hash/format/SNP count, and removes
+the vault entry when a kit is deleted. Legacy plaintext files remain readable for migration.
 
 - Composer package: `liberusoftware/module-genealogy-dna`
 - Module installer name: `genealogy-dna`

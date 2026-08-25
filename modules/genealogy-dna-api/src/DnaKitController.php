@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
+use Liberu\Genealogy\Dna\Actions\ImportDnaKit;
 use Liberu\Genealogy\Dna\Actions\RevokeDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Models\DnaConsent;
@@ -45,6 +46,27 @@ final class DnaKitController
         $content = $request->validate(['content' => ['required', 'string', 'max:104857600']])['content'];
 
         return response()->json(['data' => $validator->validate($content)]);
+    }
+
+    public function import(Request $request, ImportDnaKit $import): JsonResponse
+    {
+        $values = $request->validate([
+            'content' => ['required', 'string', 'max:104857600'],
+            'name' => ['required', 'string', 'max:255'],
+            'provider' => ['nullable', 'string', 'max:100'],
+            'provider_id' => ['nullable', 'uuid'],
+            'external_id' => ['nullable', 'string', 'max:255'],
+            'person_id' => ['nullable', 'uuid'],
+            'test_type' => ['nullable', 'string', 'max:100'],
+            'consent_status' => ['sometimes', 'in:'.implode(',', DnaKit::CONSENT_STATUSES)],
+            'status' => ['sometimes', 'string', 'max:50'],
+            'metadata' => ['nullable', 'array'],
+        ]);
+        $content = $values['content'];
+        unset($values['content']);
+        $record = $import->execute($content, $values);
+
+        return response()->json(['data' => $this->resource($record)], 201);
     }
 
     public function show(DnaKit $record): JsonResponse
@@ -96,7 +118,7 @@ final class DnaKitController
     /** @return array<string, mixed> */
     private function resource(DnaKit $kit): array
     {
-        return ['id' => $kit->getKey(), 'type' => 'genealogy-dna-kit', 'attributes' => ['name' => $kit->name, 'provider' => $kit->provider, 'provider_id' => $kit->provider_id, 'external_id' => $kit->external_id, 'person_id' => $kit->person_id, 'test_type' => $kit->test_type, 'consent_status' => $kit->consent_status, 'consented_at' => $kit->consented_at?->toISOString(), 'revoked_at' => $kit->revoked_at?->toISOString(), 'revocation_reason' => $kit->revocation_reason, 'status' => $kit->status, 'metadata' => $kit->metadata]];
+        return ['id' => $kit->getKey(), 'type' => 'genealogy-dna-kit', 'attributes' => ['name' => $kit->name, 'provider' => $kit->provider, 'provider_id' => $kit->provider_id, 'external_id' => $kit->external_id, 'person_id' => $kit->person_id, 'test_type' => $kit->test_type, 'consent_status' => $kit->consent_status, 'consented_at' => $kit->consented_at?->toISOString(), 'revoked_at' => $kit->revoked_at?->toISOString(), 'revocation_reason' => $kit->revocation_reason, 'status' => $kit->status, 'metadata' => $kit->metadata, 'file_format' => $kit->file_format, 'snp_count' => $kit->snp_count, 'has_file' => $kit->file_path !== null]];
     }
 
     /** @return array<string, mixed> */
