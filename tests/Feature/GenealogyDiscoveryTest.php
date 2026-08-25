@@ -12,8 +12,10 @@ use Liberu\Genealogy\Discovery\Events\DiscoveryMatchDeleted;
 use Liberu\Genealogy\Discovery\Events\DiscoveryMatchReviewed;
 use Liberu\Genealogy\Discovery\Events\DiscoveryMatchUpdated;
 use Liberu\Genealogy\Discovery\Models\DiscoveryMatch;
+use Liberu\Genealogy\Discovery\Queries\RelationshipPath;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
+use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -84,4 +86,18 @@ it('persists tenant-scoped duplicate scans once and exposes them through API and
 
     app(TeamContext::class)->set($team->id);
     Livewire::actingAs($user)->test('genealogy-discovery-list')->call('scanDuplicates')->assertDispatched('genealogy-discovery-duplicates-scanned');
+});
+
+it('does not traverse living or private intermediate people in public relationship paths', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $from = app(CreatePerson::class)->execute(['given_name' => 'From', 'death_date' => '1950-01-01', 'is_public' => true]);
+    $private = app(CreatePerson::class)->execute(['given_name' => 'Private', 'death_date' => '1960-01-01', 'is_public' => false]);
+    $to = app(CreatePerson::class)->execute(['given_name' => 'To', 'death_date' => '1970-01-01', 'is_public' => true]);
+    app(CreateRelationship::class)->execute(['person_id' => $from->id, 'related_person_id' => $private->id, 'type' => 'parent']);
+    app(CreateRelationship::class)->execute(['person_id' => $private->id, 'related_person_id' => $to->id, 'type' => 'parent']);
+
+    $path = app(RelationshipPath::class)->execute($from->id, $to->id, 6, true);
+
+    expect($path['found'])->toBeFalse()->and($path['nodes'])->toBeEmpty();
 });

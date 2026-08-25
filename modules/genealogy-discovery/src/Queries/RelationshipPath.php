@@ -36,6 +36,10 @@ final class RelationshipPath
                 if (isset($visited[$next])) {
                     continue;
                 }
+                $nextPerson = Person::query()->find($next);
+                if ($nextPerson === null || ($publicOnly && (! $nextPerson->is_public || $nextPerson->isLiving()))) {
+                    continue;
+                }
                 $visited[$next] = true;
                 $queue[] = [$next, [...$edges, ['from' => $current, 'to' => $next, 'type' => $relationship->type, 'confidence' => $relationship->confidence]]];
             }
