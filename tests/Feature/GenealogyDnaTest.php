@@ -8,19 +8,24 @@ use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\CreateDnaNote;
 use Liberu\Genealogy\Dna\Actions\CreateDnaRelationship;
+use Liberu\Genealogy\Dna\Actions\CreateDnaSegment;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaGroup;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaNote;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaRelationship;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaSegment;
+use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaSegment;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaNote;
 use Liberu\Genealogy\Dna\Models\DnaRelationship;
+use Liberu\Genealogy\Dna\Models\DnaSegment;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Livewire\Livewire;
@@ -203,4 +208,31 @@ it('keeps DNA annotation deletion behind tenant-safe actions', function (): void
 
     expect(DnaNote::query()->find($note->getKey()))->toBeNull()
         ->and(DnaRelationship::query()->find($relationship->getKey()))->toBeNull();
+});
+
+it('exposes tenant-safe segment lifecycle and consent history across presentation surfaces', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->getKey());
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Lifecycle kit']);
+    $match = app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'lifecycle-match']);
+    $segment = app(CreateDnaSegment::class)->execute(['match_id' => $match->getKey(), 'chromosome' => 1, 'start_position' => 100, 'end_position' => 200]);
+
+    app(UpdateDnaSegment::class)->execute($segment, ['end_position' => 250]);
+    $consent = app(GrantDnaConsent::class)->execute($kit, 'matching', '2026-01');
+
+    $this->actingAs($user)->getJson('/api/v1/genealogy/dna/matches/'.$match->getKey().'/segments')
+        ->assertOk()->assertJsonPath('data.0.attributes.end_position', 250);
+    $this->actingAs($user)->getJson('/api/v1/genealogy/dna/kits/'.$kit->getKey().'/consents')
+        ->assertOk()->assertJsonPath('data.0.attributes.scope', 'matching');
+
+    Livewire::actingAs($user)->test('genealogy-dna-segment-list', ['matchId' => $match->getKey()])->assertSee('Chromosome 1');
+    Livewire::actingAs($user)->test('genealogy-dna-consent-list', ['kitId' => $kit->getKey()])->assertSee('matching');
+
+    app(TeamContext::class)->set($team->getKey());
+    app(DeleteDnaSegment::class)->execute($segment->refresh());
+
+    expect(DnaSegment::query()->find($segment->getKey()))->toBeNull()
+        ->and($consent->fresh()->granted)->toBeTrue();
 });

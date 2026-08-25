@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add segment and consent resources and route kit consent/revocation through domain actions.
+
+## Unreleased
+
 - Register Filament resources for DNA matches and match groups alongside kits.
 - Register a Filament resource for DNA relationship annotations.
 - Register a Filament resource for DNA notes.

@@ -7,11 +7,13 @@ namespace Liberu\Genealogy\Dna\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\Dna\Filament\Resources\DnaConsentResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaGroupResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaKitResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaMatchResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaNoteResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaRelationshipResource;
+use Liberu\Genealogy\Dna\Filament\Resources\DnaSegmentResource;
 
 final class DnaFilamentServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,8 @@ final class DnaFilamentPlugin implements Plugin
             DnaGroupResource::class,
             DnaRelationshipResource::class,
             DnaNoteResource::class,
+            DnaSegmentResource::class,
+            DnaConsentResource::class,
         ]);
     }
 

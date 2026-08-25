@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaNote;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaNoteResource\Pages\CreateDnaNote as CreateDnaNotePage;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaNoteResource\Pages\ListDnaNotes;
 use Liberu\Genealogy\Dna\Models\DnaKit;
@@ -43,7 +44,7 @@ final class DnaNoteResource extends Resource
             TextColumn::make('noteable_id')->label('Target ID')->sortable(),
             TextColumn::make('body')->limit(100)->searchable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
-        ])->recordActions([DeleteAction::make()]);
+        ])->recordActions([DeleteAction::make()->action(fn (DnaNote $record): mixed => app(DeleteDnaNote::class)->execute($record))]);
     }
 
     /** @return array<string, PageRegistration> */

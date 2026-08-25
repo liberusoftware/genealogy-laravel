@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Expose consent history and the complete DNA segment lifecycle through the versioned API.
+
+## Unreleased
+
 - Expose authenticated normalized-kit DNA analysis through the versioned API.
 - Expose authenticated three-way segment triangulation through the versioned API.
 - Expose bounded in-memory DNA file validation without persisting raw genetic content.

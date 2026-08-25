@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add tenant-scoped segment and consent history components.
+
+## Unreleased
+
 - Add searchable, status-filtered Livewire lists for DNA matches and groups with private-match controls.
 - Add a tenant-safe Livewire annotation list for DNA notes and relationships.
 

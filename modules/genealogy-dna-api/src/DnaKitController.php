@@ -11,6 +11,7 @@ use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\RevokeDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
+use Liberu\Genealogy\Dna\Models\DnaConsent;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Services\DnaFileValidator;
 
@@ -78,6 +79,13 @@ final class DnaKitController
         return response()->json(['data' => ['id' => $consent->getKey(), 'kit_id' => $consent->kit_id, 'scope' => $consent->scope, 'granted' => $consent->granted, 'granted_at' => $consent->granted_at?->toISOString()]], 201);
     }
 
+    public function consents(DnaKit $kit): JsonResponse
+    {
+        $records = DnaConsent::query()->where('kit_id', $kit->getKey())->latest()->get();
+
+        return response()->json(['data' => $records->map(fn (DnaConsent $consent): array => $this->consentResource($consent))->all()]);
+    }
+
     public function revoke(Request $request, DnaKit $kit, RevokeDnaKit $revoke): JsonResponse
     {
         $values = $request->validate(['reason' => ['required', 'string', 'max:1000']]);
@@ -89,5 +97,20 @@ final class DnaKitController
     private function resource(DnaKit $kit): array
     {
         return ['id' => $kit->getKey(), 'type' => 'genealogy-dna-kit', 'attributes' => ['name' => $kit->name, 'provider' => $kit->provider, 'external_id' => $kit->external_id, 'person_id' => $kit->person_id, 'test_type' => $kit->test_type, 'consent_status' => $kit->consent_status, 'consented_at' => $kit->consented_at?->toISOString(), 'revoked_at' => $kit->revoked_at?->toISOString(), 'revocation_reason' => $kit->revocation_reason, 'status' => $kit->status, 'metadata' => $kit->metadata]];
+    }
+
+    /** @return array<string, mixed> */
+    private function consentResource(DnaConsent $consent): array
+    {
+        return ['id' => $consent->getKey(), 'type' => 'genealogy-dna-consent', 'attributes' => [
+            'kit_id' => $consent->kit_id,
+            'scope' => $consent->scope,
+            'granted' => $consent->granted,
+            'policy_version' => $consent->policy_version,
+            'granted_at' => $consent->granted_at?->toISOString(),
+            'revoked_at' => $consent->revoked_at?->toISOString(),
+            'revocation_reason' => $consent->revocation_reason,
+            'metadata' => $consent->metadata,
+        ]];
     }
 }

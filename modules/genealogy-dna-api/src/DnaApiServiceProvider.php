@@ -15,6 +15,7 @@ final class DnaApiServiceProvider extends ServiceProvider
     {
         $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class, 'throttle:60,1'])->group(function () use ($router): void {
             $router->post('api/v1/genealogy/dna/kits/{kit}/consent', [DnaKitController::class, 'consent'])->name('genealogy.dna.consent');
+            $router->get('api/v1/genealogy/dna/kits/{kit}/consents', [DnaKitController::class, 'consents'])->name('genealogy.dna.consents');
             $router->post('api/v1/genealogy/dna/kits/{kit}/revoke', [DnaKitController::class, 'revoke'])->name('genealogy.dna.revoke');
             $router->post('api/v1/genealogy/dna/kits/validate', [DnaKitController::class, 'validateFile'])->name('genealogy.dna.kits.validate');
             $router->apiResource('api/v1/genealogy/dna/kits', DnaKitController::class)->parameters(['kits' => 'record']);
@@ -22,6 +23,9 @@ final class DnaApiServiceProvider extends ServiceProvider
             $router->post('api/v1/genealogy/dna/matches/triangulate', [DnaMatchController::class, 'triangulate'])->name('genealogy.dna.matches.triangulate');
             $router->apiResource('api/v1/genealogy/dna/matches', DnaMatchController::class)->parameters(['matches' => 'record']);
             $router->post('api/v1/genealogy/dna/matches/{record}/segments', [DnaMatchController::class, 'segment'])->name('genealogy.dna.segment');
+            $router->get('api/v1/genealogy/dna/matches/{record}/segments', [DnaMatchController::class, 'segments'])->name('genealogy.dna.segments');
+            $router->patch('api/v1/genealogy/dna/segments/{record}', [DnaMatchController::class, 'updateSegment'])->name('genealogy.dna.segments.update');
+            $router->delete('api/v1/genealogy/dna/segments/{record}', [DnaMatchController::class, 'deleteSegment'])->name('genealogy.dna.segments.delete');
             $router->apiResource('api/v1/genealogy/dna/groups', DnaGroupController::class)->parameters(['groups' => 'record']);
             $router->get('api/v1/genealogy/dna/notes', [DnaAnnotationController::class, 'notes'])->name('genealogy.dna.notes.index');
             $router->post('api/v1/genealogy/dna/notes', [DnaAnnotationController::class, 'createNote'])->name('genealogy.dna.notes.store');

@@ -18,6 +18,10 @@ final class CreateDnaSegment
             throw ValidationException::withMessages(['match_id' => 'The match must belong to the active team.']);
         }
 
+        if (($values['chromosome'] ?? 0) < 1 || ($values['chromosome'] ?? 0) > 99) {
+            throw ValidationException::withMessages(['chromosome' => 'The chromosome must be between 1 and 99.']);
+        }
+
         if (($values['start_position'] ?? 0) >= ($values['end_position'] ?? 0)) {
             throw ValidationException::withMessages(['end_position' => 'The segment end must be after its start.']);
         }

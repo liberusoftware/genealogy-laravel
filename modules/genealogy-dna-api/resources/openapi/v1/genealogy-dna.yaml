@@ -13,6 +13,8 @@ paths:
     delete: {operationId: genealogy.dna.kits.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/kits/{kit}/consent:
     post: {operationId: genealogy.dna.kits.consent, security: [{sanctum: []}], parameters: [{name: kit, in: path, required: true, schema: {type: string, format: uuid}}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ConsentInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/kits/{kit}/consents:
+    get: {operationId: genealogy.dna.kits.consents, security: [{sanctum: []}], parameters: [{name: kit, in: path, required: true, schema: {type: string, format: uuid}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
   /api/v1/genealogy/dna/kits/{kit}/revoke:
     post: {operationId: genealogy.dna.kits.revoke, security: [{sanctum: []}], parameters: [{name: kit, in: path, required: true, schema: {type: string, format: uuid}}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RevokeInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/matches:
@@ -28,7 +30,12 @@ paths:
     patch: {operationId: genealogy.dna.matches.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MatchInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.dna.matches.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/matches/{record}/segments:
+    get: {operationId: genealogy.dna.matches.segments, security: [{sanctum: []}], parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.matches.segment, security: [{sanctum: []}], parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SegmentInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/segments/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch: {operationId: genealogy.dna.segments.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SegmentInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    delete: {operationId: genealogy.dna.segments.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/groups:
     get: {operationId: genealogy.dna.groups.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.groups.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GroupInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
