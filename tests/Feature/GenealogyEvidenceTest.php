@@ -224,6 +224,11 @@ it('preserves person citation links with GEDCOM source metadata', function (): v
         ->and($link->citation->is($citation))->toBeTrue()
         ->and($link->qualityLabel())->toBe('Primary evidence')
         ->and($citation->personLinks)->toHaveCount(1);
+    $freeText = app(CreateCitationLink::class)->execute([
+        'citation_id' => $citation->id, 'subject_person_id' => $person->id,
+        'group' => 'indi_name', 'quality' => 'probably reliable',
+    ]);
+    expect($freeText->qualityLabel())->toBe('probably reliable');
 });
 
 it('rejects supporting evidence references from another team', function (): void {

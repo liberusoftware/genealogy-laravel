@@ -23,9 +23,6 @@ final class CreateCitationLink
         if (! in_array($values['group'], CitationLink::GROUPS, true)) {
             throw new InvalidArgumentException('The citation link group is not supported.');
         }
-        if (isset($values['quality']) && filled($values['quality']) && ! in_array((string) $values['quality'], ['0', '1', '2', '3'], true)) {
-            throw new InvalidArgumentException('The citation quality must be between 0 and 3.');
-        }
         $values['team_id'] = $teamId;
         $values['citation_id'] = $citation->getKey();
 
