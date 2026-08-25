@@ -16,6 +16,12 @@ use Liberu\Genealogy\Evidence\Actions\ReviewEvidenceRecord;
 use Liberu\Genealogy\Evidence\Events\EvidenceRecordArchived;
 use Liberu\Genealogy\Evidence\Events\EvidenceRecordCreated;
 use Liberu\Genealogy\Evidence\Events\EvidenceRecordReviewed;
+use Liberu\Genealogy\Evidence\Filament\Resources\AssertionResource;
+use Liberu\Genealogy\Evidence\Filament\Resources\CitationResource;
+use Liberu\Genealogy\Evidence\Filament\Resources\ExtractResource;
+use Liberu\Genealogy\Evidence\Filament\Resources\ProofConclusionResource;
+use Liberu\Genealogy\Evidence\Filament\Resources\RepositoryResource;
+use Liberu\Genealogy\Evidence\Filament\Resources\SourceResource;
 use Liberu\Genealogy\Evidence\Livewire\EvidenceRecordList;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
@@ -236,4 +242,10 @@ it('bounds evidence entity pagination through the API contract', function (): vo
         ->getJson('/api/v1/genealogy/evidence/sources?per_page=101')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['per_page']);
+});
+
+it('registers full Filament page workflows for every evidence entity resource', function (): void {
+    foreach ([SourceResource::class, RepositoryResource::class, CitationResource::class, ExtractResource::class, AssertionResource::class, ProofConclusionResource::class] as $resource) {
+        expect($resource::getPages())->toHaveKeys(['index', 'create', 'edit']);
+    }
 });
