@@ -21,6 +21,8 @@ final class TreeGraphView extends Component
 
     public bool $includeSiblings = false;
 
+    public int $maxNodes = 2000;
+
     public array $data = [];
 
     public function loadGraph(TreeGraph $graph): void
@@ -31,6 +33,7 @@ final class TreeGraphView extends Component
             'view' => ['in:pedigree,descendants,fan,chart'],
             'includeLiving' => ['boolean'],
             'includeSiblings' => ['boolean'],
+            'maxNodes' => ['integer', 'between:100,5000'],
         ]);
         $person = Person::query()->find($this->personId);
 
@@ -38,7 +41,7 @@ final class TreeGraphView extends Component
             throw ValidationException::withMessages(['personId' => 'The selected person was not found.']);
         }
 
-        $this->data = $graph->for($person, $this->generations, $this->includeLiving, $this->view, $this->includeSiblings);
+        $this->data = $graph->for($person, $this->generations, $this->includeLiving, $this->view, $this->includeSiblings, $this->maxNodes);
     }
 
     public function navigateTo(string $personId, TreeGraph $graph): void

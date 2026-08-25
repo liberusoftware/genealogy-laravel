@@ -12,6 +12,8 @@
     </select>
     <label><input type="checkbox" wire:model.live="includeLiving"> Include living people</label>
     <label><input type="checkbox" wire:model.live="includeSiblings"> Include siblings</label>
+    <label for="genealogy-tree-viewer-max-nodes">Maximum nodes</label>
+    <input id="genealogy-tree-viewer-max-nodes" type="number" min="100" max="5000" wire:model.live="maxNodes">
     <button type="button" wire:click="loadGraph" wire:loading.attr="disabled">Load tree</button>
     <p id="genealogy-tree-viewer-help">Enter a person ID to inspect ancestors and descendants.</p>
     @if ($data !== [])
@@ -19,6 +21,9 @@
             <h2>{{ $data['root']['name'] }}</h2>
             <p>{{ count($data['ancestors']) }} ancestors, {{ count($data['descendants']) }} descendants.</p>
             <p>{{ count($data['nodes']) }} nodes, {{ count($data['edges']) }} relationships.</p>
+            @if (($data['navigation']['truncated'] ?? false) === true)
+                <p role="status">This graph reached its node limit. Narrow the view or increase the maximum.</p>
+            @endif
             <ul aria-label="Tree nodes">
                 @foreach ($data['nodes'] as $node)
                     <li wire:key="genealogy-tree-node-{{ $node['id'] }}">

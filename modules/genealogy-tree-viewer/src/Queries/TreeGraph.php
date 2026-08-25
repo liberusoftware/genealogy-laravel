@@ -24,11 +24,13 @@ final class TreeGraph
         bool $includeLiving = true,
         string $view = 'chart',
         bool $includeSiblings = false,
+        int $maxNodes = 2000,
     ): array {
         $generations = max(0, min($generations, 12));
+        $maxNodes = max(100, min($maxNodes, 5000));
         $view = in_array($view, ['pedigree', 'descendants', 'fan', 'chart'], true) ? $view : 'chart';
-        $ancestors = $view === 'descendants' ? [] : $this->walk($root, $generations, ancestors: true, includeLiving: $includeLiving);
-        $descendants = $view === 'pedigree' ? [] : $this->walk($root, $generations, ancestors: false, includeLiving: $includeLiving);
+        $ancestors = $view === 'descendants' ? [] : $this->walk($root, $generations, ancestors: true, includeLiving: $includeLiving, maxNodes: $maxNodes);
+        $descendants = $view === 'pedigree' ? [] : $this->walk($root, $generations, ancestors: false, includeLiving: $includeLiving, maxNodes: $maxNodes);
         $siblings = $includeSiblings ? $this->siblings($root, $includeLiving) : [];
         $nodes = $this->nodes($root, $ancestors, $descendants, $includeLiving);
         $nodes = [...$nodes, ...$siblings];
@@ -46,6 +48,8 @@ final class TreeGraph
                 'generations' => $generations,
                 'available_views' => ['pedigree', 'descendants', 'fan', 'chart'],
                 'can_expand' => $generations < 12,
+                'max_nodes' => $maxNodes,
+                'truncated' => count($ancestors) >= $maxNodes || count($descendants) >= $maxNodes,
             ],
         ];
     }
@@ -79,7 +83,7 @@ final class TreeGraph
     }
 
     /** @return list<array<string, mixed>> */
-    private function walk(Person $root, int $generations, bool $ancestors, bool $includeLiving): array
+    private function walk(Person $root, int $generations, bool $ancestors, bool $includeLiving, int $maxNodes): array
     {
         if ($generations === 0) {
             return [];
@@ -89,7 +93,7 @@ final class TreeGraph
         $frontier = collect([$root]);
         $result = [];
 
-        for ($depth = 1; $depth <= $generations && $frontier->isNotEmpty() && count($result) < 2000; $depth++) {
+        for ($depth = 1; $depth <= $generations && $frontier->isNotEmpty() && count($result) < $maxNodes; $depth++) {
             $ids = $frontier->map(fn (Person $person): string => (string) $person->getKey());
             $query = Relationship::query()->where('type', 'parent');
 
@@ -100,6 +104,9 @@ final class TreeGraph
             $next = collect();
 
             foreach ($edges as $edge) {
+                if (count($result) >= $maxNodes) {
+                    break;
+                }
                 $personId = $ancestors ? $edge->person_id : $edge->related_person_id;
                 $person = Person::query()->find($personId);
 

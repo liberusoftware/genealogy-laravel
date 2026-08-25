@@ -33,3 +33,20 @@ it('builds bounded pedigree, descendant, fan and chart graph views', function ()
         ->and($chart['edges'])->toHaveCount(2)
         ->and($chart['navigation']['available_views'])->toContain('fan');
 });
+
+it('reports when a large graph reaches its explicit node limit', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $root = Person::query()->create(['given_name' => 'Root', 'death_date' => '2000-01-01']);
+    $create = new CreateRelationship();
+    for ($index = 0; $index < 101; $index++) {
+        $child = Person::query()->create(['given_name' => 'Child '.$index, 'death_date' => '2020-01-01']);
+        $create->execute(['person_id' => $root->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+    }
+
+    $graph = (new TreeGraph())->for($root, 1, true, 'descendants', false, 100);
+
+    expect($graph['navigation']['max_nodes'])->toBe(100)
+        ->and($graph['navigation']['truncated'])->toBeTrue()
+        ->and($graph['descendants'])->toHaveCount(100);
+});
