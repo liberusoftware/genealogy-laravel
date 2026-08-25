@@ -3,6 +3,12 @@ info:
   title: Genealogy Discovery API
   version: 1.0.0
 paths:
+  /api/v1/genealogy/discovery/external-search:
+    post:
+      operationId: genealogy.discovery.external-search
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [person], properties: { person: { type: object }, weights: { type: object } } } } } }
+      responses: { '200': { description: External discovery candidates or unavailable status } }
   /api/v1/genealogy/discovery:
     get:
       operationId: genealogy.discovery.list

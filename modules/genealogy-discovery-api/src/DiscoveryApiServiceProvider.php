@@ -13,7 +13,8 @@ final class DiscoveryApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class, 'throttle:api'])->group(function () use ($router): void {
+        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class, 'throttle:60,1'])->group(function () use ($router): void {
+            $router->post('api/v1/genealogy/discovery/external-search', [DiscoveryMatchController::class, 'externalSearch'])->name('genealogy.discovery.external-search');
             $router->get('api/v1/genealogy/discovery/search', [DiscoveryMatchController::class, 'search'])->name('genealogy.discovery.search');
             $router->get('api/v1/genealogy/discovery/duplicates', [DiscoveryMatchController::class, 'duplicates'])->name('genealogy.discovery.duplicates');
             $router->get('api/v1/genealogy/discovery/paths/{from}/{to}', [DiscoveryMatchController::class, 'path'])->name('genealogy.discovery.path');

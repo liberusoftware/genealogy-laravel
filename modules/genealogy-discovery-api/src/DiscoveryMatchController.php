@@ -11,6 +11,7 @@ use Liberu\Genealogy\Discovery\Models\DiscoveryMatch;
 use Liberu\Genealogy\Discovery\Queries\DiscoverySearch;
 use Liberu\Genealogy\Discovery\Queries\DuplicateCandidates;
 use Liberu\Genealogy\Discovery\Queries\RelationshipPath;
+use Liberu\Genealogy\Discovery\Services\ExternalRecordMatcher;
 
 final class DiscoveryMatchController
 {
@@ -70,6 +71,18 @@ final class DiscoveryMatchController
         $values = $request->validate(['q' => ['required', 'string', 'min:2', 'max:200'], 'limit' => ['sometimes', 'integer', 'between:1,100'], 'public_only' => ['sometimes', 'boolean'], 'include_living' => ['sometimes', 'boolean'], 'types' => ['sometimes', 'array'], 'types.*' => ['in:people,places,sources']]);
 
         return response()->json(['data' => $search->execute($values['q'], $values)]);
+    }
+
+    public function externalSearch(Request $request, ExternalRecordMatcher $matcher): JsonResponse
+    {
+        $values = $request->validate([
+            'person' => ['required', 'array'],
+            'person.first_name' => ['nullable', 'string', 'max:255'], 'person.last_name' => ['nullable', 'string', 'max:255'],
+            'person.birth_year' => ['nullable', 'integer', 'between:1,3000'], 'person.birth_place' => ['nullable', 'string', 'max:255'],
+            'weights' => ['sometimes', 'array'],
+        ]);
+
+        return response()->json(['data' => $matcher->execute($values['person'], $values['weights'] ?? [])]);
     }
 
     public function duplicates(Request $request, DuplicateCandidates $duplicates): JsonResponse
