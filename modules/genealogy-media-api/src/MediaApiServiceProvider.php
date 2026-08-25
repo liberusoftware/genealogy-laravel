@@ -18,6 +18,8 @@ final class MediaApiServiceProvider extends ServiceProvider
             $router->post('api/v1/genealogy/media/upload', [MediaAssetController::class, 'upload'])->name('genealogy.media.upload');
             $router->post('api/v1/genealogy/media/{record}/links', [MediaAssetController::class, 'link'])->name('genealogy.media.link');
             $router->post('api/v1/genealogy/media/{record}/analyze-faces', [MediaAssetController::class, 'analyzeFaces'])->name('genealogy.media.analyze-faces');
+            $router->post('api/v1/genealogy/media/{record}/transcribe', [MediaAssetController::class, 'transcribe'])->name('genealogy.media.transcribe');
+            $router->post('api/v1/genealogy/media/{record}/transcription-corrections', [MediaAssetController::class, 'correctTranscription'])->name('genealogy.media.transcription-corrections');
             $router->get('api/v1/genealogy/media/{record}/face-tags', [MediaAssetController::class, 'faceTags'])->name('genealogy.media.face-tags');
             $router->patch('api/v1/genealogy/media/face-tags/{tag}', [MediaAssetController::class, 'reviewFaceTag'])->name('genealogy.media.face-tags.review');
             $router->apiResource('api/v1/genealogy/media', MediaAssetController::class)->parameters(['media' => 'record']);

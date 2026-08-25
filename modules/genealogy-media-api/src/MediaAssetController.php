@@ -7,11 +7,13 @@ namespace Liberu\Genealogy\Media\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Media\Actions\AnalyzeMediaFaces;
+use Liberu\Genealogy\Media\Actions\CorrectMediaTranscription;
 use Liberu\Genealogy\Media\Actions\CreateMediaAsset;
 use Liberu\Genealogy\Media\Actions\CreateMediaLink;
 use Liberu\Genealogy\Media\Actions\DeleteMediaAsset;
 use Liberu\Genealogy\Media\Actions\ReviewMediaFaceTag;
 use Liberu\Genealogy\Media\Actions\StoreMediaUpload;
+use Liberu\Genealogy\Media\Actions\TranscribeMediaAsset;
 use Liberu\Genealogy\Media\Actions\UpdateMediaAsset;
 use Liberu\Genealogy\Media\Models\MediaAsset;
 use Liberu\Genealogy\Media\Models\MediaFaceTag;
@@ -102,6 +104,19 @@ final class MediaAssetController
     public function analyzeFaces(MediaAsset $record, AnalyzeMediaFaces $analyze): JsonResponse
     {
         return response()->json(['data' => $analyze->execute($record)]);
+    }
+
+    public function transcribe(MediaAsset $record, TranscribeMediaAsset $transcribe): JsonResponse
+    {
+        return response()->json(['data' => $transcribe->execute($record)]);
+    }
+
+    public function correctTranscription(Request $request, MediaAsset $record, CorrectMediaTranscription $correct): JsonResponse
+    {
+        $values = $request->validate(['text' => ['required', 'string', 'max:2000000']]);
+        $correction = $correct->execute($record, $values['text'], auth()->id() ? (string) auth()->id() : null);
+
+        return response()->json(['data' => ['id' => $correction->getKey(), 'type' => 'genealogy-media-transcription-correction', 'attributes' => ['media_asset_id' => $correction->media_asset_id, 'original_text' => $correction->original_text, 'corrected_text' => $correction->corrected_text, 'actor_id' => $correction->actor_id, 'created_at' => $correction->created_at?->toISOString()]]], 201);
     }
 
     public function faceTags(MediaAsset $record): JsonResponse

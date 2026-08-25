@@ -45,4 +45,9 @@ final class MediaAsset extends Model
     {
         return $this->hasMany(MediaFaceTag::class, 'media_asset_id');
     }
+
+    public function transcriptionCorrections(): HasMany
+    {
+        return $this->hasMany(MediaTranscriptionCorrection::class, 'media_asset_id');
+    }
 }
