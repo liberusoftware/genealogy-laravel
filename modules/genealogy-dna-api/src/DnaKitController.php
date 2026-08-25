@@ -31,7 +31,7 @@ final class DnaKitController
     public function store(Request $request, CreateDnaKit $create): JsonResponse
     {
         $record = $create->execute($request->validate([
-            'name' => ['required', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'external_id' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'provider_id' => ['nullable', 'uuid', 'exists:genealogy_dna_providers,id'], 'external_id' => ['nullable', 'string', 'max:255'],
             'person_id' => ['nullable', 'uuid'], 'test_type' => ['nullable', 'string', 'max:100'], 'consent_status' => ['sometimes', 'in:'.implode(',', DnaKit::CONSENT_STATUSES)],
             'status' => ['sometimes', 'string', 'max:50'],
             'metadata' => ['nullable', 'array'],
@@ -55,7 +55,7 @@ final class DnaKitController
     public function update(Request $request, DnaKit $record, UpdateDnaKit $update): JsonResponse
     {
         $values = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'external_id' => ['nullable', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'provider_id' => ['nullable', 'uuid', 'exists:genealogy_dna_providers,id'], 'external_id' => ['nullable', 'string', 'max:255'],
             'person_id' => ['nullable', 'uuid'], 'test_type' => ['nullable', 'string', 'max:100'], 'consent_status' => ['sometimes', 'in:'.implode(',', DnaKit::CONSENT_STATUSES)],
             'status' => ['sometimes', 'string', 'max:50'],
             'metadata' => ['nullable', 'array'],
@@ -96,7 +96,7 @@ final class DnaKitController
     /** @return array<string, mixed> */
     private function resource(DnaKit $kit): array
     {
-        return ['id' => $kit->getKey(), 'type' => 'genealogy-dna-kit', 'attributes' => ['name' => $kit->name, 'provider' => $kit->provider, 'external_id' => $kit->external_id, 'person_id' => $kit->person_id, 'test_type' => $kit->test_type, 'consent_status' => $kit->consent_status, 'consented_at' => $kit->consented_at?->toISOString(), 'revoked_at' => $kit->revoked_at?->toISOString(), 'revocation_reason' => $kit->revocation_reason, 'status' => $kit->status, 'metadata' => $kit->metadata]];
+        return ['id' => $kit->getKey(), 'type' => 'genealogy-dna-kit', 'attributes' => ['name' => $kit->name, 'provider' => $kit->provider, 'provider_id' => $kit->provider_id, 'external_id' => $kit->external_id, 'person_id' => $kit->person_id, 'test_type' => $kit->test_type, 'consent_status' => $kit->consent_status, 'consented_at' => $kit->consented_at?->toISOString(), 'revoked_at' => $kit->revoked_at?->toISOString(), 'revocation_reason' => $kit->revocation_reason, 'status' => $kit->status, 'metadata' => $kit->metadata]];
     }
 
     /** @return array<string, mixed> */

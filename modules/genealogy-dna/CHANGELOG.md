@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add tenant-scoped DNA provider registry with lifecycle actions and kit references.
 - Complete DNA segment lifecycle actions with tenant-safe update and deletion boundaries.
 
 - Bound DNA group pagination and return explicit group resource envelopes.

@@ -1,6 +1,14 @@
 openapi: 3.1.0
 info: {title: Genealogy DNA API, version: 1.0.0}
 paths:
+  /api/v1/genealogy/dna/providers:
+    get: {operationId: genealogy.dna.providers.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.dna.providers.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/providers/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
+    get: {operationId: genealogy.dna.providers.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    patch: {operationId: genealogy.dna.providers.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    delete: {operationId: genealogy.dna.providers.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/kits:
     get: {operationId: genealogy.dna.kits.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.kits.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/KitInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
@@ -57,7 +65,8 @@ paths:
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   schemas:
-    KitInput: {type: object, properties: {person_id: {type: string, format: uuid}, provider: {type: string}, external_id: {type: string}, status: {type: string}, metadata: {type: object}}}
+    KitInput: {type: object, properties: {person_id: {type: string, format: uuid}, provider: {type: string}, provider_id: {type: string, format: uuid}, external_id: {type: string}, status: {type: string}, metadata: {type: object}}}
+    ProviderInput: {type: object, required: [name], properties: {name: {type: string, maxLength: 255}, slug: {type: string, maxLength: 255}, status: {type: string, enum: [active, inactive]}, website: {type: string, format: uri, nullable: true}, metadata: {type: object, nullable: true}}}
     ValidationInput: {type: object, required: [content], properties: {content: {type: string, description: DNA file content is validated in memory and never persisted by this operation}}}
     ConsentInput: {type: object, required: [scope], properties: {scope: {type: string, maxLength: 100}, policy_version: {type: string, nullable: true}}}
     RevokeInput: {type: object, required: [reason], properties: {reason: {type: string, maxLength: 1000}}}

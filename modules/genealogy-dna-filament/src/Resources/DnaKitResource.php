@@ -35,6 +35,7 @@ final class DnaKitResource extends Resource
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
             TextInput::make('provider')->maxLength(100),
+            Select::make('provider_id')->relationship('dnaProvider', 'name')->searchable()->preload()->nullable(),
             TextInput::make('external_id')->maxLength(255),
             TextInput::make('person_id')->uuid(),
             TextInput::make('test_type')->maxLength(100),

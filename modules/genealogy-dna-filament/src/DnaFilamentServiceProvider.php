@@ -12,6 +12,7 @@ use Liberu\Genealogy\Dna\Filament\Resources\DnaGroupResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaKitResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaMatchResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaNoteResource;
+use Liberu\Genealogy\Dna\Filament\Resources\DnaProviderResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaRelationshipResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaSegmentResource;
 
@@ -42,6 +43,7 @@ final class DnaFilamentPlugin implements Plugin
             DnaNoteResource::class,
             DnaSegmentResource::class,
             DnaConsentResource::class,
+            DnaProviderResource::class,
         ]);
     }
 

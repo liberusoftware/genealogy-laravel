@@ -22,7 +22,7 @@ final class DnaKit extends Model
 
     protected $table = 'genealogy_dna_kits';
 
-    protected $fillable = ['team_id', 'name', 'provider', 'external_id', 'person_id', 'test_type', 'consent_status', 'consented_at', 'revoked_at', 'revocation_reason', 'status', 'metadata'];
+    protected $fillable = ['team_id', 'name', 'provider', 'provider_id', 'external_id', 'person_id', 'test_type', 'consent_status', 'consented_at', 'revoked_at', 'revocation_reason', 'status', 'metadata'];
 
     protected function casts(): array
     {
@@ -32,6 +32,11 @@ final class DnaKit extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    public function dnaProvider(): BelongsTo
+    {
+        return $this->belongsTo(DnaProvider::class, 'provider_id');
     }
 
     public function matches(): HasMany

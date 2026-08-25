@@ -2,28 +2,34 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Dna\Actions\CreateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\CreateDnaNote;
+use Liberu\Genealogy\Dna\Actions\CreateDnaProvider;
 use Liberu\Genealogy\Dna\Actions\CreateDnaRelationship;
 use Liberu\Genealogy\Dna\Actions\CreateDnaSegment;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaGroup;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaNote;
+use Liberu\Genealogy\Dna\Actions\DeleteDnaProvider;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaRelationship;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaSegment;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
+use Liberu\Genealogy\Dna\Actions\UpdateDnaProvider;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaSegment;
+use Liberu\Genealogy\Dna\Filament\Resources\DnaProviderResource;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaNote;
+use Liberu\Genealogy\Dna\Models\DnaProvider;
 use Liberu\Genealogy\Dna\Models\DnaRelationship;
 use Liberu\Genealogy\Dna\Models\DnaSegment;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
@@ -99,6 +105,55 @@ it('returns bounded DNA group resource envelopes through the API', function (): 
         ->getJson('/api/v1/genealogy/dna/groups?page%5Bsize%5D=101')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['page.size']);
+});
+
+it('provides a tenant-scoped provider registry across domain, API, Filament, and Livewire', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->getKey());
+
+    $provider = app(CreateDnaProvider::class)->execute(['name' => 'Family DNA', 'website' => 'https://example.test']);
+    expect($provider->slug)->toBe('family-dna')
+        ->and(DnaProviderResource::getPages())->toHaveKeys(['index', 'create', 'edit']);
+
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Provider kit', 'provider_id' => $provider->getKey()]);
+    expect($kit->refresh()->dnaProvider->is($provider))->toBeTrue();
+
+    $this->actingAs($user)->getJson('/api/v1/genealogy/dna/providers')->assertOk()
+        ->assertJsonPath('data.0.type', 'genealogy-dna-provider')
+        ->assertJsonPath('data.0.attributes.kits_count', 1);
+    $this->actingAs($user)->patchJson('/api/v1/genealogy/dna/providers/'.$provider->getKey(), ['status' => 'inactive'])
+        ->assertOk()->assertJsonPath('data.attributes.status', 'inactive');
+
+    Livewire::actingAs($user)->test('genealogy-dna-provider-list')
+        ->set('search', 'Family')
+        ->assertSee('Family DNA')
+        ->call('edit', (string) $provider->getKey())
+        ->set('name', 'Family DNA Updated')
+        ->call('save')
+        ->assertDispatched('genealogy-dna-provider-saved');
+
+    expect($provider->refresh()->name)->toBe('Family DNA Updated');
+    app(TeamContext::class)->set($team->getKey());
+    app(UpdateDnaProvider::class)->execute($provider, ['status' => 'active']);
+    app(DeleteDnaProvider::class)->execute($provider);
+    expect(DnaProvider::query()->find($provider->getKey()))->toBeNull();
+});
+
+it('rejects provider references owned by another team', function (): void {
+    $owner = User::factory()->create();
+    $ownerTeam = Team::factory()->create(['user_id' => $owner->id]);
+    $owner->forceFill(['current_team_id' => $ownerTeam->getKey()])->save();
+    app(TeamContext::class)->set($ownerTeam->getKey());
+    $provider = app(CreateDnaProvider::class)->execute(['name' => 'Private provider']);
+
+    $otherUser = User::factory()->create();
+    $otherTeam = Team::factory()->create(['user_id' => $otherUser->id]);
+    app(TeamContext::class)->set($otherTeam->getKey());
+
+    expect(fn () => app(CreateDnaKit::class)->execute(['name' => 'Cross tenant kit', 'provider_id' => $provider->getKey()]))
+        ->toThrow(ValidationException::class);
 });
 
 it('rejects an oversized nested page size on DNA kit collections', function (): void {

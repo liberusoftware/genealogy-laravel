@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add an interactive, action-backed DNA provider registry component.
 - Add tenant-scoped segment and consent history components.
 
 ## Unreleased
