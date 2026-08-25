@@ -27,4 +27,18 @@
     <label for="person-attributes">Edit attributes</label>
     <textarea id="person-attributes" wire:model="attributesJson"></textarea>
     <button type="button" wire:click="updateAttributes">Save attributes</button>
+    <h3>Associations</h3>
+    <ul>
+        @foreach ($person->associations as $association)
+            <li wire:key="association-{{ $association->id }}">
+                {{ $association->relationship }}:
+                {{ $association->associatedPerson?->display_name ?? $association->associated_external_id }}
+            </li>
+        @endforeach
+    </ul>
+    <input wire:model="associationPersonId" placeholder="Associated person UUID">
+    <input wire:model="associationExternalId" placeholder="External reference">
+    <input wire:model="associationRelationship" placeholder="Relationship">
+    <textarea wire:model="associationDescription" placeholder="Description"></textarea>
+    <button type="button" wire:click="addAssociation">Add association</button>
 </section>

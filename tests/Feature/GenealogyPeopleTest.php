@@ -7,14 +7,17 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreateMergeCandidate;
 use Liberu\Genealogy\People\Actions\CreatePerson;
+use Liberu\Genealogy\People\Actions\CreatePersonAssociation;
 use Liberu\Genealogy\People\Actions\CreatePersonIdentity;
 use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
 use Liberu\Genealogy\People\Actions\CreatePersonName;
 use Liberu\Genealogy\People\Actions\DeletePerson;
+use Liberu\Genealogy\People\Actions\DeletePersonAssociation;
 use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
 use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
 use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
+use Liberu\Genealogy\People\Actions\UpdatePersonAssociation;
 use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Events\MergeCandidateReviewed;
 use Liberu\Genealogy\People\Events\PersonAttributesUpdated;
@@ -22,6 +25,7 @@ use Liberu\Genealogy\People\Events\PersonDeleted;
 use Liberu\Genealogy\People\Events\PersonMerged;
 use Liberu\Genealogy\People\Events\PersonUpdated;
 use Liberu\Genealogy\People\Models\MergeCandidate;
+use Liberu\Genealogy\People\Models\PersonAssociation;
 use Liberu\Genealogy\People\Models\PersonIdentity;
 use Liberu\Genealogy\People\Models\PersonLifeEvent;
 use Liberu\Genealogy\People\Models\PersonName;
@@ -149,6 +153,37 @@ it('transitions living and deceased status through a tenant-safe action', functi
     Event::assertDispatched(PersonUpdated::class, 2);
 });
 
+it('preserves resolved and unresolved person associations within the active team', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Subject']);
+    $associated = (new CreatePerson())->execute(['given_name' => 'Associated']);
+
+    $resolved = (new CreatePersonAssociation())->execute([
+        'person_id' => $person->id,
+        'associated_person_id' => $associated->id,
+        'relationship' => 'witness',
+    ]);
+    $unresolved = (new CreatePersonAssociation())->execute([
+        'person_id' => $person->id,
+        'associated_external_id' => '@I99@',
+        'relationship' => 'informant',
+    ]);
+
+    expect($resolved->isResolved())->toBeTrue()
+        ->and($unresolved->isResolved())->toBeFalse()
+        ->and($person->fresh()->associations)->toHaveCount(2)
+        ->and($associated->fresh()->associatedWith)->toHaveCount(1);
+
+    (new UpdatePersonAssociation())->execute($unresolved, ['associated_person_id' => $associated->id]);
+    expect($unresolved->fresh()->associated_external_id)->toBeNull()
+        ->and($unresolved->fresh()->isResolved())->toBeTrue();
+
+    (new DeletePersonAssociation())->execute($resolved);
+    expect(PersonAssociation::withTrashed()->find($resolved->id)?->trashed())->toBeTrue();
+});
+
 it('exposes merge-candidate review through the authenticated API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -200,6 +235,17 @@ it('exposes every people supporting capability through tenant-scoped API resourc
     $this->actingAs($user)->patchJson("/api/v1/genealogy/people/{$person->id}/life-status", [
         'status' => 'deceased', 'death_date' => '1900-01-01',
     ])->assertOk()->assertJsonPath('data.attributes.life_status', 'deceased');
+
+    $association = $this->actingAs($user)->postJson("/api/v1/genealogy/people/{$person->id}/associations", [
+        'associated_person_id' => $candidate->id,
+        'relationship' => 'witness',
+    ])->assertCreated()->assertJsonPath('data.type', 'genealogy-person-association');
+    $associationId = $association->json('data.id');
+    $this->actingAs($user)->patchJson("/api/v1/genealogy/people/{$person->id}/associations/{$associationId}", [
+        'relationship' => 'informant',
+    ])->assertOk()->assertJsonPath('data.attributes.relationship', 'informant');
+    $this->actingAs($user)->deleteJson("/api/v1/genealogy/people/{$person->id}/associations/{$associationId}")
+        ->assertNoContent();
 
     app(TeamContext::class)->set($team->id);
     expect(PersonName::query()->where('person_id', $person->id)->count())->toBe(1)

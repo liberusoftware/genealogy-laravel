@@ -25,6 +25,7 @@ use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\CreatePerson;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\EditPerson;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\ListPeople;
+use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\AssociationsRelationManager;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\IdentitiesRelationManager;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\LifeEventsRelationManager;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\MergeCandidatesRelationManager;
@@ -84,7 +85,7 @@ final class PersonResource extends Resource
 
     public static function getRelations(): array
     {
-        return [NamesRelationManager::class, IdentitiesRelationManager::class, LifeEventsRelationManager::class, MergeCandidatesRelationManager::class];
+        return [NamesRelationManager::class, IdentitiesRelationManager::class, LifeEventsRelationManager::class, AssociationsRelationManager::class, MergeCandidatesRelationManager::class];
     }
 
     /** @return array<string, PageRegistration> */

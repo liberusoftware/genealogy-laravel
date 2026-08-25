@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\People\Livewire;
 
 use Illuminate\Contracts\View\View;
 use Liberu\Genealogy\People\Actions\CreateMergeCandidate;
+use Liberu\Genealogy\People\Actions\CreatePersonAssociation;
 use Liberu\Genealogy\People\Actions\CreatePersonIdentity;
 use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
 use Liberu\Genealogy\People\Actions\CreatePersonName;
@@ -40,6 +41,39 @@ final class PersonDetails extends Component
     public string $lifeStatus = 'living';
 
     public string $deathDate = '';
+
+    public string $associationPersonId = '';
+
+    public string $associationExternalId = '';
+
+    public string $associationRelationship = '';
+
+    public string $associationDescription = '';
+
+    public function addAssociation(CreatePersonAssociation $create): void
+    {
+        $this->validate([
+            'personId' => ['required', 'uuid'],
+            'associationPersonId' => ['nullable', 'uuid', 'different:personId'],
+            'associationExternalId' => ['nullable', 'string', 'max:255'],
+            'associationRelationship' => ['required', 'string', 'max:255'],
+            'associationDescription' => ['nullable', 'string'],
+        ]);
+        if ($this->associationPersonId === '' && $this->associationExternalId === '') {
+            $this->addError('associationPersonId', 'Provide a person ID or external reference.');
+
+            return;
+        }
+        $create->execute([
+            'person_id' => $this->personId,
+            'associated_person_id' => $this->associationPersonId ?: null,
+            'associated_external_id' => $this->associationExternalId ?: null,
+            'relationship' => $this->associationRelationship,
+            'description' => $this->associationDescription ?: null,
+        ]);
+        $this->reset('associationPersonId', 'associationExternalId', 'associationRelationship', 'associationDescription');
+        $this->dispatch('person-association-created');
+    }
 
     public function addName(CreatePersonName $create): void
     {
@@ -112,7 +146,7 @@ final class PersonDetails extends Component
 
     public function render(): View
     {
-        $person = Person::query()->with(['names', 'identities', 'lifeEvents', 'mergeCandidates'])->findOrFail($this->personId);
+        $person = Person::query()->with(['names', 'identities', 'lifeEvents', 'mergeCandidates', 'associations.associatedPerson'])->findOrFail($this->personId);
         $this->attributesJson = json_encode($person->attributes ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
         $this->lifeStatus = $person->isLiving() ? 'living' : 'deceased';
         $this->deathDate = $person->death_date?->toDateString() ?? '';
