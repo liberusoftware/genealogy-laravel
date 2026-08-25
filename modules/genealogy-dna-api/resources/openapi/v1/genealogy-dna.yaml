@@ -4,6 +4,8 @@ paths:
   /api/v1/genealogy/dna/kits:
     get: {operationId: genealogy.dna.kits.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.kits.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/KitInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/kits/validate:
+    post: {operationId: genealogy.dna.kits.validate, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ValidationInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/kits/{record}:
     parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.dna.kits.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
@@ -39,6 +41,7 @@ components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   schemas:
     KitInput: {type: object, properties: {person_id: {type: string, format: uuid}, provider: {type: string}, external_id: {type: string}, status: {type: string}, metadata: {type: object}}}
+    ValidationInput: {type: object, required: [content], properties: {content: {type: string, description: DNA file content is validated in memory and never persisted by this operation}}}
     ConsentInput: {type: object, required: [scope], properties: {scope: {type: string, maxLength: 100}, policy_version: {type: string, nullable: true}}}
     RevokeInput: {type: object, required: [reason], properties: {reason: {type: string, maxLength: 1000}}}
     MatchInput: {type: object, required: [kit_id, external_id], properties: {kit_id: {type: string, format: uuid}, external_id: {type: string}, display_name: {type: string, nullable: true}, predicted_relationship: {type: string, nullable: true}, confidence: {type: integer, minimum: 0, maximum: 100}, total_cm: {type: number, minimum: 0}, shared_segments: {type: integer, minimum: 0}, status: {type: string}, is_private: {type: boolean}, notes: {type: string, nullable: true}, metadata: {type: object}}}

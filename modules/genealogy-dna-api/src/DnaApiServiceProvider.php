@@ -16,6 +16,7 @@ final class DnaApiServiceProvider extends ServiceProvider
         $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class, 'throttle:60,1'])->group(function () use ($router): void {
             $router->post('api/v1/genealogy/dna/kits/{kit}/consent', [DnaKitController::class, 'consent'])->name('genealogy.dna.consent');
             $router->post('api/v1/genealogy/dna/kits/{kit}/revoke', [DnaKitController::class, 'revoke'])->name('genealogy.dna.revoke');
+            $router->post('api/v1/genealogy/dna/kits/validate', [DnaKitController::class, 'validateFile'])->name('genealogy.dna.kits.validate');
             $router->apiResource('api/v1/genealogy/dna/kits', DnaKitController::class)->parameters(['kits' => 'record']);
             $router->post('api/v1/genealogy/dna/matches/analyze', [DnaMatchController::class, 'analyze'])->name('genealogy.dna.matches.analyze');
             $router->post('api/v1/genealogy/dna/matches/triangulate', [DnaMatchController::class, 'triangulate'])->name('genealogy.dna.matches.triangulate');

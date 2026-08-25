@@ -10,6 +10,7 @@ use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\RevokeDnaKit;
 use Liberu\Genealogy\Dna\Models\DnaKit;
+use Liberu\Genealogy\Dna\Services\DnaFileValidator;
 
 final class DnaKitController
 {
@@ -30,6 +31,13 @@ final class DnaKitController
         ]));
 
         return response()->json(['data' => $this->resource($record)], 201);
+    }
+
+    public function validateFile(Request $request, DnaFileValidator $validator): JsonResponse
+    {
+        $content = $request->validate(['content' => ['required', 'string', 'max:104857600']])['content'];
+
+        return response()->json(['data' => $validator->validate($content)]);
     }
 
     public function show(DnaKit $record): JsonResponse

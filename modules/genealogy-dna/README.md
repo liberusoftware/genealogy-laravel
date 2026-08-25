@@ -9,6 +9,8 @@ accepts normalized chromosome/position genotype maps, applies mismatch tolerance
 segment thresholds, and returns shared cM, segment details, confidence, and relationship labels.
 It also triangulates three or more match segment sets to identify shared groups above a configured
 cM threshold.
+Raw DNA content can be validated in memory for supported 23andMe, Ancestry, MyHeritage, FTDNA,
+and generic rsID formats before any persistence workflow is selected.
 
 - Composer package: `liberusoftware/module-genealogy-dna`
 - Module installer name: `genealogy-dna`
