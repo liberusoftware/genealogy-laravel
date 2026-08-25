@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\CreateDnaSegment;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
+use Liberu\Genealogy\Dna\Services\AnalyzeDnaMatch;
 
 final class DnaMatchController
 {
@@ -25,6 +26,16 @@ final class DnaMatchController
         $match = $create->execute($values);
 
         return response()->json(['data' => $this->resource($match)], 201);
+    }
+
+    public function analyze(Request $request, AnalyzeDnaMatch $analyzer): JsonResponse
+    {
+        $values = $request->validate([
+            'kit_a' => ['required', 'array'],
+            'kit_b' => ['required', 'array'],
+        ]);
+
+        return response()->json(['data' => $analyzer->analyze($values['kit_a'], $values['kit_b'])]);
     }
 
     public function show(DnaMatch $record): JsonResponse

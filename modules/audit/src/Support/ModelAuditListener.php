@@ -24,11 +24,14 @@ final class ModelAuditListener
         if ($operation === null) {
             return;
         }
+        if (! app()->bound(AuditRecorder::class)) {
+            return;
+        }
 
         $before = $operation === 'created' ? [] : $model->getOriginal();
         $after = $operation === 'deleted' ? [] : $model->getAttributes();
         $request = app()->bound('request') ? request() : null;
-        $actor = auth()->user();
+        $actor = app()->bound('auth') ? auth()->user() : null;
         $tenantId = $model->getAttribute('team_id');
 
         app(AuditRecorder::class)->record(
