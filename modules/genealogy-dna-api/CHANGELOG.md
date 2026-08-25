@@ -6,6 +6,7 @@
 - Expose authenticated three-way segment triangulation through the versioned API.
 - Expose bounded in-memory DNA file validation without persisting raw genetic content.
 - Normalize nested `page[size]` validation for bounded DNA kit and match collections.
+- Expose paginated DNA notes and relationship annotations through the authenticated API.
 
 ## 1.0.0
 

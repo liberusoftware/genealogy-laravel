@@ -37,6 +37,16 @@ paths:
     get: {operationId: genealogy.dna.groups.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.dna.groups.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GroupInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.dna.groups.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+  /api/v1/genealogy/dna/notes:
+    get: {operationId: genealogy.dna.notes.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.dna.notes.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/NoteInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/notes/{record}:
+    delete: {operationId: genealogy.dna.notes.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+  /api/v1/genealogy/dna/relationships:
+    get: {operationId: genealogy.dna.relationships.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.dna.relationships.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RelationshipInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/relationships/{record}:
+    delete: {operationId: genealogy.dna.relationships.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   schemas:
@@ -49,6 +59,8 @@ components:
     TriangulateInput: {type: object, required: [matches], properties: {matches: {type: array, minItems: 3, items: {type: object, required: [id, segments], properties: {id: {type: string}, segments: {type: array, items: {type: object, required: [chromosome, start, end], properties: {chromosome: {type: string}, start: {type: integer, minimum: 0}, end: {type: integer, minimum: 0}}}}}}}, minimum_shared_cm: {type: number, minimum: 0, default: 20}}}
     SegmentInput: {type: object, required: [chromosome, start_position, end_position], properties: {chromosome: {type: integer, minimum: 1, maximum: 99}, start_position: {type: integer, minimum: 0}, end_position: {type: integer, minimum: 0}, centimorgans: {type: number, minimum: 0}, snps: {type: integer, minimum: 0}, side: {type: string, nullable: true}, metadata: {type: object}}}
     GroupInput: {type: object, required: [name], properties: {name: {type: string, maxLength: 255}, description: {type: string, nullable: true}, status: {type: string}, metadata: {type: object}}}
+    NoteInput: {type: object, required: [noteable_type, noteable_id, body], properties: {noteable_type: {type: string}, noteable_id: {type: string, format: uuid}, body: {type: string, maxLength: 50000}}}
+    RelationshipInput: {type: object, required: [match_id, person_id, relationship_type], properties: {match_id: {type: string, format: uuid}, person_id: {type: string, format: uuid}, relationship_type: {type: string}, confidence: {type: integer, minimum: 0, maximum: 100}, status: {type: string, enum: [proposed, confirmed, rejected]}, rationale: {type: string, nullable: true}, metadata: {type: object}}}
     Resource: {type: object, required: [data], properties: {data: {type: object}}}
   responses:
     Resource: {description: DNA resource, content: {application/json: {schema: {$ref: '#/components/schemas/Resource'}}}}

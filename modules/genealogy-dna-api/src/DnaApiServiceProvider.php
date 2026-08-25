@@ -23,6 +23,12 @@ final class DnaApiServiceProvider extends ServiceProvider
             $router->apiResource('api/v1/genealogy/dna/matches', DnaMatchController::class)->parameters(['matches' => 'record']);
             $router->post('api/v1/genealogy/dna/matches/{record}/segments', [DnaMatchController::class, 'segment'])->name('genealogy.dna.segment');
             $router->apiResource('api/v1/genealogy/dna/groups', DnaGroupController::class)->parameters(['groups' => 'record']);
+            $router->get('api/v1/genealogy/dna/notes', [DnaAnnotationController::class, 'notes'])->name('genealogy.dna.notes.index');
+            $router->post('api/v1/genealogy/dna/notes', [DnaAnnotationController::class, 'createNote'])->name('genealogy.dna.notes.store');
+            $router->delete('api/v1/genealogy/dna/notes/{record}', [DnaAnnotationController::class, 'deleteNote'])->name('genealogy.dna.notes.delete');
+            $router->get('api/v1/genealogy/dna/relationships', [DnaAnnotationController::class, 'relationships'])->name('genealogy.dna.relationships.index');
+            $router->post('api/v1/genealogy/dna/relationships', [DnaAnnotationController::class, 'createRelationship'])->name('genealogy.dna.relationships.store');
+            $router->delete('api/v1/genealogy/dna/relationships/{record}', [DnaAnnotationController::class, 'deleteRelationship'])->name('genealogy.dna.relationships.delete');
         });
     }
 }

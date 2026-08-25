@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Bound DNA group pagination and return explicit group resource envelopes.
+- Add tenant-validated DNA notes and person relationship annotations.
 
 ## Unreleased
 

@@ -10,6 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaGroupResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaKitResource;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaMatchResource;
+use Liberu\Genealogy\Dna\Filament\Resources\DnaRelationshipResource;
 
 final class DnaFilamentServiceProvider extends ServiceProvider
 {
@@ -34,6 +35,7 @@ final class DnaFilamentPlugin implements Plugin
             DnaKitResource::class,
             DnaMatchResource::class,
             DnaGroupResource::class,
+            DnaRelationshipResource::class,
         ]);
     }
 

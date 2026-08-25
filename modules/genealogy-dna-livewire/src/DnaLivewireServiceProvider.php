@@ -16,8 +16,10 @@ final class DnaLivewireServiceProvider extends ServiceProvider
         Livewire::component('module-genealogy-dna::dna-list', DnaKitList::class);
         Livewire::component('module-genealogy-dna::match-list', DnaMatchList::class);
         Livewire::component('module-genealogy-dna::group-list', DnaGroupList::class);
+        Livewire::component('module-genealogy-dna::annotation-list', DnaAnnotationList::class);
         Livewire::component('genealogy-dna-match-list', DnaMatchList::class);
         Livewire::component('genealogy-dna-group-list', DnaGroupList::class);
+        Livewire::component('genealogy-dna-annotation-list', DnaAnnotationList::class);
     }
 }
 

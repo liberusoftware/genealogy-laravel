@@ -8,7 +8,9 @@ use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
+use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
+use Liberu\Genealogy\People\Actions\CreatePerson;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -122,4 +124,24 @@ it('filters DNA matches and groups through their Livewire presentation component
 
     expect(DnaKit::query()->count())->toBe(1)
         ->and(DnaGroup::query()->count())->toBe(1);
+});
+
+it('exposes DNA notes and person relationship annotations through the API', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Annotation kit']);
+    $match = app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'annotation-match']);
+    $person = app(CreatePerson::class)->execute(['given_name' => 'DNA', 'family_name' => 'Researcher']);
+
+    $this->actingAs($user)->postJson('/api/v1/genealogy/dna/notes', [
+        'noteable_type' => DnaMatch::class, 'noteable_id' => $match->getKey(), 'body' => 'Discuss this match with the research team.',
+    ])->assertCreated()->assertJsonPath('data.type', 'genealogy-dna-note');
+    $this->actingAs($user)->postJson('/api/v1/genealogy/dna/relationships', [
+        'match_id' => $match->getKey(), 'person_id' => $person->getKey(), 'relationship_type' => 'possible_parent', 'confidence' => 72,
+    ])->assertCreated()->assertJsonPath('data.type', 'genealogy-dna-relationship');
+    $this->actingAs($user)->getJson('/api/v1/genealogy/dna/relationships?match_id='.$match->getKey())->assertOk()->assertJsonCount(1, 'data');
+
+    Livewire::actingAs($user)->test('genealogy-dna-annotation-list', ['matchId' => $match->getKey()])->assertSee('Discuss this match');
 });
