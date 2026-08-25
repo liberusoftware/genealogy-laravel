@@ -10,7 +10,9 @@ use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Liberu\Genealogy\Reports\Actions\CreateGenealogyReport;
 use Liberu\Genealogy\Reports\Actions\GenerateGenealogyReport;
 use Liberu\Genealogy\Reports\Actions\UpdateGenealogyReport;
+use Liberu\Genealogy\Reports\Livewire\GenealogyReportList;
 use Liberu\Genealogy\Reports\Models\GenealogyReport;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -59,4 +61,25 @@ it('generates structured and exportable report output from the active team graph
         ->and($generated->generated_output['rows'])->toBe(3)
         ->and($generated->generated_output['content'])->toContain('0 HEAD')
         ->and($generated->generated_output['content'])->toContain('Parent');
+});
+
+it('validates report generation inputs through the Livewire presentation surface', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $report = (new CreateGenealogyReport())->execute(['name' => 'Livewire report', 'type' => 'sources']);
+
+    Livewire::actingAs($user)
+        ->test(GenealogyReportList::class)
+        ->set('format', 'invalid')
+        ->call('generate', (string) $report->getKey())
+        ->assertHasErrors(['format']);
+
+    Livewire::actingAs($user)
+        ->test(GenealogyReportList::class)
+        ->set('format', 'csv')
+        ->call('generate', (string) $report->getKey())
+        ->assertDispatched('genealogy-report-generated');
+
+    expect($report->fresh()->generated_output['format'])->toBe('csv');
 });

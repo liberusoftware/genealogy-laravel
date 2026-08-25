@@ -20,6 +20,11 @@ final class GenealogyReportList extends Component
 
     public function generate(string $id, GenerateGenealogyReport $generate): void
     {
+        $this->validate([
+            'format' => ['required', 'in:json,csv,gedcom,svg'],
+            'rootPersonId' => ['nullable', 'uuid'],
+        ]);
+
         $generate->execute(GenealogyReport::query()->findOrFail($id), array_filter([
             'format' => $this->format,
             'root_person_id' => $this->rootPersonId !== '' ? $this->rootPersonId : null,
