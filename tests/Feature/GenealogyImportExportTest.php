@@ -123,3 +123,21 @@ it('supports an audited undo window for completed imports', function (): void {
         ->and(Relationship::query()->count())->toBe(0)
         ->and(DB::table('activity_log')->where('event', 'data_transfer_undone')->exists())->toBeTrue();
 });
+
+it('records a failed transfer when validation rejects an import', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $transfer = app(CreateDataTransfer::class)->execute([
+        'name' => 'Invalid archive',
+        'format' => 'gedcom',
+        'direction' => 'import',
+        'status' => 'active',
+    ]);
+
+    expect(fn () => app(GenealogyImportService::class)->import('not a genealogy document', false, $transfer))
+        ->toThrow(InvalidArgumentException::class);
+
+    expect($transfer->refresh()->status)->toBe('failed')
+        ->and($transfer->metadata['failure']['message'])->toContain('invalid records');
+});

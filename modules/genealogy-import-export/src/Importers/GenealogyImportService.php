@@ -16,6 +16,7 @@ use Liberu\Genealogy\People\Actions\UpdatePerson;
 use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
+use Throwable;
 
 final class GenealogyImportService
 {
@@ -64,95 +65,110 @@ final class GenealogyImportService
         }
 
         if ($report['errors'] !== []) {
+            $this->markFailed($transfer, $report, 'The document contains invalid records and cannot be imported.');
             throw new InvalidArgumentException('The document contains invalid records and cannot be imported.');
         }
 
-        $result = DB::transaction(function () use ($content, $report): array {
-            $document = $this->parser->parse($content);
-            $people = Person::query()->get();
-            $byXref = [];
-            $created = 0;
-            $updated = 0;
-            $createdPeople = [];
-            $updatedPeople = [];
-            $createdRelationships = [];
+        try {
+            $result = DB::transaction(function () use ($content, $report): array {
+                $document = $this->parser->parse($content);
+                $people = Person::query()->get();
+                $byXref = [];
+                $created = 0;
+                $updated = 0;
+                $createdPeople = [];
+                $updatedPeople = [];
+                $createdRelationships = [];
 
-            foreach ($document['people'] as $attributes) {
-                $xref = $attributes['xref'];
-                $person = $xref === null ? null : $people->first(fn (Person $row): bool => ($row->metadata['gedcom_xref'] ?? null) === $xref);
-                $values = [
-                    'given_name' => $attributes['given_name'] ?: 'Unknown',
-                    'family_name' => $attributes['family_name'],
-                    'display_name' => trim(($attributes['given_name'] ?: 'Unknown').' '.($attributes['family_name'] ?? '')),
-                    'sex' => $attributes['sex'],
-                    'birth_date' => $attributes['birth_date'],
-                    'death_date' => $attributes['death_date'],
-                    'metadata' => array_merge($person?->metadata ?? [], ['gedcom_xref' => $xref]),
-                ];
-
-                if ($person) {
-                    $updatedPeople[] = [
-                        'id' => (string) $person->getKey(),
-                        'attributes' => Arr::only($person->getAttributes(), [
-                            'given_name', 'family_name', 'display_name', 'sex', 'aliases', 'attributes',
-                            'birth_date', 'death_date', 'birth_place', 'death_place', 'is_public', 'metadata',
-                        ]),
+                foreach ($document['people'] as $attributes) {
+                    $xref = $attributes['xref'];
+                    $person = $xref === null ? null : $people->first(fn (Person $row): bool => ($row->metadata['gedcom_xref'] ?? null) === $xref);
+                    $values = [
+                        'given_name' => $attributes['given_name'] ?: 'Unknown',
+                        'family_name' => $attributes['family_name'],
+                        'display_name' => trim(($attributes['given_name'] ?: 'Unknown').' '.($attributes['family_name'] ?? '')),
+                        'sex' => $attributes['sex'],
+                        'birth_date' => $attributes['birth_date'],
+                        'death_date' => $attributes['death_date'],
+                        'metadata' => array_merge($person?->metadata ?? [], ['gedcom_xref' => $xref]),
                     ];
-                    ($this->updatePerson ?? new UpdatePerson())->execute($person, $values);
-                    $updated++;
-                } else {
-                    $person = ($this->createPerson ?? new CreatePerson())->execute($values);
-                    $createdPeople[] = (string) $person->getKey();
-                    $created++;
-                }
 
-                if ($xref !== null) {
-                    $byXref[$xref] = $person;
-                }
+                    if ($person) {
+                        $updatedPeople[] = [
+                            'id' => (string) $person->getKey(),
+                            'attributes' => Arr::only($person->getAttributes(), [
+                                'given_name', 'family_name', 'display_name', 'sex', 'aliases', 'attributes',
+                                'birth_date', 'death_date', 'birth_place', 'death_place', 'is_public', 'metadata',
+                            ]),
+                        ];
+                        ($this->updatePerson ?? new UpdatePerson())->execute($person, $values);
+                        $updated++;
+                    } else {
+                        $person = ($this->createPerson ?? new CreatePerson())->execute($values);
+                        $createdPeople[] = (string) $person->getKey();
+                        $created++;
+                    }
 
-                foreach (($attributes['names'] ?? []) as $name) {
-                    $existingName = $person->names()
-                        ->where('given_name', $name['given_name'])
-                        ->where('family_name', $name['family_name'])
-                        ->exists();
-                    if (! $existingName) {
-                        ($this->createPersonName ?? new CreatePersonName())->execute([
-                            'person_id' => $person->getKey(),
-                            'type' => $name['type'] ?? 'alternate',
-                            'given_name' => $name['given_name'],
-                            'family_name' => $name['family_name'],
-                        ]);
+                    if ($xref !== null) {
+                        $byXref[$xref] = $person;
+                    }
+
+                    foreach (($attributes['names'] ?? []) as $name) {
+                        $existingName = $person->names()
+                            ->where('given_name', $name['given_name'])
+                            ->where('family_name', $name['family_name'])
+                            ->exists();
+                        if (! $existingName) {
+                            ($this->createPersonName ?? new CreatePersonName())->execute([
+                                'person_id' => $person->getKey(),
+                                'type' => $name['type'] ?? 'alternate',
+                                'given_name' => $name['given_name'],
+                                'family_name' => $name['family_name'],
+                            ]);
+                        }
+                    }
+
+                    foreach (($attributes['life_events'] ?? []) as $lifeEvent) {
+                        $query = $person->lifeEvents()
+                            ->where('type', $lifeEvent['type'] ?? 'event')
+                            ->whereDate('date', $lifeEvent['date'] ?? null);
+                        if (! $query->exists()) {
+                            ($this->createPersonLifeEvent ?? new CreatePersonLifeEvent())->execute([
+                                'person_id' => $person->getKey(),
+                                'type' => $lifeEvent['type'] ?? 'event',
+                                'date' => $lifeEvent['date'] ?? null,
+                                'place' => $lifeEvent['place'] ?? null,
+                                'description' => $lifeEvent['description'] ?? null,
+                            ]);
+                        }
                     }
                 }
 
-                foreach (($attributes['life_events'] ?? []) as $lifeEvent) {
-                    $query = $person->lifeEvents()
-                        ->where('type', $lifeEvent['type'] ?? 'event')
-                        ->whereDate('date', $lifeEvent['date'] ?? null);
-                    if (! $query->exists()) {
-                        ($this->createPersonLifeEvent ?? new CreatePersonLifeEvent())->execute([
-                            'person_id' => $person->getKey(),
-                            'type' => $lifeEvent['type'] ?? 'event',
-                            'date' => $lifeEvent['date'] ?? null,
-                            'place' => $lifeEvent['place'] ?? null,
-                            'description' => $lifeEvent['description'] ?? null,
-                        ]);
+                $relationships = 0;
+                foreach ($document['families'] as $family) {
+                    $parents = array_values(array_filter([$family['husband'], $family['wife']], fn (?string $xref): bool => $xref !== null && isset($byXref[$xref])));
+                    foreach ($family['children'] as $childXref) {
+                        if (! isset($byXref[$childXref])) {
+                            continue;
+                        }
+                        foreach ($parents as $parentXref) {
+                            if (($relationship = $this->createRelationshipIfMissing([
+                                'person_id' => $byXref[$parentXref]->getKey(),
+                                'related_person_id' => $byXref[$childXref]->getKey(),
+                                'type' => 'parent',
+                                'confidence' => 100,
+                                'metadata' => ['gedcom_xref' => $family['xref']],
+                            ])) !== null) {
+                                $createdRelationships[] = (string) $relationship->getKey();
+                                $relationships++;
+                            }
+                        }
                     }
-                }
-            }
-
-            $relationships = 0;
-            foreach ($document['families'] as $family) {
-                $parents = array_values(array_filter([$family['husband'], $family['wife']], fn (?string $xref): bool => $xref !== null && isset($byXref[$xref])));
-                foreach ($family['children'] as $childXref) {
-                    if (! isset($byXref[$childXref])) {
-                        continue;
-                    }
-                    foreach ($parents as $parentXref) {
+                    if (count($parents) === 2) {
                         if (($relationship = $this->createRelationshipIfMissing([
-                            'person_id' => $byXref[$parentXref]->getKey(),
-                            'related_person_id' => $byXref[$childXref]->getKey(),
-                            'type' => 'parent',
+                            'person_id' => $byXref[$parents[0]]->getKey(),
+                            'related_person_id' => $byXref[$parents[1]]->getKey(),
+                            'type' => 'partner',
                             'confidence' => 100,
                             'metadata' => ['gedcom_xref' => $family['xref']],
                         ])) !== null) {
@@ -161,42 +177,52 @@ final class GenealogyImportService
                         }
                     }
                 }
-                if (count($parents) === 2) {
-                    if (($relationship = $this->createRelationshipIfMissing([
-                        'person_id' => $byXref[$parents[0]]->getKey(),
-                        'related_person_id' => $byXref[$parents[1]]->getKey(),
-                        'type' => 'partner',
-                        'confidence' => 100,
-                        'metadata' => ['gedcom_xref' => $family['xref']],
-                    ])) !== null) {
-                        $createdRelationships[] = (string) $relationship->getKey();
-                        $relationships++;
-                    }
-                }
-            }
 
-            $undo = [
-                'expires_at' => now()->addHours((int) config('genealogy-import-export.undo_hours', 24))->toISOString(),
-                'created_people' => $createdPeople,
-                'updated_people' => $updatedPeople,
-                'created_relationships' => $createdRelationships,
-            ];
+                $undo = [
+                    'expires_at' => now()->addHours((int) config('genealogy-import-export.undo_hours', 24))->toISOString(),
+                    'created_people' => $createdPeople,
+                    'updated_people' => $updatedPeople,
+                    'created_relationships' => $createdRelationships,
+                ];
 
-            return array_merge($report, [
-                'dry_run' => false,
-                'created' => $created,
-                'updated' => $updated,
-                'relationships_created' => $relationships,
-                'undo_expires_at' => $undo['expires_at'],
-                'undo' => $undo,
-            ]);
-        });
+                return array_merge($report, [
+                    'dry_run' => false,
+                    'created' => $created,
+                    'updated' => $updated,
+                    'relationships_created' => $relationships,
+                    'undo_expires_at' => $undo['expires_at'],
+                    'undo' => $undo,
+                ]);
+            });
+        } catch (Throwable $exception) {
+            $this->markFailed($transfer, $report, $exception->getMessage());
+
+            throw $exception;
+        }
 
         if ($transfer) {
             ($this->updateTransfer ?? new UpdateDataTransfer())->execute($transfer, ['status' => 'completed', 'metadata' => $result]);
         }
 
         return $result;
+    }
+
+    /** @param array<string, mixed> $report */
+    private function markFailed(?DataTransfer $transfer, array $report, string $message): void
+    {
+        if ($transfer === null) {
+            return;
+        }
+
+        ($this->updateTransfer ?? new UpdateDataTransfer())->execute($transfer, [
+            'status' => 'failed',
+            'metadata' => array_merge($report, [
+                'failure' => [
+                    'message' => mb_substr($message, 0, 500),
+                    'failed_at' => now()->toISOString(),
+                ],
+            ]),
+        ]);
     }
 
     /** @param list<array{children: list<string>}> $families */
