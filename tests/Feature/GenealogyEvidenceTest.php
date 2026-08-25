@@ -7,6 +7,7 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Evidence\Actions\ArchiveEvidenceRecord;
 use Liberu\Genealogy\Evidence\Actions\CreateAssertion;
 use Liberu\Genealogy\Evidence\Actions\CreateCitation;
+use Liberu\Genealogy\Evidence\Actions\CreateCitationLink;
 use Liberu\Genealogy\Evidence\Actions\CreateEvidenceRecord;
 use Liberu\Genealogy\Evidence\Actions\CreateExtract;
 use Liberu\Genealogy\Evidence\Actions\CreateProofConclusion;
@@ -206,6 +207,25 @@ it('supports the complete evidence chain through tenant-scoped domain actions', 
         ->and($conclusion->team_id)->toBe((string) $team->id);
 });
 
+it('preserves person citation links with GEDCOM source metadata', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada']);
+    $source = app(CreateSource::class)->execute(['name' => 'Parish register']);
+    $citation = app(CreateCitation::class)->execute(['source_id' => $source->id, 'page' => '42']);
+
+    $link = app(CreateCitationLink::class)->execute([
+        'citation_id' => $citation->id, 'subject_person_id' => $person->id,
+        'group' => 'indi', 'page' => 'p. 42', 'quality' => '3', 'text' => 'Entry for the subject.',
+    ]);
+
+    expect($link->subject->is($person))->toBeTrue()
+        ->and($link->citation->is($citation))->toBeTrue()
+        ->and($link->qualityLabel())->toBe('Primary evidence')
+        ->and($citation->personLinks)->toHaveCount(1);
+});
+
 it('rejects supporting evidence references from another team', function (): void {
     $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($firstTeam->id);
@@ -230,6 +250,26 @@ it('exposes evidence subdomains through explicit API resources', function (): vo
         ->postJson('/api/v1/genealogy/evidence/sources', ['name' => 'Census source'])
         ->assertCreated()
         ->assertJsonPath('data.type', 'genealogy-evidence-genealogy_evidence_sources');
+});
+
+it('exposes citation person links through the authenticated API', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada']);
+    $source = app(CreateSource::class)->execute(['name' => 'Census']);
+    $citation = app(CreateCitation::class)->execute(['source_id' => $source->id]);
+    app(TeamContext::class)->clear();
+
+    $response = $this->actingAs($user)->postJson("/api/v1/genealogy/evidence/citations/{$citation->id}/people", [
+        'subject_person_id' => $person->id, 'page' => 'p. 7', 'quality' => '2',
+    ])->assertCreated()->assertJsonPath('data.type', 'genealogy-evidence-citation-link');
+    $link = $response->json('data.id');
+    $this->actingAs($user)->getJson("/api/v1/genealogy/evidence/citations/{$citation->id}/people")
+        ->assertOk()->assertJsonCount(1, 'data');
+    $this->actingAs($user)->deleteJson("/api/v1/genealogy/evidence/citations/{$citation->id}/people/{$link}")
+        ->assertNoContent();
 });
 
 it('bounds evidence entity pagination through the API contract', function (): void {
