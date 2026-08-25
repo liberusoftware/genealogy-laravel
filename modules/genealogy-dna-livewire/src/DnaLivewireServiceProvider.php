@@ -13,6 +13,7 @@ final class DnaLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-dna-livewire');
         Livewire::component('genealogy-dna-list', DnaKitList::class);
+        Livewire::component('module-genealogy-dna::dna-list', DnaKitList::class);
     }
 }
 

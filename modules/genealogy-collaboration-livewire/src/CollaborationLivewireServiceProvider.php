@@ -13,6 +13,7 @@ final class CollaborationLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-collaboration-livewire');
         Livewire::component('genealogy-collaboration-list', CollaborationSpaceList::class);
+        Livewire::component('module-genealogy-collaboration::collaboration-list', CollaborationSpaceList::class);
     }
 }
 

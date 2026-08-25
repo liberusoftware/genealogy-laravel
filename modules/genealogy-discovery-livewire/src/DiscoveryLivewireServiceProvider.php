@@ -14,6 +14,8 @@ final class DiscoveryLivewireServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-discovery-livewire');
         Livewire::component('genealogy-discovery-list', DiscoveryMatchList::class);
         Livewire::component('genealogy-discovery-search', DiscoverySearch::class);
+        Livewire::component('module-genealogy-discovery::discovery-list', DiscoveryMatchList::class);
+        Livewire::component('module-genealogy-discovery::discovery-search', DiscoverySearch::class);
     }
 }
 
