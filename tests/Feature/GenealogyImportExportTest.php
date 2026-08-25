@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
@@ -119,5 +120,6 @@ it('supports an audited undo window for completed imports', function (): void {
 
     expect($undone->status)->toBe('rolled_back')
         ->and(Person::withTrashed()->count())->toBe(0)
-        ->and(Relationship::query()->count())->toBe(0);
+        ->and(Relationship::query()->count())->toBe(0)
+        ->and(DB::table('activity_log')->where('event', 'data_transfer_undone')->exists())->toBeTrue();
 });

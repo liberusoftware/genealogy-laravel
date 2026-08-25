@@ -6,6 +6,8 @@ namespace Liberu\Genealogy\ImportExport\Actions;
 
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Liberu\Foundation\Audit\Contracts\AuditRecorder;
+use Liberu\Foundation\Audit\Support\AuditContext;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\ImportExport\Events\DataTransferUndone;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
@@ -34,6 +36,7 @@ final class UndoDataTransfer
         $updatedPeople = is_array($undo['updated_people'] ?? null) ? $undo['updated_people'] : [];
         $createdPeople = is_array($undo['created_people'] ?? null) ? $undo['created_people'] : [];
         $createdRelationships = is_array($undo['created_relationships'] ?? null) ? $undo['created_relationships'] : [];
+        $before = $transfer->only(['id', 'status', 'metadata']);
 
         DB::transaction(function () use ($transfer, $metadata, $updatedPeople, $createdPeople, $createdRelationships): void {
             Relationship::query()
@@ -79,7 +82,36 @@ final class UndoDataTransfer
 
         $transfer = $transfer->refresh();
         event(new DataTransferUndone($transfer));
+        $this->recordAudit($before, $transfer);
 
         return $transfer;
+    }
+
+    /** @param array<string, mixed> $before */
+    private function recordAudit(array $before, DataTransfer $transfer): void
+    {
+        if (! app()->bound(AuditRecorder::class)) {
+            return;
+        }
+
+        $request = app()->bound('request') ? request() : null;
+        $actor = auth()->user();
+        $teamId = app(TeamContext::class)->current();
+
+        app(AuditRecorder::class)->record(
+            'data_transfer_undone',
+            $transfer->getMorphClass(),
+            $transfer->getKey(),
+            $before,
+            $transfer->only(['id', 'status', 'metadata']),
+            new AuditContext(
+                $actor?->getAuthIdentifier(),
+                $actor !== null ? $actor->getMorphClass() : null,
+                $teamId !== null ? (string) $teamId : null,
+                $request?->header('X-Request-ID'),
+                $request?->header('X-Correlation-ID') ?? $request?->header('X-Request-ID'),
+                'Import recovery requested by the owning team.',
+            ),
+        );
     }
 }
