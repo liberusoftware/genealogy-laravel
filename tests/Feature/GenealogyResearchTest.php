@@ -12,7 +12,9 @@ use Liberu\Genealogy\Research\Actions\UpdateResearchEntry;
 use Liberu\Genealogy\Research\Events\ResearchEntryCreated;
 use Liberu\Genealogy\Research\Events\ResearchEntryDeleted;
 use Liberu\Genealogy\Research\Events\ResearchEntryUpdated;
+use Liberu\Genealogy\Research\Livewire\ResearchEntryList;
 use Liberu\Genealogy\Research\Models\ResearchEntry;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -51,4 +53,25 @@ it('filters research queues by kind, status, and overdue work through the API', 
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.attributes.kind', 'task');
+});
+
+it('completes research entries through the tenant-scoped Livewire list', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $project = (new CreateResearchProject())->execute(['name' => 'Livewire research', 'status' => 'active']);
+    $entry = (new CreateResearchEntry())->execute([
+        'research_project_id' => $project->id,
+        'kind' => 'task',
+        'title' => 'Review correspondence',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(ResearchEntryList::class)
+        ->set('projectId', (string) $project->id)
+        ->call('complete', (string) $entry->id)
+        ->assertDispatched('research-entry-completed');
+
+    expect($entry->fresh()->status)->toBe('completed')
+        ->and($entry->fresh()->completed_at)->not->toBeNull();
 });
