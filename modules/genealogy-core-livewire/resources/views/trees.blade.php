@@ -17,6 +17,9 @@
                 <li wire:key="tree-{{ $tree->id }}">
                     <span>{{ $tree->name }}</span>
                     @if (auth()->check() && $tree->isOwnedBy(auth()->id()))
+                        <button type="button" wire:click="toggleVisibility('{{ $tree->id }}')" wire:confirm="Change this tree's visibility?">
+                            {{ $tree->is_public ? 'Make private' : 'Make public' }}
+                        </button>
                         <button type="button" wire:click="delete('{{ $tree->id }}')" wire:confirm="Delete this tree?">Delete</button>
                     @endif
                 </li>

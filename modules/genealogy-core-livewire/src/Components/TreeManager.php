@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\GenealogyCore\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Genealogy\GenealogyCore\Actions\CreateTree;
 use Liberu\Genealogy\GenealogyCore\Actions\DeleteTree;
+use Liberu\Genealogy\GenealogyCore\Actions\SetTreeVisibility;
 use Liberu\Genealogy\GenealogyCore\Models\Tree;
 use Liberu\Genealogy\GenealogyCore\Policies\TreePolicy;
 use Livewire\Component;
@@ -44,6 +45,14 @@ final class TreeManager extends Component
         abort_unless((new TreePolicy())->manage(auth()->user(), $tree), 403);
         $delete->execute($tree);
         $this->dispatch('tree-deleted');
+    }
+
+    public function toggleVisibility(string $treeId, SetTreeVisibility $visibility): void
+    {
+        $tree = Tree::query()->findOrFail($treeId);
+        abort_unless((new TreePolicy())->manage(auth()->user(), $tree), 403);
+        $visibility->execute($tree, ! $tree->is_public);
+        $this->dispatch('tree-visibility-updated');
     }
 
     public function render(): View
