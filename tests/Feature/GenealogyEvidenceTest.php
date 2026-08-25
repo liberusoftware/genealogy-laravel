@@ -135,6 +135,20 @@ it('rejects reviewing an archived evidence record', function (): void {
         ->toThrow(InvalidArgumentException::class, 'archived');
 });
 
+it('rejects direct lifecycle mutations for records outside the active team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $record = (new CreateEvidenceRecord())->execute(['name' => 'Private source', 'status' => 'active']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => (new ReviewEvidenceRecord())->execute($record->withoutRelations()))
+        ->toThrow(InvalidArgumentException::class, 'active team');
+    expect(fn () => (new ArchiveEvidenceRecord())->execute($record->withoutRelations()))
+        ->toThrow(InvalidArgumentException::class, 'active team');
+});
+
 it('lets authenticated Livewire users review and archive tenant evidence', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
