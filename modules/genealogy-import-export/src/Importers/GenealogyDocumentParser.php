@@ -24,9 +24,10 @@ final class GenealogyDocumentParser
     /** @return array{format: string, people: list<array<string, mixed>>, families: list<array<string, mixed>>, errors: list<string>} */
     private function parseGedcom(string $content): array
     {
+        $content = ltrim($content, "\xEF\xBB\xBF");
         $records = [];
         $current = null;
-        $errors = [];
+        $errors = $this->validateGedcom($content);
 
         foreach (preg_split('/\R/', $content) ?: [] as $lineNumber => $line) {
             $line = trim($line);
@@ -92,24 +93,57 @@ final class GenealogyDocumentParser
     /** @param array{xref: ?string, type: string, lines: list<array{level: int, tag: string, value: string}>} $record */
     private function personFromGedcom(array $record): array
     {
-        $person = ['xref' => $record['xref'], 'given_name' => null, 'family_name' => null, 'sex' => null, 'birth_date' => null, 'death_date' => null];
+        $person = ['xref' => $record['xref'], 'given_name' => null, 'family_name' => null, 'sex' => null, 'birth_date' => null, 'death_date' => null, 'names' => [], 'life_events' => []];
         $event = null;
+        $eventData = [];
 
         foreach ($record['lines'] as $line) {
             if ($line['level'] === 1) {
+                if ($eventData !== []) {
+                    $person['life_events'][] = $eventData;
+                }
                 $event = null;
+                $eventData = [];
                 if ($line['tag'] === 'NAME') {
                     [$given, $family] = $this->splitName($line['value']);
+                    if ($person['given_name'] !== null || $person['family_name'] !== null) {
+                        $person['names'][] = ['given_name' => $given, 'family_name' => $family, 'type' => 'alternate'];
+                    }
                     $person['given_name'] = $given;
                     $person['family_name'] = $family;
                 } elseif ($line['tag'] === 'SEX') {
                     $person['sex'] = strtoupper($line['value']);
-                } elseif ($line['tag'] === 'BIRT' || $line['tag'] === 'DEAT') {
+                } elseif (in_array($line['tag'], ['BIRT', 'DEAT', 'BURI', 'CREM', 'MARR', 'RESI', 'OCCU', 'EDUC', 'EMIG', 'IMMI', 'CENS', 'PROB', 'WILL', 'GRAD', 'RETI'], true)) {
                     $event = $line['tag'];
+                    $eventData = ['type' => match ($line['tag']) {
+                        'BIRT' => 'birth',
+                        'DEAT' => 'death',
+                        'BURI' => 'burial',
+                        'CREM' => 'cremation',
+                        'MARR' => 'marriage',
+                        default => strtolower($line['tag']),
+                    }, 'date' => null, 'place' => null, 'description' => null];
                 }
-            } elseif ($line['level'] >= 2 && $line['tag'] === 'DATE' && $event !== null) {
-                $person[$event === 'BIRT' ? 'birth_date' : 'death_date'] = $this->date($line['value']);
+            } elseif ($line['level'] >= 2 && $event !== null) {
+                if ($line['tag'] === 'DATE') {
+                    $date = $this->date($line['value']);
+                    if ($event === 'BIRT') {
+                        $person['birth_date'] = $date;
+                    } elseif ($event === 'DEAT') {
+                        $person['death_date'] = $date;
+                    }
+                    $eventData['date'] = $date;
+                } elseif ($line['tag'] === 'PLAC') {
+                    $eventData['place'] = trim($line['value']);
+                } elseif (in_array($line['tag'], ['NOTE', 'TEXT', 'AGNC', 'TYPE'], true)) {
+                    $eventData['description'] = trim($line['value']);
+                }
             }
+
+        }
+
+        if ($eventData !== []) {
+            $person['life_events'][] = $eventData;
         }
 
         return $person;
@@ -164,7 +198,20 @@ final class GenealogyDocumentParser
             ];
         }
 
-        return ['format' => 'gramps-xml', 'people' => $people, 'families' => [], 'errors' => []];
+        $families = [];
+        foreach ($xml->xpath('//family') ?: [] as $family) {
+            $families[] = [
+                'xref' => (string) ($family['id'] ?: $family['handle']),
+                'husband' => isset($family->father['ref']) ? (string) $family->father['ref'] : null,
+                'wife' => isset($family->mother['ref']) ? (string) $family->mother['ref'] : null,
+                'children' => array_values(array_map(
+                    static fn ($child): string => (string) $child['ref'],
+                    iterator_to_array($family->childref ?? [])
+                )),
+            ];
+        }
+
+        return ['format' => 'gramps-xml', 'people' => $people, 'families' => $families, 'errors' => []];
     }
 
     /** @return array{0: string, 1: ?string} */
@@ -185,13 +232,34 @@ final class GenealogyDocumentParser
     {
         $value = trim((string) preg_replace('/^(ABT|BEF|AFT|EST)\s+/i', '', $value));
 
-        foreach (['!d M Y', '!M Y', '!Y'] as $format) {
+        foreach (['!d M Y', '!j M Y', '!M Y', '!Y', '!Y-m-d'] as $format) {
             $date = \DateTimeImmutable::createFromFormat($format, $value);
             if ($date !== false) {
-                return $date->format($format === '!Y' ? 'Y-01-01' : 'Y-m-d');
+                return $date->format(in_array($format, ['!Y', '!M Y'], true) ? 'Y-01-01' : 'Y-m-d');
             }
         }
 
         return null;
+    }
+
+    /** @return list<string> */
+    private function validateGedcom(string $content): array
+    {
+        $trimmed = ltrim($content, "\xEF\xBB\xBF \t\r\n");
+
+        if ($trimmed === '') {
+            return ['GEDCOM is empty.'];
+        }
+
+        $lines = preg_split('/\r\n|\r|\n/', $trimmed) ?: [];
+        $errors = [];
+        if (! str_starts_with($lines[0] ?? '', '0 HEAD')) {
+            $errors[] = 'GEDCOM must begin with a "0 HEAD" record.';
+        }
+        if (! in_array('0 TRLR', array_map('trim', $lines), true)) {
+            $errors[] = 'GEDCOM must contain a "0 TRLR" terminator.';
+        }
+
+        return $errors;
     }
 }

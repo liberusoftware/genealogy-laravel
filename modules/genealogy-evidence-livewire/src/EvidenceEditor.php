@@ -32,6 +32,8 @@ final class EvidenceEditor extends Component
 
     public string $subjectPersonId = '';
 
+    public string $status = 'draft';
+
     public function save(CreateEvidenceRecord $create): void
     {
         $this->validate([
@@ -46,6 +48,7 @@ final class EvidenceEditor extends Component
             'sourceUrl' => ['nullable', 'url', 'max:2048'],
             'eventDate' => ['nullable', 'date'],
             'subjectPersonId' => ['nullable', 'uuid'],
+            'status' => ['required', 'in:'.implode(',', EvidenceRecord::STATUSES)],
         ]);
         $create->execute([
             'name' => $this->name,
@@ -59,6 +62,7 @@ final class EvidenceEditor extends Component
             'source_url' => $this->sourceUrl ?: null,
             'event_date' => $this->eventDate ?: null,
             'subject_person_id' => $this->subjectPersonId ?: null,
+            'status' => $this->status,
         ]);
         $this->reset();
         $this->dispatch('evidence-record-created');

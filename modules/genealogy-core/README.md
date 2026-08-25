@@ -2,7 +2,7 @@
 
 This independent Liberu module owns the provider-neutral **Genealogy Genealogy Core** capability.
 
-It exposes a stable capability descriptor and service provider. Domain persistence, authorization, tenancy, jobs, and presentation adapters remain behind this package's public boundary; the matching API, Filament, and Livewire packages are optional adapters and never become core dependencies.
+It exposes trees with team ownership, stable per-team identifiers, privacy defaults, terminology metadata, lifecycle validation, policy checks, and post-commit lifecycle events. Domain persistence, authorization, tenancy, jobs, and presentation adapters remain behind this package's public boundary; the matching API, Filament, and Livewire packages are optional adapters and never become core dependencies.
 
 - Composer package: `liberusoftware/module-genealogy-core`
 - Module installer name: `genealogy-core`

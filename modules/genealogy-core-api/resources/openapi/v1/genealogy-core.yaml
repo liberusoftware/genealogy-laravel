@@ -1,18 +1,61 @@
 openapi: 3.1.0
 info: { title: Genealogy Core API, version: 1.0.0 }
 paths:
-  /api/v1/genealogy-core-api:
+  /api/v1/genealogy/genealogy-core/:
     get:
-      operationId: genealogy.core.health
+      operationId: genealogy.core.list
       security: [{ sanctum: [] }]
       responses:
         '200':
-          description: Core capability availability
+          description: Authorized tree collection
           content:
             application/json:
               schema:
                 type: object
-                required: [module, surface, status]
-                properties: { module: { type: string, const: genealogy-core }, surface: { type: string, const: api }, status: { type: string, const: available } }
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/TreeResource' }
+                  meta: { type: object, additionalProperties: true }
+    post:
+      operationId: genealogy.core.create
+      security: [{ sanctum: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TreeRequest' }
+      responses: { '201': { description: Created tree } }
+  /api/v1/genealogy/genealogy-core/{tree}:
+    get: { operationId: genealogy.core.get, security: [{ sanctum: [] }], responses: { '200': { description: Authorized tree } } }
+    patch:
+      operationId: genealogy.core.update
+      security: [{ sanctum: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TreeRequest' }
+      responses: { '200': { description: Updated tree } }
+    delete: { operationId: genealogy.core.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted tree } } }
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
+  schemas:
+    TreeRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 255 }
+        identifier: { type: [string, 'null'], maxLength: 100 }
+        status: { type: string, enum: [draft, active, archived] }
+        description: { type: [string, 'null'] }
+        root_person_id: { type: [string, 'null'], format: uuid }
+        is_public: { type: boolean, default: false }
+        metadata: { type: [object, 'null'], additionalProperties: true }
+        terminology: { type: [object, 'null'], additionalProperties: { type: string } }
+    TreeResource:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id: { type: string, description: Opaque team-scoped identifier }
+        type: { type: string, const: genealogy-core-tree }
+        attributes: { $ref: '#/components/schemas/TreeRequest' }

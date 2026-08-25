@@ -16,6 +16,8 @@ final class EvidenceRecord extends Model
 {
     public const KINDS = ['source', 'repository', 'citation', 'extract', 'assertion', 'proof_conclusion'];
 
+    public const STATUSES = ['draft', 'active', 'completed', 'archived'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;
@@ -41,5 +43,15 @@ final class EvidenceRecord extends Model
     public function scopeHighConfidence(Builder $query): Builder
     {
         return $query->where('confidence', '>=', 75);
+    }
+
+    public function isHighConfidence(): bool
+    {
+        return $this->confidence >= 75;
+    }
+
+    public function hasProofConclusion(): bool
+    {
+        return filled($this->proof_conclusion);
     }
 }

@@ -12,7 +12,7 @@ final class ResearchApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class])->group(function () use ($router): void {
+        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, 'throttle:60,1'])->group(function () use ($router): void {
             $router->apiResource('api/v1/genealogy/research/{project}/entries', ResearchEntryController::class)
                 ->parameters(['entries' => 'entry']);
             $router->apiResource('api/v1/genealogy/research', ResearchProjectController::class)

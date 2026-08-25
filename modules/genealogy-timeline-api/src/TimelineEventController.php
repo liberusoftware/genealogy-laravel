@@ -7,8 +7,11 @@ namespace Liberu\Genealogy\Timeline\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Timeline\Actions\CreateTimelineEvent;
+use Liberu\Genealogy\Timeline\Actions\DeleteTimelineEvent;
+use Liberu\Genealogy\Timeline\Actions\UpdateTimelineEvent;
 use Liberu\Genealogy\Timeline\Models\TimelineEvent;
 use Liberu\Genealogy\Timeline\Queries\ChronologicalTimeline;
+use Liberu\Genealogy\Timeline\Queries\ConflictingTimelineEvents;
 
 final class TimelineEventController
 {
@@ -17,7 +20,7 @@ final class TimelineEventController
         $perPage = min(max($request->integer('page[size]', 25), 1), 100);
         $events = TimelineEvent::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when(! $request->boolean('include_private'), fn ($query) => $query->where('is_private', false))->orderByRaw('COALESCE(event_date, date_start, date_end) desc')->paginate($perPage);
 
-        return response()->json(['data' => $events->through(fn (TimelineEvent $event): array => $this->resource($event)), 'meta' => ['current_page' => $events->currentPage(), 'per_page' => $events->perPage(), 'total' => $events->total()]]);
+        return response()->json(['data' => $events->getCollection()->map(fn (TimelineEvent $event): array => $this->resource($event))->values()->all(), 'meta' => ['current_page' => $events->currentPage(), 'per_page' => $events->perPage(), 'total' => $events->total()]]);
     }
 
     public function store(Request $request, CreateTimelineEvent $create): JsonResponse
@@ -32,7 +35,7 @@ final class TimelineEventController
             'place_id' => ['nullable', 'uuid'], 'description' => ['nullable', 'string'], 'historical_context' => ['nullable', 'string'],
             'conflict_group' => ['nullable', 'string', 'max:255'], 'confidence' => ['nullable', 'integer', 'between:0,100'],
             'source_reference' => ['nullable', 'string', 'max:255'], 'is_private' => ['sometimes', 'boolean'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', 'in:'.implode(',', TimelineEvent::STATUSES)],
             'metadata' => ['nullable', 'array'],
         ]));
 
@@ -44,23 +47,24 @@ final class TimelineEventController
         return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, TimelineEvent $record): JsonResponse
+    public function update(Request $request, TimelineEvent $record, UpdateTimelineEvent $update): JsonResponse
     {
-        $record->update($request->validate([
+        $record = $update->execute($record, $request->validate([
             'name' => ['sometimes', 'string', 'max:255'], 'kind' => ['sometimes', 'in:'.implode(',', TimelineEvent::KINDS)],
             'date_precision' => ['sometimes', 'in:'.implode(',', TimelineEvent::DATE_PRECISIONS)], 'event_date' => ['nullable', 'date'],
             'date_start' => ['nullable', 'date'], 'date_end' => ['nullable', 'date', 'after_or_equal:date_start'], 'is_private' => ['sometimes', 'boolean'],
             'description' => ['nullable', 'string'], 'historical_context' => ['nullable', 'string'], 'conflict_group' => ['nullable', 'string', 'max:255'],
             'confidence' => ['nullable', 'integer', 'between:0,100'],
             'metadata' => ['nullable', 'array'],
+            'status' => ['sometimes', 'in:'.implode(',', TimelineEvent::STATUSES)],
         ]));
 
-        return response()->json(['data' => $this->resource($record->refresh())]);
+        return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function destroy(TimelineEvent $record): JsonResponse
+    public function destroy(TimelineEvent $record, DeleteTimelineEvent $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }
@@ -70,6 +74,13 @@ final class TimelineEventController
         $values = $request->validate(['subject_person_id' => ['nullable', 'uuid'], 'family_key' => ['nullable', 'string', 'max:255'], 'from' => ['nullable', 'date'], 'to' => ['nullable', 'date', 'after_or_equal:from'], 'include_private' => ['sometimes', 'boolean']]);
 
         return response()->json(['data' => $timeline->execute($values['subject_person_id'] ?? null, $values['family_key'] ?? null, $values['from'] ?? null, $values['to'] ?? null, $values['include_private'] ?? false)]);
+    }
+
+    public function conflicts(Request $request, ConflictingTimelineEvents $conflicts): JsonResponse
+    {
+        $values = $request->validate(['subject_person_id' => ['nullable', 'uuid'], 'include_private' => ['sometimes', 'boolean']]);
+
+        return response()->json(['data' => $conflicts->execute($values['subject_person_id'] ?? null, $values['include_private'] ?? false)]);
     }
 
     /** @return array<string, mixed> */

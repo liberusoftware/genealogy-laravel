@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Evidence\Actions;
 
 use Illuminate\Support\Arr;
+use Liberu\Genealogy\Evidence\Events\EvidenceRecordUpdated;
 use Liberu\Genealogy\Evidence\Models\EvidenceRecord;
 
 final class UpdateEvidenceRecord
@@ -17,8 +18,16 @@ final class UpdateEvidenceRecord
             'confidence', 'source_url', 'event_date', 'subject_person_id', 'reviewed_at', 'status', 'metadata',
         ]);
         (new CreateEvidenceRecord())->validate(array_merge($record->toArray(), $values));
-        $record->update($values);
+        $connection = $record->getConnection();
+        $connection->transaction(function () use ($record, $values): void {
+            $record->update($values);
+        });
 
-        return $record->refresh();
+        $record = $record->refresh();
+        if (app()->bound('events')) {
+            event(new EvidenceRecordUpdated($record));
+        }
+
+        return $record;
     }
 }

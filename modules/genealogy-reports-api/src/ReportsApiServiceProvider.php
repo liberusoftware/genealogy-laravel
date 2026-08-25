@@ -12,7 +12,9 @@ final class ReportsApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class])->group(function () use ($router): void {
+        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, 'throttle:60,1'])->group(function () use ($router): void {
+            $router->post('api/v1/genealogy/reports/{record}/generate', [GenealogyReportController::class, 'generate'])
+                ->name('genealogy.reports.generate');
             $router->apiResource('api/v1/genealogy/reports', GenealogyReportController::class)
                 ->parameters(['reports' => 'record']);
         });

@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\Research\Actions\DeleteResearchProject;
 use Liberu\Genealogy\Research\Filament\Resources\ResearchProjectResource\Pages\CreateResearchProject;
 use Liberu\Genealogy\Research\Filament\Resources\ResearchProjectResource\Pages\EditResearchProject;
 use Liberu\Genealogy\Research\Filament\Resources\ResearchProjectResource\Pages\ListResearchProjects;
@@ -46,7 +48,7 @@ final class ResearchProjectResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Model $record): mixed => app(DeleteResearchProject::class)->execute($record)),
         ]);
     }
 

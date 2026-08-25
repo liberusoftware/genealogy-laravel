@@ -13,6 +13,7 @@ final class ReportsLivewireServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-reports-livewire');
         Livewire::component('genealogy-reports-list', GenealogyReportList::class);
+        Livewire::component('module-genealogy-reports::report-list', GenealogyReportList::class);
     }
 }
 

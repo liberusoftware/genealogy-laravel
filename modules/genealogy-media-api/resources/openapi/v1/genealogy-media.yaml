@@ -1,6 +1,12 @@
 openapi: 3.1.0
 info: { title: Genealogy Media API, version: 1.0.0 }
 paths:
+  /api/v1/genealogy/media/upload:
+    post:
+      operationId: genealogy.media.upload
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, required: [file], properties: { file: { type: string, format: binary }, name: { type: string }, kind: { type: string, enum: [document, photograph, audio, video] }, storage_disk: { type: string }, storage_directory: { type: string }, captured_at: { type: string, format: date-time }, captured_place_id: { type: string, format: uuid }, rights_holder: { type: string }, rights_status: { type: string, enum: [unknown, owned, licensed, public_domain, restricted, orphaned] }, is_public: { type: boolean }, preservation_metadata: { type: object }, metadata: { type: object } } } } } }
+      responses: { '201': { $ref: '#/components/responses/Resource' } }
   /api/v1/genealogy/media:
     get:
       operationId: genealogy.media.list

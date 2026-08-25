@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\People\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
@@ -22,6 +23,26 @@ final class Person extends Model
         'team_id', 'given_name', 'family_name', 'display_name', 'sex', 'aliases', 'attributes',
         'birth_date', 'death_date', 'birth_place', 'death_place', 'is_public', 'metadata',
     ];
+
+    public function names(): HasMany
+    {
+        return $this->hasMany(PersonName::class);
+    }
+
+    public function lifeEvents(): HasMany
+    {
+        return $this->hasMany(PersonLifeEvent::class);
+    }
+
+    public function identities(): HasMany
+    {
+        return $this->hasMany(PersonIdentity::class);
+    }
+
+    public function mergeCandidates(): HasMany
+    {
+        return $this->hasMany(MergeCandidate::class);
+    }
 
     protected function casts(): array
     {

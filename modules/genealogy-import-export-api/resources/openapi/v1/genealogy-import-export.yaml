@@ -14,7 +14,7 @@ paths:
   /api/v1/genealogy/import-export/import:
     post: {operationId: genealogy.importExport.import, security: [{sanctum: []}], requestBody: {$ref: '#/components/requestBodies/ImportPayload'}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/import-export/export:
-    get: {operationId: genealogy.importExport.export, security: [{sanctum: []}], responses: {'200': {description: GEDCOM download, content: {text/plain: {schema: {type: string}}}}}}
+    get: {operationId: genealogy.importExport.export, security: [{sanctum: []}], parameters: [{name: format, in: query, schema: {type: string, enum: [gedcom, gramps-xml], default: gedcom}}], responses: {'200': {description: Genealogy export download, content: {text/plain: {schema: {type: string}}}}}}
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   requestBodies:
@@ -22,5 +22,5 @@ components:
   schemas:
     TransferInput: {type: object, required: [name, format, direction], properties: {name: {type: string, maxLength: 255}, status: {type: string}, format: {type: string, enum: [gedcom, gramps-xml]}, direction: {type: string, enum: [import, export]}, metadata: {type: object}}}
   responses:
-    Resource: {description: Data transfer resource, content: {application/json: {schema: {type: object, properties: {data: {type: object}}}}}}
+    Resource: {description: Data transfer resource, content: {application/json: {schema: {type: object, properties: {data: {type: object, properties: {id: {type: string}, type: {type: string, const: genealogy-data-transfer}, attributes: {$ref: '#/components/schemas/TransferInput'}}}}}}}}
     Collection: {description: Paginated transfers, content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {type: object}}, meta: {type: object}}}}}}

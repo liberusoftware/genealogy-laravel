@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\Relationships\Actions\DeleteRelationship;
 use Liberu\Genealogy\Relationships\Filament\Resources\RelationshipResource\Pages\CreateRelationship;
 use Liberu\Genealogy\Relationships\Filament\Resources\RelationshipResource\Pages\EditRelationship;
 use Liberu\Genealogy\Relationships\Filament\Resources\RelationshipResource\Pages\ListRelationships;
@@ -29,24 +31,25 @@ final class RelationshipResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('name')->required()->maxLength(255),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            TextInput::make('person_id')->required()->uuid(),
+            TextInput::make('related_person_id')->required()->uuid(),
+            Select::make('type')->options(array_combine(Relationship::TYPES, Relationship::TYPES))->required(),
+            TextInput::make('confidence')->numeric()->minValue(0)->maxValue(100)->default(100),
+            TextInput::make('metadata')->json(),
         ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table->columns([
-            TextColumn::make('name')->searchable()->sortable(),
-            TextColumn::make('status')->badge()->sortable(),
+            TextColumn::make('type')->badge()->sortable(),
+            TextColumn::make('person_id')->label('Person'),
+            TextColumn::make('related_person_id')->label('Related person'),
+            TextColumn::make('confidence')->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Model $record): mixed => app(DeleteRelationship::class)->execute($record)),
         ]);
     }
 

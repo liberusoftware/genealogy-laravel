@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\GenealogyCore\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\GenealogyCore\Filament\Resources\TreeResource;
 
 final class GenealogyCoreFilamentServiceProvider extends ServiceProvider
 {
@@ -25,7 +26,10 @@ final class GenealogyCoreFilamentPlugin implements Plugin
         return 'genealogy-core-filament';
     }
 
-    public function register(Panel $panel): void {}
+    public function register(Panel $panel): void
+    {
+        $panel->resources([TreeResource::class]);
+    }
 
     public function boot(Panel $panel): void {}
 }

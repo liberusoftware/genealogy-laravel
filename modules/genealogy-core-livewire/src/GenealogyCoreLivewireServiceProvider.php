@@ -5,20 +5,14 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\GenealogyCore\Livewire;
 
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\GenealogyCore\Livewire\Components\TreeManager;
 use Livewire\Livewire;
 
 final class GenealogyCoreLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Livewire::component('genealogy-core-livewire-status', Status::class);
-    }
-}
-
-final class Status
-{
-    public function render(): string
-    {
-        return 'Genealogy GenealogyCore Livewire adapter is available.';
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-core-livewire');
+        Livewire::component('module-genealogy-core::tree-manager', TreeManager::class);
     }
 }

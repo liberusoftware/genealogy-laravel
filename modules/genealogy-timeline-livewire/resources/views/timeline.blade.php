@@ -20,4 +20,19 @@
             <li>No timeline events found.</li>
         @endforelse
     </ol>
+    <section aria-label="Timeline conflicts">
+        <h2>Conflicts</h2>
+        @forelse ($conflicts as $conflict)
+            <article wire:key="genealogy-timeline-conflict-{{ $conflict['key'] }}">
+                <strong>{{ $conflict['key'] }}</strong>
+                <ul>
+                    @foreach ($conflict['events'] as $event)
+                        <li>{{ $event['name'] }} ({{ $event['event_date'] ?? 'Undated' }})</li>
+                    @endforeach
+                </ul>
+            </article>
+        @empty
+            <p>No conflicting events found.</p>
+        @endforelse
+    </section>
 </div>

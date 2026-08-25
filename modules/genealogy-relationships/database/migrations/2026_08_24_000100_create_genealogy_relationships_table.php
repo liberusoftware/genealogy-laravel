@@ -19,7 +19,7 @@ return new class() extends Migration
             $table->unsignedSmallInteger('confidence')->default(100);
             $table->json('metadata')->nullable();
             $table->timestamps();
-            $table->unique(['person_id', 'related_person_id', 'type']);
+            $table->unique(['team_id', 'person_id', 'related_person_id', 'type']);
             $table->index(['team_id', 'person_id']);
         });
     }

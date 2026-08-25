@@ -22,6 +22,9 @@ final class GedcomExporter
             $xref = $this->xref($person);
             $lines[] = "0 {$xref} INDI";
             $lines[] = '1 NAME '.trim($person->given_name.' /'.($person->family_name ?? '').'/');
+            foreach ($person->names as $name) {
+                $lines[] = '1 NAME '.trim(($name->given_name ?? '').' /'.($name->family_name ?? '').'/');
+            }
             if ($person->sex) {
                 $lines[] = '1 SEX '.$person->sex;
             }
@@ -32,6 +35,27 @@ final class GedcomExporter
             if ($person->death_date) {
                 $lines[] = '1 DEAT';
                 $lines[] = '2 DATE '.$person->death_date->format('d M Y');
+            }
+            foreach ($person->lifeEvents as $lifeEvent) {
+                if (in_array($lifeEvent->type, ['birth', 'death'], true)) {
+                    continue;
+                }
+                $tag = match ($lifeEvent->type) {
+                    'burial' => 'BURI',
+                    'cremation' => 'CREM',
+                    'marriage' => 'MARR',
+                    default => strtoupper((string) $lifeEvent->type),
+                };
+                $lines[] = '1 '.$tag;
+                if ($lifeEvent->date) {
+                    $lines[] = '2 DATE '.$lifeEvent->date->format('d M Y');
+                }
+                if ($lifeEvent->place) {
+                    $lines[] = '2 PLAC '.$lifeEvent->place;
+                }
+                if ($lifeEvent->description) {
+                    $lines[] = '2 NOTE '.$lifeEvent->description;
+                }
             }
             foreach ($families as $family) {
                 if (in_array((string) $person->getKey(), $family['parents'], true)) {

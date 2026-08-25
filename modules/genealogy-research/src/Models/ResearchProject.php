@@ -12,6 +12,8 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class ResearchProject extends Model
 {
+    public const STATUSES = ['draft', 'active', 'completed', 'archived'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;

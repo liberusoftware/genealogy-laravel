@@ -7,7 +7,10 @@ namespace Liberu\Genealogy\People\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\People\Actions\CreatePerson;
+use Liberu\Genealogy\People\Actions\DeletePerson;
+use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
+use Liberu\Genealogy\People\Models\MergeCandidate;
 use Liberu\Genealogy\People\Models\Person;
 
 final class PersonController
@@ -22,6 +25,7 @@ final class PersonController
         ]);
 
         $people = Person::query()
+            ->with($this->includes($request))
             ->when(isset($values['search']), function ($query) use ($values): void {
                 $search = $values['search'];
                 $query->where(function ($nested) use ($search): void {
@@ -36,7 +40,7 @@ final class PersonController
             ->paginate($values['page[size]'] ?? 25);
 
         return response()->json([
-            'data' => $people->through(fn (Person $person): array => $this->resource($person)),
+            'data' => $people->getCollection()->map(fn (Person $person): array => $this->resource($person))->values()->all(),
             'meta' => ['current_page' => $people->currentPage(), 'per_page' => $people->perPage(), 'total' => $people->total()],
         ]);
     }
@@ -58,11 +62,36 @@ final class PersonController
         return response()->json(['data' => $this->resource($updatePerson->execute($person, $this->validated($request)))]);
     }
 
-    public function destroy(Person $person): JsonResponse
+    public function destroy(Person $person, DeletePerson $delete): JsonResponse
     {
-        $person->delete();
+        $delete->execute($person);
 
         return response()->json(status: 204);
+    }
+
+    public function reviewMergeCandidate(
+        Request $request,
+        string $person,
+        string $candidate,
+        ReviewMergeCandidate $review,
+    ): JsonResponse {
+        $values = $request->validate([
+            'status' => ['required', 'in:accepted,rejected'],
+            'reason' => ['nullable', 'string', 'max:10000'],
+        ]);
+        $record = MergeCandidate::query()
+            ->whereKey($candidate)
+            ->where('person_id', $person)
+            ->firstOrFail();
+        $reviewed = $review->execute($record, $values['status'], $values['reason'] ?? null);
+
+        return response()->json([
+            'data' => [
+                'id' => (string) $reviewed->getKey(),
+                'type' => 'genealogy-merge-candidate',
+                'attributes' => $reviewed->only(['person_id', 'candidate_person_id', 'status', 'score', 'reason', 'reviewed_at']),
+            ],
+        ]);
     }
 
     /** @return array<string, mixed> */
@@ -105,6 +134,32 @@ final class PersonController
                 'is_living' => $person->isLiving(),
                 'metadata' => $person->metadata,
             ],
+            'relationships' => [
+                'names' => $person->relationLoaded('names') ? $person->names->map(fn ($name): array => [
+                    'id' => (string) $name->getKey(),
+                    'type' => 'genealogy-person-name',
+                    'attributes' => $name->only(['type', 'given_name', 'family_name', 'prefix', 'suffix', 'is_preferred']),
+                ])->values()->all() : [],
+                'identities' => $person->relationLoaded('identities') ? $person->identities->map(fn ($identity): array => [
+                    'id' => (string) $identity->getKey(),
+                    'type' => 'genealogy-person-identity',
+                    'attributes' => $identity->only(['type', 'value', 'label', 'is_verified']),
+                ])->values()->all() : [],
+                'life_events' => $person->relationLoaded('lifeEvents') ? $person->lifeEvents->map(fn ($event): array => [
+                    'id' => (string) $event->getKey(),
+                    'type' => 'genealogy-person-life-event',
+                    'attributes' => $event->only(['type', 'date', 'place', 'description', 'metadata']),
+                ])->values()->all() : [],
+            ],
         ];
+    }
+
+    /** @return list<string> */
+    private function includes(Request $request): array
+    {
+        $allowed = ['names', 'identities', 'lifeEvents'];
+        $requested = array_filter(explode(',', (string) $request->query('include', '')));
+
+        return array_values(array_intersect($requested, $allowed));
     }
 }

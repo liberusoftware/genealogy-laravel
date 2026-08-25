@@ -9,6 +9,8 @@
     <input id="place-latitude" type="number" step="any" wire:model="latitude">
     <label for="place-longitude">Longitude</label>
     <input id="place-longitude" type="number" step="any" wire:model="longitude">
+    <label for="place-historical-name">Historical name</label>
+    <input id="place-historical-name" type="text" wire:model="historicalName">
     @error('name') <p role="alert">{{ $message }}</p> @enderror
     <button type="submit" wire:loading.attr="disabled">Save place</button>
 </form>

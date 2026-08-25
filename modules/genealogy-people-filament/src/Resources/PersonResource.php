@@ -17,9 +17,15 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\People\Actions\DeletePerson;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\CreatePerson;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\EditPerson;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\ListPeople;
+use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\IdentitiesRelationManager;
+use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\LifeEventsRelationManager;
+use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\MergeCandidatesRelationManager;
+use Liberu\Genealogy\People\Filament\Resources\PersonResource\RelationManagers\NamesRelationManager;
 use Liberu\Genealogy\People\Models\Person;
 
 final class PersonResource extends Resource
@@ -55,10 +61,19 @@ final class PersonResource extends Resource
             TextColumn::make('birth_place')->searchable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Model $record): mixed => app(DeletePerson::class)->execute($record)),
         ])->toolbarActions([
-            BulkActionGroup::make([DeleteBulkAction::make()]),
+            BulkActionGroup::make([
+                DeleteBulkAction::make()->action(fn ($records): mixed => $records->each(
+                    fn (Model $record): mixed => app(DeletePerson::class)->execute($record),
+                )),
+            ]),
         ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [NamesRelationManager::class, IdentitiesRelationManager::class, LifeEventsRelationManager::class, MergeCandidatesRelationManager::class];
     }
 
     /** @return array<string, PageRegistration> */

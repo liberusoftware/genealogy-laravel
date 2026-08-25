@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\ImportExport\Actions\DeleteDataTransfer;
 use Liberu\Genealogy\ImportExport\Filament\Resources\DataTransferResource\Pages\CreateDataTransfer;
 use Liberu\Genealogy\ImportExport\Filament\Resources\DataTransferResource\Pages\EditDataTransfer;
 use Liberu\Genealogy\ImportExport\Filament\Resources\DataTransferResource\Pages\ListDataTransfers;
@@ -54,7 +56,7 @@ final class DataTransferResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Model $record): mixed => app(DeleteDataTransfer::class)->execute($record)),
         ]);
     }
 

@@ -13,6 +13,8 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class Place extends Model
 {
+    public const STATUSES = ['draft', 'active', 'completed'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;
@@ -34,5 +36,22 @@ final class Place extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function names(): HasMany
+    {
+        return $this->hasMany(PlaceName::class);
+    }
+
+    public function hasCoordinates(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
+    }
+
+    public function mapUrl(): ?string
+    {
+        return $this->hasCoordinates()
+            ? 'https://www.openstreetmap.org/?mlat='.$this->latitude.'&mlon='.$this->longitude.'#map=12/'.$this->latitude.'/'.$this->longitude
+            : null;
     }
 }

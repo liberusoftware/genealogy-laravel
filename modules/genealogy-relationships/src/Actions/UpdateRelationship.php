@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Relationships\Actions;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use Liberu\Genealogy\People\Models\Person;
+use Liberu\Genealogy\Relationships\Events\RelationshipUpdated;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
 
@@ -43,6 +44,10 @@ final class UpdateRelationship
             'type' => $type,
             'confidence' => $confidence,
         ]);
+
+        if (app()->bound('events')) {
+            event(new RelationshipUpdated($relationship));
+        }
 
         return $relationship->refresh();
     }

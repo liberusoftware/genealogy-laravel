@@ -8,8 +8,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Media\Actions\CreateMediaAsset;
 use Liberu\Genealogy\Media\Actions\CreateMediaLink;
+use Liberu\Genealogy\Media\Actions\DeleteMediaAsset;
+use Liberu\Genealogy\Media\Actions\StoreMediaUpload;
+use Liberu\Genealogy\Media\Actions\UpdateMediaAsset;
 use Liberu\Genealogy\Media\Models\MediaAsset;
 use Liberu\Genealogy\Media\Queries\MediaLibrary;
+use Symfony\Component\HttpFoundation\Response;
 
 final class MediaAssetController
 {
@@ -18,7 +22,7 @@ final class MediaAssetController
         $perPage = min(max($request->integer('page[size]', 25), 1), 100);
         $assets = MediaAsset::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when($request->boolean('public_only'), fn ($query) => $query->where('is_public', true))->latest()->paginate($perPage);
 
-        return response()->json(['data' => $assets->through(fn (MediaAsset $asset): array => $this->resource($asset)), 'meta' => ['current_page' => $assets->currentPage(), 'per_page' => $assets->perPage(), 'total' => $assets->total()]]);
+        return response()->json(['data' => $assets->getCollection()->map(fn (MediaAsset $asset): array => $this->resource($asset))->values()->all(), 'meta' => ['current_page' => $assets->currentPage(), 'per_page' => $assets->perPage(), 'total' => $assets->total()]]);
     }
 
     public function store(Request $request, CreateMediaAsset $create): JsonResponse
@@ -33,25 +37,46 @@ final class MediaAssetController
         return response()->json(['data' => $this->resource($record)], 201);
     }
 
+    public function upload(Request $request, StoreMediaUpload $upload): JsonResponse
+    {
+        $values = $request->validate([
+            'file' => ['required', 'file', 'max:51200'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'kind' => ['sometimes', 'in:'.implode(',', MediaAsset::KINDS)],
+            'storage_disk' => ['sometimes', 'string', 'max:100'],
+            'storage_directory' => ['sometimes', 'string', 'max:255'],
+            'captured_at' => ['nullable', 'date'],
+            'captured_place_id' => ['nullable', 'uuid'],
+            'rights_holder' => ['nullable', 'string', 'max:255'],
+            'rights_status' => ['sometimes', 'in:'.implode(',', MediaAsset::RIGHTS_STATUSES)],
+            'is_public' => ['sometimes', 'boolean'],
+            'preservation_metadata' => ['nullable', 'array'],
+            'metadata' => ['nullable', 'array'],
+        ]);
+        $asset = $upload->execute($values['file'], $values);
+
+        return response()->json(['data' => $this->resource($asset)], Response::HTTP_CREATED);
+    }
+
     public function show(MediaAsset $record): JsonResponse
     {
         return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, MediaAsset $record): JsonResponse
+    public function update(Request $request, MediaAsset $record, UpdateMediaAsset $update): JsonResponse
     {
-        $record->update($request->validate([
+        $record = $update->execute($record, $request->validate([
             ...$this->rules(true),
             'name' => ['sometimes', 'string', 'max:255'],
             'metadata' => ['nullable', 'array'],
         ]));
 
-        return response()->json(['data' => $this->resource($record->refresh())]);
+        return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function destroy(MediaAsset $record): JsonResponse
+    public function destroy(MediaAsset $record, DeleteMediaAsset $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }

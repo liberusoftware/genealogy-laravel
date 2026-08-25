@@ -8,7 +8,9 @@
   "requires": {
     "php": "^8.5",
     "laravel": "^13.0",
-    "packages": {}
+    "packages": {
+      "liberusoftware/organizations-teams": "^1.0"
+    }
   },
   "capabilities": [
     "genealogy.genealogy-core",

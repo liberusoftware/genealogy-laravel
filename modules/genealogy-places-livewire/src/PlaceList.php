@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Places\Livewire;
 
 use Liberu\Genealogy\Places\Models\Place;
+use Liberu\Genealogy\Places\Queries\PlaceHierarchy;
 use Livewire\Component;
 
 final class PlaceList extends Component
 {
     public string $status = '';
 
-    public function render(): mixed
+    public function render(PlaceHierarchy $hierarchy): mixed
     {
         return view('genealogy-places-livewire::list', [
             'records' => Place::query()
@@ -19,6 +20,7 @@ final class PlaceList extends Component
                 ->latest()
                 ->limit(25)
                 ->get(),
+            'hierarchy' => $hierarchy->execute(flat: true),
         ]);
     }
 }

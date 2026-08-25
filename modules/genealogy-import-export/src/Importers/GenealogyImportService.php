@@ -6,13 +6,27 @@ namespace Liberu\Genealogy\ImportExport\Importers;
 
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Liberu\Genealogy\ImportExport\Actions\UpdateDataTransfer;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
+use Liberu\Genealogy\People\Actions\CreatePerson;
+use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
+use Liberu\Genealogy\People\Actions\CreatePersonName;
+use Liberu\Genealogy\People\Actions\UpdatePerson;
 use Liberu\Genealogy\People\Models\Person;
+use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 
 final class GenealogyImportService
 {
-    public function __construct(private readonly GenealogyDocumentParser $parser) {}
+    public function __construct(
+        private readonly GenealogyDocumentParser $parser,
+        private readonly ?CreatePerson $createPerson = null,
+        private readonly ?CreatePersonName $createPersonName = null,
+        private readonly ?CreatePersonLifeEvent $createPersonLifeEvent = null,
+        private readonly ?UpdatePerson $updatePerson = null,
+        private readonly ?CreateRelationship $createRelationship = null,
+        private readonly ?UpdateDataTransfer $updateTransfer = null,
+    ) {}
 
     /** @return array<string, mixed> */
     public function preview(string $content): array
@@ -73,15 +87,45 @@ final class GenealogyImportService
                 ];
 
                 if ($person) {
-                    $person->update($values);
+                    ($this->updatePerson ?? new UpdatePerson())->execute($person, $values);
                     $updated++;
                 } else {
-                    $person = Person::query()->create($values);
+                    $person = ($this->createPerson ?? new CreatePerson())->execute($values);
                     $created++;
                 }
 
                 if ($xref !== null) {
                     $byXref[$xref] = $person;
+                }
+
+                foreach (($attributes['names'] ?? []) as $name) {
+                    $existingName = $person->names()
+                        ->where('given_name', $name['given_name'])
+                        ->where('family_name', $name['family_name'])
+                        ->exists();
+                    if (! $existingName) {
+                        ($this->createPersonName ?? new CreatePersonName())->execute([
+                            'person_id' => $person->getKey(),
+                            'type' => $name['type'] ?? 'alternate',
+                            'given_name' => $name['given_name'],
+                            'family_name' => $name['family_name'],
+                        ]);
+                    }
+                }
+
+                foreach (($attributes['life_events'] ?? []) as $lifeEvent) {
+                    $query = $person->lifeEvents()
+                        ->where('type', $lifeEvent['type'] ?? 'event')
+                        ->whereDate('date', $lifeEvent['date'] ?? null);
+                    if (! $query->exists()) {
+                        ($this->createPersonLifeEvent ?? new CreatePersonLifeEvent())->execute([
+                            'person_id' => $person->getKey(),
+                            'type' => $lifeEvent['type'] ?? 'event',
+                            'date' => $lifeEvent['date'] ?? null,
+                            'place' => $lifeEvent['place'] ?? null,
+                            'description' => $lifeEvent['description'] ?? null,
+                        ]);
+                    }
                 }
             }
 
@@ -93,21 +137,27 @@ final class GenealogyImportService
                         continue;
                     }
                     foreach ($parents as $parentXref) {
-                        Relationship::query()->firstOrCreate([
+                        if ($this->createRelationshipIfMissing([
                             'person_id' => $byXref[$parentXref]->getKey(),
                             'related_person_id' => $byXref[$childXref]->getKey(),
                             'type' => 'parent',
-                        ], ['confidence' => 100, 'metadata' => ['gedcom_xref' => $family['xref']]]);
-                        $relationships++;
+                            'confidence' => 100,
+                            'metadata' => ['gedcom_xref' => $family['xref']],
+                        ])) {
+                            $relationships++;
+                        }
                     }
                 }
                 if (count($parents) === 2) {
-                    Relationship::query()->firstOrCreate([
+                    if ($this->createRelationshipIfMissing([
                         'person_id' => $byXref[$parents[0]]->getKey(),
                         'related_person_id' => $byXref[$parents[1]]->getKey(),
                         'type' => 'partner',
-                    ], ['confidence' => 100, 'metadata' => ['gedcom_xref' => $family['xref']]]);
-                    $relationships++;
+                        'confidence' => 100,
+                        'metadata' => ['gedcom_xref' => $family['xref']],
+                    ])) {
+                        $relationships++;
+                    }
                 }
             }
 
@@ -115,7 +165,7 @@ final class GenealogyImportService
         });
 
         if ($transfer) {
-            $transfer->update(['status' => 'completed', 'metadata' => $result]);
+            ($this->updateTransfer ?? new UpdateDataTransfer())->execute($transfer, ['status' => 'completed', 'metadata' => $result]);
         }
 
         return $result;
@@ -124,6 +174,26 @@ final class GenealogyImportService
     /** @param list<array{children: list<string>}> $families */
     private function relationshipCount(array $families): int
     {
-        return array_sum(array_map(fn (array $family): int => count($family['children']), $families));
+        return array_sum(array_map(function (array $family): int {
+            $parents = count(array_filter([$family['husband'] ?? null, $family['wife'] ?? null]));
+
+            return count($family['children']) * $parents + ($parents === 2 ? 1 : 0);
+        }, $families));
+    }
+
+    /** @param array<string, mixed> $attributes */
+    private function createRelationshipIfMissing(array $attributes): bool
+    {
+        if (Relationship::query()
+            ->where('person_id', $attributes['person_id'])
+            ->where('related_person_id', $attributes['related_person_id'])
+            ->where('type', $attributes['type'])
+            ->exists()) {
+            return false;
+        }
+
+        ($this->createRelationship ?? new CreateRelationship())->execute($attributes);
+
+        return true;
     }
 }

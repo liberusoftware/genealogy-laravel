@@ -7,7 +7,10 @@ namespace Liberu\Genealogy\Evidence\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Liberu\Genealogy\Evidence\Actions\ArchiveEvidenceRecord;
 use Liberu\Genealogy\Evidence\Actions\CreateEvidenceRecord;
+use Liberu\Genealogy\Evidence\Actions\DeleteEvidenceRecord;
+use Liberu\Genealogy\Evidence\Actions\ReviewEvidenceRecord;
 use Liberu\Genealogy\Evidence\Actions\UpdateEvidenceRecord;
 use Liberu\Genealogy\Evidence\Models\EvidenceRecord;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
@@ -18,7 +21,7 @@ final class EvidenceRecordController
     {
         $values = $request->validate([
             'kind' => ['sometimes', Rule::in(EvidenceRecord::KINDS)],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', Rule::in(EvidenceRecord::STATUSES)],
             'min_confidence' => ['sometimes', 'integer', 'between:0,100'],
             'page[size]' => ['sometimes', 'integer', 'between:1,100'],
         ]);
@@ -30,7 +33,7 @@ final class EvidenceRecordController
             ->paginate($values['page[size]'] ?? 25);
 
         return response()->json([
-            'data' => $records->through(fn (EvidenceRecord $record): array => $this->resource($record)),
+            'data' => $records->getCollection()->map(fn (EvidenceRecord $record): array => $this->resource($record))->values()->all(),
             'meta' => ['current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total()],
         ]);
     }
@@ -50,20 +53,23 @@ final class EvidenceRecordController
             'event_date' => ['nullable', 'date'],
             'subject_person_id' => ['nullable', 'uuid', Rule::exists('genealogy_people', 'id')->where('team_id', app(TeamContext::class)->require())],
             'reviewed_at' => ['nullable', 'date'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', Rule::in(EvidenceRecord::STATUSES)],
             'metadata' => ['nullable', 'array'],
         ]));
 
         return response()->json(['data' => $this->resource($record)], 201);
     }
 
-    public function show(EvidenceRecord $record): JsonResponse
+    public function show(string $record): JsonResponse
     {
+        $record = $this->record($record);
+
         return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, EvidenceRecord $record, UpdateEvidenceRecord $update): JsonResponse
+    public function update(Request $request, string $record, UpdateEvidenceRecord $update): JsonResponse
     {
+        $record = $this->record($record);
         $values = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'kind' => ['sometimes', Rule::in(EvidenceRecord::KINDS)],
@@ -77,24 +83,44 @@ final class EvidenceRecordController
             'event_date' => ['nullable', 'date'],
             'subject_person_id' => ['sometimes', 'nullable', 'uuid', Rule::exists('genealogy_people', 'id')->where('team_id', app(TeamContext::class)->require())],
             'reviewed_at' => ['nullable', 'date'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', Rule::in(EvidenceRecord::STATUSES)],
             'metadata' => ['nullable', 'array'],
         ]);
 
         return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }
 
-    public function destroy(EvidenceRecord $record): JsonResponse
+    public function destroy(string $record, DeleteEvidenceRecord $delete): JsonResponse
     {
-        $record->delete();
+        $record = $this->record($record);
+        $delete->execute($record);
 
         return response()->json(status: 204);
+    }
+
+    public function review(string $record, ReviewEvidenceRecord $review): JsonResponse
+    {
+        $record = $this->record($record);
+
+        return response()->json(['data' => $this->resource($review->execute($record))]);
+    }
+
+    public function archive(string $record, ArchiveEvidenceRecord $archive): JsonResponse
+    {
+        $record = $this->record($record);
+
+        return response()->json(['data' => $this->resource($archive->execute($record))]);
+    }
+
+    private function record(string $id): EvidenceRecord
+    {
+        return EvidenceRecord::query()->findOrFail($id);
     }
 
     /** @return array<string, mixed> */
     private function resource(EvidenceRecord $record): array
     {
-        return ['id' => $record->getKey(), 'type' => 'genealogy-evidence-record', 'attributes' => [
+        return ['id' => $record->getKey(), 'type' => 'genealogy-evidence', 'attributes' => [
             'name' => $record->name, 'kind' => $record->kind, 'repository' => $record->repository,
             'citation' => $record->citation, 'extract' => $record->extract, 'assertion' => $record->assertion,
             'proof_conclusion' => $record->proof_conclusion, 'confidence' => $record->confidence,
