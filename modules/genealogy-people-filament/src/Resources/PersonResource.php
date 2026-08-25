@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\People\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -19,6 +21,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Liberu\Genealogy\People\Actions\DeletePerson;
+use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\CreatePerson;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\EditPerson;
 use Liberu\Genealogy\People\Filament\Resources\PersonResource\Pages\ListPeople;
@@ -61,6 +64,13 @@ final class PersonResource extends Resource
             TextColumn::make('death_date')->date()->sortable(),
             TextColumn::make('birth_place')->searchable(),
         ])->recordActions([
+            Action::make('setLifeStatus')
+                ->label('Set life status')
+                ->schema([
+                    Select::make('status')->options(['living' => 'Living', 'deceased' => 'Deceased'])->required(),
+                    DatePicker::make('death_date'),
+                ])
+                ->action(fn (Person $record, array $data): Person => app(SetPersonLifeStatus::class)->execute($record, $data['status'], $data['death_date'] ?? null)),
             EditAction::make(),
             DeleteAction::make()->action(fn (Model $record): mixed => app(DeletePerson::class)->execute($record)),
         ])->toolbarActions([

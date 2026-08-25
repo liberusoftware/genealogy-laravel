@@ -13,6 +13,7 @@ use Liberu\Genealogy\People\Actions\CreatePersonName;
 use Liberu\Genealogy\People\Actions\DeletePerson;
 use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
 use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
+use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
 use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Events\MergeCandidateReviewed;
@@ -132,6 +133,22 @@ it('manages person attributes through an explicit tenant-safe lifecycle', functi
     Event::assertDispatched(PersonAttributesUpdated::class, 3);
 });
 
+it('transitions living and deceased status through a tenant-safe action', function (): void {
+    Event::fake();
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada', 'birth_date' => '1815-12-10']);
+
+    (new SetPersonLifeStatus())->execute($person, 'deceased', '1852-11-27');
+    expect($person->fresh()->isDeceased())->toBeTrue();
+    (new SetPersonLifeStatus())->execute($person, 'living');
+    expect($person->fresh()->isLiving())->toBeTrue();
+    expect(fn () => (new SetPersonLifeStatus())->execute($person, 'deceased', '1800-01-01'))
+        ->toThrow(InvalidArgumentException::class, 'precede');
+    Event::assertDispatched(PersonUpdated::class, 2);
+});
+
 it('exposes merge-candidate review through the authenticated API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -180,6 +197,9 @@ it('exposes every people supporting capability through tenant-scoped API resourc
     ])->assertOk()->assertJsonPath('data.attributes.attributes.occupation', 'mathematician');
     $this->actingAs($user)->deleteJson("/api/v1/genealogy/people/{$person->id}/attributes/occupation")
         ->assertOk()->assertJsonPath('data.attributes.attributes', []);
+    $this->actingAs($user)->patchJson("/api/v1/genealogy/people/{$person->id}/life-status", [
+        'status' => 'deceased', 'death_date' => '1900-01-01',
+    ])->assertOk()->assertJsonPath('data.attributes.life_status', 'deceased');
 
     app(TeamContext::class)->set($team->id);
     expect(PersonName::query()->where('person_id', $person->id)->count())->toBe(1)

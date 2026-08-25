@@ -20,6 +20,8 @@ final class PeopleApiServiceProvider extends ServiceProvider
                 ->name('genealogy.people.attributes.update');
             $router->delete('api/v1/genealogy/people/{person}/attributes/{attribute}', [PersonController::class, 'removeAttribute'])
                 ->name('genealogy.people.attributes.delete');
+            $router->patch('api/v1/genealogy/people/{person}/life-status', [PersonController::class, 'setLifeStatus'])
+                ->name('genealogy.people.life-status.update');
             $router->get('api/v1/genealogy/people/{person}/{supporting}', [PersonSupportingRecordController::class, 'index']);
             $router->post('api/v1/genealogy/people/{person}/{supporting}', [PersonSupportingRecordController::class, 'store']);
             $router->match(['put', 'patch'], 'api/v1/genealogy/people/{person}/{supporting}/{record}', [PersonSupportingRecordController::class, 'update']);

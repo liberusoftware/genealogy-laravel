@@ -7,6 +7,9 @@ paths:
   /api/v1/genealogy/people/{person}/attributes/{attribute}:
     parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}, {name: attribute, in: path, required: true, schema: {type: string, maxLength: 100}}]
     delete: {operationId: genealogy.people.attributes.delete, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/people/{person}/life-status:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch: {operationId: genealogy.people.life-status.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {type: object, required: [status], properties: {status: {type: string, enum: [living, deceased]}, death_date: {type: string, format: date, nullable: true}}}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/people/{person}/{supporting}:
     parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}, {name: supporting, in: path, required: true, schema: {type: string, enum: [names, identities, life-events, merge-candidates]}}]
     get: {operationId: genealogy.people.supporting.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/SupportingCollection'}}}

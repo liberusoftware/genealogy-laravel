@@ -10,6 +10,7 @@ use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\People\Actions\DeletePerson;
 use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
 use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
+use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
 use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Models\MergeCandidate;
@@ -87,6 +88,16 @@ final class PersonController
         return response()->json(['data' => $this->resource($remove->execute($person, $attribute))]);
     }
 
+    public function setLifeStatus(Request $request, Person $person, SetPersonLifeStatus $setStatus): JsonResponse
+    {
+        $values = $request->validate([
+            'status' => ['required', 'in:living,deceased'],
+            'death_date' => ['nullable', 'date'],
+        ]);
+
+        return response()->json(['data' => $this->resource($setStatus->execute($person, $values['status'], $values['death_date'] ?? null))]);
+    }
+
     public function reviewMergeCandidate(
         Request $request,
         string $person,
@@ -150,6 +161,7 @@ final class PersonController
                 'death_place' => $person->death_place,
                 'is_public' => $person->is_public,
                 'is_living' => $person->isLiving(),
+                'life_status' => $person->isLiving() ? 'living' : 'deceased',
                 'metadata' => $person->metadata,
             ],
             'relationships' => [

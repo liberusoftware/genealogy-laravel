@@ -1,6 +1,13 @@
 <section aria-label="Person details">
     <h2>{{ $person->display_name }}</h2>
     <p>{{ $person->isLiving() ? 'Living' : 'Deceased' }}</p>
+    <label for="person-life-status">Life status</label>
+    <select id="person-life-status" wire:model="lifeStatus">
+        <option value="living">Living</option>
+        <option value="deceased">Deceased</option>
+    </select>
+    <input wire:model="deathDate" type="date" aria-label="Death date">
+    <button type="button" wire:click="setLifeStatus">Save life status</button>
     <h3>Names</h3>
     <ul>@foreach ($person->names as $name)<li wire:key="name-{{ $name->id }}">{{ trim($name->given_name.' '.$name->family_name) }}</li>@endforeach</ul>
     <h3>Identities</h3>

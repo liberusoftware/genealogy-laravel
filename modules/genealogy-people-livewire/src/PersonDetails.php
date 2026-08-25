@@ -10,6 +10,7 @@ use Liberu\Genealogy\People\Actions\CreatePersonIdentity;
 use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
 use Liberu\Genealogy\People\Actions\CreatePersonName;
 use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
+use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Models\Person;
 use Livewire\Component;
@@ -35,6 +36,10 @@ final class PersonDetails extends Component
     public string $candidatePersonId = '';
 
     public string $attributesJson = '{}';
+
+    public string $lifeStatus = 'living';
+
+    public string $deathDate = '';
 
     public function addName(CreatePersonName $create): void
     {
@@ -94,10 +99,23 @@ final class PersonDetails extends Component
         $this->dispatch('person-attributes-updated');
     }
 
+    public function setLifeStatus(SetPersonLifeStatus $setStatus): void
+    {
+        $this->validate([
+            'personId' => ['required', 'uuid'],
+            'lifeStatus' => ['required', 'in:living,deceased'],
+            'deathDate' => ['nullable', 'date'],
+        ]);
+        $setStatus->execute(Person::query()->findOrFail($this->personId), $this->lifeStatus, $this->deathDate ?: null);
+        $this->dispatch('person-life-status-updated');
+    }
+
     public function render(): View
     {
         $person = Person::query()->with(['names', 'identities', 'lifeEvents', 'mergeCandidates'])->findOrFail($this->personId);
         $this->attributesJson = json_encode($person->attributes ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
+        $this->lifeStatus = $person->isLiving() ? 'living' : 'deceased';
+        $this->deathDate = $person->death_date?->toDateString() ?? '';
 
         return view('genealogy-people-livewire::person-details', compact('person'));
     }
