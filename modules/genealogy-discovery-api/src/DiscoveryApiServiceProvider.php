@@ -17,6 +17,7 @@ final class DiscoveryApiServiceProvider extends ServiceProvider
             $router->post('api/v1/genealogy/discovery/external-search', [DiscoveryMatchController::class, 'externalSearch'])->name('genealogy.discovery.external-search');
             $router->get('api/v1/genealogy/discovery/search', [DiscoveryMatchController::class, 'search'])->name('genealogy.discovery.search');
             $router->get('api/v1/genealogy/discovery/duplicates', [DiscoveryMatchController::class, 'duplicates'])->name('genealogy.discovery.duplicates');
+            $router->post('api/v1/genealogy/discovery/duplicates/scan', [DiscoveryMatchController::class, 'scanDuplicates'])->name('genealogy.discovery.duplicates.scan');
             $router->get('api/v1/genealogy/discovery/paths/{from}/{to}', [DiscoveryMatchController::class, 'path'])->name('genealogy.discovery.path');
             $router->post('api/v1/genealogy/discovery/{record}/review', [DiscoveryMatchController::class, 'review'])->name('genealogy.discovery.review');
             $router->apiResource('api/v1/genealogy/discovery', DiscoveryMatchController::class)->parameters(['discovery' => 'record']);

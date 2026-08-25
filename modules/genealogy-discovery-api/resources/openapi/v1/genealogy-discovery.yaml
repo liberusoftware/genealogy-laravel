@@ -44,6 +44,12 @@ paths:
       operationId: genealogy.discovery.duplicates
       security: [{ sanctum: [] }]
       responses: { '200': { description: Duplicate candidate pairs } }
+  /api/v1/genealogy/discovery/duplicates/scan:
+    post:
+      operationId: genealogy.discovery.duplicates.scan
+      security: [{ sanctum: [] }]
+      requestBody: { required: false, content: { application/json: { schema: { type: object, properties: { threshold: { type: number, minimum: 0, maximum: 1, default: 0.7 }, limit: { type: integer, minimum: 1, maximum: 1000, default: 100 } } } } } }
+      responses: { '201': { description: Persisted duplicate discovery matches }, '422': { $ref: '#/components/responses/Problem' } }
   /api/v1/genealogy/discovery/paths/{from}/{to}:
     get:
       operationId: genealogy.discovery.relationshipPath

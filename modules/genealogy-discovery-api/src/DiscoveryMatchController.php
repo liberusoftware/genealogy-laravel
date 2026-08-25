@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Liberu\Genealogy\Discovery\Actions\CreateDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Actions\DeleteDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Actions\ReviewDiscoveryMatch;
+use Liberu\Genealogy\Discovery\Actions\ScanDuplicateCandidates;
 use Liberu\Genealogy\Discovery\Actions\UpdateDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Models\DiscoveryMatch;
 use Liberu\Genealogy\Discovery\Queries\DiscoverySearch;
@@ -104,6 +105,16 @@ final class DiscoveryMatchController
         $values = $request->validate(['limit' => ['sometimes', 'integer', 'between:1,100']]);
 
         return response()->json(['data' => $duplicates->execute($values['limit'] ?? 100)]);
+    }
+
+    public function scanDuplicates(Request $request, ScanDuplicateCandidates $scan): JsonResponse
+    {
+        $values = $request->validate([
+            'threshold' => ['sometimes', 'numeric', 'between:0,1'],
+            'limit' => ['sometimes', 'integer', 'between:1,1000'],
+        ]);
+
+        return response()->json(['data' => $scan->execute((float) ($values['threshold'] ?? 0.7), $values['limit'] ?? 100)], 201);
     }
 
     public function path(Request $request, string $from, string $to, RelationshipPath $path): JsonResponse

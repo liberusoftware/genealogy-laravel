@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the authenticated duplicate scan operation, returning persisted match identifiers and scan
+  counts.
 - Normalize paginated discovery responses to the standard data/meta envelope.
 
 ## Unreleased
