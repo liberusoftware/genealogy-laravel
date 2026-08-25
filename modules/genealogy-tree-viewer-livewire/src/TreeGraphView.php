@@ -38,6 +38,12 @@ final class TreeGraphView extends Component
         $this->data = $graph->for($person, $this->generations, $this->includeLiving, $this->view);
     }
 
+    public function navigateTo(string $personId, TreeGraph $graph): void
+    {
+        $this->personId = $personId;
+        $this->loadGraph($graph);
+    }
+
     public function setView(string $view, TreeGraph $graph): void
     {
         $this->view = $view;

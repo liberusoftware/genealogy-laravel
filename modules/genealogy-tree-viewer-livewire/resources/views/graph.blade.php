@@ -18,6 +18,15 @@
             <h2>{{ $data['root']['name'] }}</h2>
             <p>{{ count($data['ancestors']) }} ancestors, {{ count($data['descendants']) }} descendants.</p>
             <p>{{ count($data['nodes']) }} nodes, {{ count($data['edges']) }} relationships.</p>
+            <ul aria-label="Tree nodes">
+                @foreach ($data['nodes'] as $node)
+                    <li wire:key="genealogy-tree-node-{{ $node['id'] }}">
+                        <button type="button" wire:click="navigateTo('{{ $node['id'] }}')" wire:loading.attr="disabled">
+                            {{ $node['name'] }}
+                        </button>
+                    </li>
+                @endforeach
+            </ul>
         </div>
     @endif
 </div>

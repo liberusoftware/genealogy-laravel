@@ -8,6 +8,7 @@ use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\Relationships\Actions\RecordRelationship;
 use Liberu\Genealogy\TreeViewer\Actions\CreateTreeView;
 use Liberu\Genealogy\TreeViewer\Queries\TreeGraph;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -34,4 +35,21 @@ it('rejects public trees rooted at living people', function (): void {
 
     expect(fn () => (new CreateTreeView())->execute(['name' => 'Unsafe', 'root_person_id' => $living->id, 'is_public' => true]))
         ->toThrow(InvalidArgumentException::class);
+});
+
+it('navigates between graph nodes through the Livewire tree viewer', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $root = (new CreatePerson())->execute(['given_name' => 'Root', 'death_date' => '1950-01-01']);
+    $child = (new CreatePerson())->execute(['given_name' => 'Child', 'death_date' => '1980-01-01']);
+    (new RecordRelationship())->execute(['person_id' => $root->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-tree-viewer-graph')
+        ->set('personId', (string) $root->id)
+        ->call('loadGraph')
+        ->call('navigateTo', (string) $child->id)
+        ->assertSet('personId', (string) $child->id)
+        ->assertSee('Child');
 });
