@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\Actions\CreateTree;
+use Liberu\Genealogy\GenealogyCore\Actions\SetTreeOwner;
 use Liberu\Genealogy\GenealogyCore\Actions\SetTreeVisibility;
 use Liberu\Genealogy\GenealogyCore\Actions\UpdateTree;
 use Liberu\Genealogy\GenealogyCore\Events\TreeCreated;
@@ -59,6 +60,22 @@ it('changes visibility through the dedicated privacy action and emits the update
     expect($updated->is_public)->toBeTrue()
         ->and((new TreePolicy())->view(null, $updated))->toBeTrue();
     Event::assertDispatched(TreeUpdated::class);
+});
+
+it('assigns and clears tree ownership only for active team members', function (): void {
+    Event::fake();
+    $owner = User::factory()->create();
+    $successor = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $owner->id]);
+    $team->users()->attach($successor->id, ['role' => 'member', 'status' => 'active']);
+    app(TeamContext::class)->set($team->id);
+    $tree = (new CreateTree())->execute(['name' => 'Owned tree', 'user_id' => $owner->id]);
+
+    (new SetTreeOwner())->execute($tree, $successor->id);
+    expect($tree->fresh()->user_id)->toBe($successor->id);
+    (new SetTreeOwner())->execute($tree, null);
+    expect($tree->fresh()->user_id)->toBeNull();
+    Event::assertDispatched(TreeUpdated::class, 2);
 });
 
 it('keeps identifiers unique per team, stores terminology, and emits lifecycle events', function (): void {
@@ -171,6 +188,21 @@ it('exposes the core API at its documented resource path', function (): void {
         ->assertOk()
         ->assertJsonPath('data.0.type', 'genealogy-core-tree')
         ->assertJsonPath('data.0.attributes.name', 'API tree');
+});
+
+it('exposes the team-safe tree ownership API transition', function (): void {
+    $owner = User::factory()->create();
+    $successor = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $owner->id]);
+    $team->users()->attach($successor->id, ['role' => 'member', 'status' => 'active']);
+    $owner->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+    $tree = (new CreateTree())->execute(['name' => 'Ownership API', 'user_id' => $owner->id]);
+    app(TeamContext::class)->clear();
+
+    $this->actingAs($owner)->patchJson('/api/v1/genealogy/genealogy-core/'.$tree->getKey().'/owner', [
+        'user_id' => $successor->id,
+    ])->assertOk()->assertJsonPath('data.attributes.owner_id', $successor->id);
 });
 
 it('bounds and filters the core tree collection using the documented query shape', function (): void {

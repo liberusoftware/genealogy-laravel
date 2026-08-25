@@ -42,6 +42,7 @@ final class TreeResource extends Resource
             TextInput::make('status')->required()->in(['draft', 'active', 'archived']),
             Textarea::make('description')->columnSpanFull(),
             TextInput::make('root_person_id')->uuid(),
+            TextInput::make('user_id')->numeric()->label('Owner user ID'),
             Toggle::make('is_public')->default(false),
             Textarea::make('metadata')->json()->columnSpanFull(),
             Textarea::make('terminology')->json()->columnSpanFull(),

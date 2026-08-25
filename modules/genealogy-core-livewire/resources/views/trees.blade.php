@@ -23,6 +23,8 @@
                             {{ $tree->is_public ? 'Make private' : 'Make public' }}
                         </button>
                         <button type="button" wire:click="delete('{{ $tree->id }}')" wire:confirm="Delete this tree?">Delete</button>
+                        <input wire:model="ownerId" type="number" min="1" aria-label="Owner user ID">
+                        <button type="button" wire:click="setOwner('{{ $tree->id }}')">Set owner</button>
                     @endif
                 </li>
             @endforeach

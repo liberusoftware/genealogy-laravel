@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\GenealogyCore\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Genealogy\GenealogyCore\Actions\CreateTree;
 use Liberu\Genealogy\GenealogyCore\Actions\DeleteTree;
+use Liberu\Genealogy\GenealogyCore\Actions\SetTreeOwner;
 use Liberu\Genealogy\GenealogyCore\Actions\SetTreeVisibility;
 use Liberu\Genealogy\GenealogyCore\Models\Tree;
 use Liberu\Genealogy\GenealogyCore\Policies\TreePolicy;
@@ -21,6 +22,8 @@ final class TreeManager extends Component
     public string $identifier = '';
 
     public bool $isPublic = false;
+
+    public string $ownerId = '';
 
     public function create(CreateTree $createTree): void
     {
@@ -41,6 +44,16 @@ final class TreeManager extends Component
         ]);
         $this->reset('name', 'description', 'identifier', 'isPublic');
         $this->dispatch('tree-created');
+    }
+
+    public function setOwner(string $treeId, SetTreeOwner $owner): void
+    {
+        $this->validate(['ownerId' => ['nullable', 'integer', 'exists:users,id']]);
+        $tree = Tree::query()->findOrFail($treeId);
+        abort_unless((new TreePolicy())->manage(auth()->user(), $tree), 403);
+        $owner->execute($tree, $this->ownerId !== '' ? $this->ownerId : null);
+        $this->reset('ownerId');
+        $this->dispatch('tree-owner-updated');
     }
 
     public function delete(string $treeId, DeleteTree $delete): void
