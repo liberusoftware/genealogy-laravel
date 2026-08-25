@@ -23,18 +23,22 @@ final class TreeGraph
         int $generations = 3,
         bool $includeLiving = true,
         string $view = 'chart',
+        bool $includeSiblings = false,
     ): array {
         $generations = max(0, min($generations, 12));
         $view = in_array($view, ['pedigree', 'descendants', 'fan', 'chart'], true) ? $view : 'chart';
         $ancestors = $view === 'descendants' ? [] : $this->walk($root, $generations, ancestors: true, includeLiving: $includeLiving);
         $descendants = $view === 'pedigree' ? [] : $this->walk($root, $generations, ancestors: false, includeLiving: $includeLiving);
+        $siblings = $includeSiblings ? $this->siblings($root, $includeLiving) : [];
         $nodes = $this->nodes($root, $ancestors, $descendants, $includeLiving);
+        $nodes = [...$nodes, ...$siblings];
 
         return [
             'view' => $view,
             'root' => $this->person($root, $includeLiving),
             'ancestors' => $ancestors,
             'descendants' => $descendants,
+            'siblings' => $siblings,
             'nodes' => $nodes,
             'edges' => $this->edges($ancestors, $descendants),
             'navigation' => [
@@ -44,6 +48,34 @@ final class TreeGraph
                 'can_expand' => $generations < 12,
             ],
         ];
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function siblings(Person $root, bool $includeLiving): array
+    {
+        $parentIds = Relationship::query()
+            ->where('type', 'parent')
+            ->where('related_person_id', $root->getKey())
+            ->pluck('person_id');
+
+        if ($parentIds->isEmpty()) {
+            return [];
+        }
+
+        $siblingIds = Relationship::query()
+            ->where('type', 'parent')
+            ->whereIn('person_id', $parentIds)
+            ->where('related_person_id', '<>', $root->getKey())
+            ->pluck('related_person_id')
+            ->unique()
+            ->values();
+
+        return Person::query()
+            ->whereIn('id', $siblingIds)
+            ->get()
+            ->map(fn (Person $person): array => $this->person($person, $includeLiving))
+            ->values()
+            ->all();
     }
 
     /** @return list<array<string, mixed>> */

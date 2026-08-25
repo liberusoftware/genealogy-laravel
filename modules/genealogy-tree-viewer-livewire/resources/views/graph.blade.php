@@ -11,6 +11,7 @@
         <option value="fan">Fan</option>
     </select>
     <label><input type="checkbox" wire:model.live="includeLiving"> Include living people</label>
+    <label><input type="checkbox" wire:model.live="includeSiblings"> Include siblings</label>
     <button type="button" wire:click="loadGraph" wire:loading.attr="disabled">Load tree</button>
     <p id="genealogy-tree-viewer-help">Enter a person ID to inspect ancestors and descendants.</p>
     @if ($data !== [])

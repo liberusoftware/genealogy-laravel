@@ -64,6 +64,7 @@ final class TreeViewApiController
             'generations' => ['sometimes', 'integer', 'between:0,12'],
             'view' => ['sometimes', 'string', 'in:pedigree,descendants,fan,chart'],
             'include_living' => ['sometimes', 'boolean'],
+            'include_siblings' => ['sometimes', 'boolean'],
         ]);
 
         return response()->json(['data' => $graph->for(
@@ -71,6 +72,7 @@ final class TreeViewApiController
             (int) ($values['generations'] ?? 3),
             ! $tree->is_public && (bool) ($values['include_living'] ?? true),
             $values['view'] ?? 'chart',
+            (bool) ($values['include_siblings'] ?? false),
         )]);
     }
 

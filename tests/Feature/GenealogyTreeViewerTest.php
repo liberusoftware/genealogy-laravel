@@ -53,3 +53,20 @@ it('navigates between graph nodes through the Livewire tree viewer', function ()
         ->assertSet('personId', (string) $child->id)
         ->assertSee('Child');
 });
+
+it('restores optional sibling expansion from the legacy tree builder', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $parent = (new CreatePerson())->execute(['given_name' => 'Parent', 'death_date' => '1950-01-01']);
+    $root = (new CreatePerson())->execute(['given_name' => 'Root', 'death_date' => '1980-01-01']);
+    $sibling = (new CreatePerson())->execute(['given_name' => 'Sibling', 'death_date' => '1985-01-01']);
+    (new RecordRelationship())->execute(['person_id' => $parent->id, 'related_person_id' => $root->id, 'type' => 'parent']);
+    (new RecordRelationship())->execute(['person_id' => $parent->id, 'related_person_id' => $sibling->id, 'type' => 'parent']);
+
+    $graph = (new TreeGraph())->for($root, 3, true, 'chart', true);
+
+    expect($graph['siblings'])->toHaveCount(1)
+        ->and($graph['siblings'][0]['name'])->toBe('Sibling')
+        ->and($graph['nodes'])->toContainEqual($graph['siblings'][0]);
+});
