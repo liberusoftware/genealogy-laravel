@@ -18,6 +18,8 @@ final class TreeManager extends Component
 
     public string $description = '';
 
+    public string $identifier = '';
+
     public bool $isPublic = false;
 
     public function create(CreateTree $createTree): void
@@ -25,6 +27,7 @@ final class TreeManager extends Component
         $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'identifier' => ['nullable', 'string', 'alpha_dash', 'max:100'],
             'isPublic' => ['boolean'],
         ]);
 
@@ -32,10 +35,11 @@ final class TreeManager extends Component
         $createTree->execute([
             'name' => $this->name,
             'description' => $this->description,
+            'identifier' => $this->identifier !== '' ? $this->identifier : null,
             'is_public' => $this->isPublic,
             'user_id' => auth()->id(),
         ]);
-        $this->reset('name', 'description', 'isPublic');
+        $this->reset('name', 'description', 'identifier', 'isPublic');
         $this->dispatch('tree-created');
     }
 

@@ -38,11 +38,13 @@ final class TreeResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
+            TextInput::make('identifier')->alphaDash()->maxLength(100),
             TextInput::make('status')->required()->in(['draft', 'active', 'archived']),
             Textarea::make('description')->columnSpanFull(),
             TextInput::make('root_person_id')->uuid(),
             Toggle::make('is_public')->default(false),
             Textarea::make('metadata')->json()->columnSpanFull(),
+            Textarea::make('terminology')->json()->columnSpanFull(),
         ]);
     }
 

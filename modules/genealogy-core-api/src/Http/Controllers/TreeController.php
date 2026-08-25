@@ -19,6 +19,12 @@ final class TreeController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'status' => ['sometimes', 'string', 'in:draft,active,archived'],
+            'search' => ['sometimes', 'string', 'max:100'],
+        ]);
         $actor = $request->user();
         $query = Tree::query()->latest('created_at');
 
@@ -30,7 +36,15 @@ final class TreeController extends Controller
             });
         }
 
-        $trees = $query->paginate(25);
+        if (isset($values['status'])) {
+            $query->where('status', $values['status']);
+        }
+
+        if (isset($values['search'])) {
+            $query->where('name', 'like', '%'.addcslashes($values['search'], '%_').'%');
+        }
+
+        $trees = $query->paginate($values['page']['size'] ?? 25);
 
         return response()->json([
             'data' => $trees->getCollection()
@@ -61,8 +75,9 @@ final class TreeController extends Controller
             'root_person_id' => ['nullable', 'uuid'],
             'is_public' => ['sometimes', 'boolean'],
             'metadata' => ['nullable', 'array'],
-            'identifier' => ['nullable', 'string', 'max:100'],
+            'identifier' => ['nullable', 'string', 'alpha_dash', 'max:100'],
             'terminology' => ['nullable', 'array'],
+            'terminology.*' => ['string', 'max:100'],
         ]);
         $attributes['user_id'] = $request->user()->getAuthIdentifier();
 
@@ -79,8 +94,9 @@ final class TreeController extends Controller
             'root_person_id' => ['nullable', 'uuid'],
             'is_public' => ['sometimes', 'boolean'],
             'metadata' => ['nullable', 'array'],
-            'identifier' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'identifier' => ['sometimes', 'nullable', 'string', 'alpha_dash', 'max:100'],
             'terminology' => ['sometimes', 'nullable', 'array'],
+            'terminology.*' => ['string', 'max:100'],
         ]);
 
         return new TreeResource($updateTree->execute($tree, $attributes));

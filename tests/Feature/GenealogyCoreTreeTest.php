@@ -172,3 +172,22 @@ it('exposes the core API at its documented resource path', function (): void {
         ->assertJsonPath('data.0.type', 'genealogy-core-tree')
         ->assertJsonPath('data.0.attributes.name', 'API tree');
 });
+
+it('bounds and filters the core tree collection using the documented query shape', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    app(CreateTree::class)->execute(['name' => 'Filtered tree', 'status' => 'active', 'is_public' => true, 'user_id' => $user->id]);
+    app(CreateTree::class)->execute(['name' => 'Other tree', 'status' => 'draft', 'is_public' => true, 'user_id' => $user->id]);
+    app(TeamContext::class)->clear();
+
+    $this->getJson('/api/v1/genealogy/genealogy-core/?page%5Bsize%5D=1&status=active&search=Filtered')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.attributes.name', 'Filtered tree')
+        ->assertJsonPath('meta.per_page', 1);
+
+    $this->getJson('/api/v1/genealogy/genealogy-core/?page%5Bsize%5D=101')
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['page.size']);
+});
