@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Relationships;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Liberu\Genealogy\GenealogyCore\Contracts\ParentGraphReader;
 use Liberu\Genealogy\GenealogyCore\Policies\TeamOwnedPolicy;
+use Liberu\Genealogy\People\Events\PersonMerged;
+use Liberu\Genealogy\Relationships\Listeners\ReconcilePersonMerge;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\ParentGraph;
 
@@ -17,6 +20,7 @@ final class RelationshipsServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Gate::policy(Relationship::class, TeamOwnedPolicy::class);
+        Event::listen(PersonMerged::class, ReconcilePersonMerge::class);
     }
 
     public function register(): void

@@ -15,6 +15,7 @@ use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
 use Liberu\Genealogy\People\Events\MergeCandidateReviewed;
 use Liberu\Genealogy\People\Events\PersonDeleted;
+use Liberu\Genealogy\People\Events\PersonMerged;
 use Liberu\Genealogy\People\Events\PersonUpdated;
 use Liberu\Genealogy\People\Models\MergeCandidate;
 use Liberu\Genealogy\People\Models\PersonIdentity;
@@ -81,12 +82,18 @@ it('reviews merge candidates through an explicit lifecycle action', function ():
         'candidate_person_id' => $candidate->id,
         'score' => 0.8,
     ]);
+    (new CreatePersonName())->execute(['person_id' => $candidate->id, 'given_name' => 'Two', 'family_name' => 'Alternate']);
+    (new CreatePersonIdentity())->execute(['person_id' => $candidate->id, 'type' => 'archive', 'value' => 'T-2']);
 
     (new ReviewMergeCandidate())->execute($merge, 'accepted', 'Same family record.');
 
     expect($merge->fresh()->status)->toBe('accepted')
-        ->and($merge->fresh()->reviewed_at)->not->toBeNull();
+        ->and($merge->fresh()->reviewed_at)->not->toBeNull()
+        ->and($candidate->fresh()->trashed())->toBeTrue()
+        ->and($person->names()->where('family_name', 'Alternate')->exists())->toBeTrue()
+        ->and($person->identities()->where('value', 'T-2')->exists())->toBeTrue();
     Event::assertDispatched(MergeCandidateReviewed::class);
+    Event::assertDispatched(PersonMerged::class, fn (PersonMerged $event): bool => $event->primary->is($person) && $event->duplicateId === (string) $candidate->id);
 });
 
 it('publishes person update and deletion events after transactional mutations', function (): void {
