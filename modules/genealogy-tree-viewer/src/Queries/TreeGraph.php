@@ -110,7 +110,7 @@ final class TreeGraph
                 $visited[(string) $person->getKey()] = true;
                 $next->push($person);
                 $result[] = [
-                    'person' => $this->person($person),
+                    'person' => $this->person($person, $includeLiving),
                     'generation' => $depth,
                     'relationship_id' => (string) $edge->getKey(),
                     'confidence' => (int) $edge->confidence,
