@@ -15,7 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Liberu\Genealogy\Evidence\Actions\DeleteEvidenceEntity;
 
-abstract class EvidenceEntityResource extends Resource
+class EvidenceEntityResource extends Resource
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
