@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Dna\Actions;
 
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\Dna\Services\CompareDnaKits;
@@ -20,7 +21,19 @@ final class PersistDnaComparison
     /** @return array<string, mixed> */
     public function execute(DnaKit $kitA, DnaKit $kitB): array
     {
-        $result = $this->compare->execute($kitA, $kitB);
+        try {
+            $result = $this->compare->execute($kitA, $kitB);
+        } catch (InvalidArgumentException $exception) {
+            if (! str_contains($exception->getMessage(), 'readable genotype')) {
+                throw $exception;
+            }
+
+            return [
+                'comparison_performed' => false,
+                'skipped_reason' => 'unreadable_genotype_data',
+                'persisted_match_ids' => [],
+            ];
+        }
         $segments = is_array($result['shared_segments'] ?? null) ? $result['shared_segments'] : [];
 
         $matches = DB::transaction(function () use ($kitA, $kitB, $result, $segments): array {

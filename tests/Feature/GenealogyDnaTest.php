@@ -154,6 +154,21 @@ it('imports raw DNA encrypted at rest and removes the vault entry on kit deletio
     Storage::disk('private')->assertMissing($kit->file_path);
 });
 
+it('does not persist a DNA match when genotype data is unreadable', function (): void {
+    Storage::fake('private');
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $kitA = app(CreateDnaKit::class)->execute(['name' => 'Unreadable A', 'file_path' => 'missing-a', 'consent_status' => 'granted']);
+    $kitB = app(CreateDnaKit::class)->execute(['name' => 'Unreadable B', 'file_path' => 'missing-b', 'consent_status' => 'granted']);
+
+    $result = app(PersistDnaComparison::class)->execute($kitA, $kitB);
+
+    expect($result['comparison_performed'])->toBeFalse()
+        ->and($result['skipped_reason'])->toBe('unreadable_genotype_data')
+        ->and(DnaMatch::query()->count())->toBe(0);
+});
+
 it('returns bounded DNA group resource envelopes through the API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
