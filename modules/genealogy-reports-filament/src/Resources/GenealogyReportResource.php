@@ -46,7 +46,18 @@ final class GenealogyReportResource extends Resource
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
-            Action::make('generate')->requiresConfirmation()->action(fn (GenealogyReport $record): GenealogyReport => app(GenerateGenealogyReport::class)->execute($record)),
+            Action::make('generate')
+                ->form([
+                    Select::make('format')->options([
+                        'json' => 'JSON',
+                        'csv' => 'CSV',
+                        'gedcom' => 'GEDCOM',
+                        'svg' => 'SVG',
+                    ])->default('json')->required(),
+                    TextInput::make('root_person_id')->label('Root person ID')->uuid(),
+                ])
+                ->requiresConfirmation()
+                ->action(fn (GenealogyReport $record, array $data): GenealogyReport => app(GenerateGenealogyReport::class)->execute($record, array_filter($data))),
             EditAction::make(),
             DeleteAction::make()->action(fn (Model $record): mixed => app(DeleteGenealogyReport::class)->execute($record)),
         ]);
