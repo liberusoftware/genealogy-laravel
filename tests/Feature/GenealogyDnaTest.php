@@ -120,6 +120,22 @@ it('imports raw DNA encrypted at rest and removes the vault entry on kit deletio
         'kit_b' => $kitB->getKey(),
     ])->assertOk()->assertJsonPath('data.comparison_performed', true);
 
+    app(TeamContext::class)->set($team->getKey());
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-list')
+        ->set('name', 'Livewire imported kit')
+        ->set('content', $content)
+        ->call('import')
+        ->assertDispatched('genealogy-dna-kit-imported');
+    app(TeamContext::class)->set($team->getKey());
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-kit-comparison')
+        ->set('kitA', $kitA->getKey())
+        ->set('kitB', $kitB->getKey())
+        ->call('compare')
+        ->assertDispatched('genealogy-dna-kits-compared')
+        ->assertSee('Distant Cousin');
+
     $this->actingAs($user)->postJson('/api/v1/genealogy/dna/kits/import', [
         'content' => $content,
         'name' => 'API encrypted import',
