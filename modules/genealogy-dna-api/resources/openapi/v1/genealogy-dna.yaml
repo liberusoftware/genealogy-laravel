@@ -34,6 +34,8 @@ paths:
     post: {operationId: genealogy.dna.matches.analyze, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnalyzeInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/matches/compare:
     post: {operationId: genealogy.dna.matches.compare, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CompareInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/matches/compare-and-persist:
+    post: {operationId: genealogy.dna.matches.compare-and-persist, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CompareInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/matches/triangulate:
     post: {operationId: genealogy.dna.matches.triangulate, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TriangulateInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/matches/{record}:

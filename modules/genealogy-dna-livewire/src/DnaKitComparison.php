@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Dna\Livewire;
 
+use Liberu\Genealogy\Dna\Actions\PersistDnaComparison;
 use Liberu\Genealogy\Dna\Models\DnaKit;
-use Liberu\Genealogy\Dna\Services\CompareDnaKits;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Livewire\Component;
 
@@ -18,7 +18,7 @@ final class DnaKitComparison extends Component
     /** @var array<string, mixed>|null */
     public ?array $result = null;
 
-    public function compare(CompareDnaKits $compare): void
+    public function compare(PersistDnaComparison $compare): void
     {
         abort_unless(auth()->check(), 403);
         $values = $this->validate([

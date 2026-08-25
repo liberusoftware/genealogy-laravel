@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Persist consent-gated stored-kit comparisons as reciprocal DNA matches with shared segments,
+  preserving idempotency for repeated matching runs.
 - Add tenant-scoped DNA provider registry with lifecycle actions and kit references.
 - Restore encrypted raw-DNA import storage, metadata, and cleanup through the module boundary.
 - Restore consent-gated comparison of encrypted imported kits through the provider-neutral matching pipeline.

@@ -21,6 +21,7 @@ use Liberu\Genealogy\Dna\Actions\DeleteDnaRelationship;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaSegment;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\ImportDnaKit;
+use Liberu\Genealogy\Dna\Actions\PersistDnaComparison;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
@@ -119,6 +120,13 @@ it('imports raw DNA encrypted at rest and removes the vault entry on kit deletio
         'kit_a' => $kitA->getKey(),
         'kit_b' => $kitB->getKey(),
     ])->assertOk()->assertJsonPath('data.comparison_performed', true);
+
+    $persisted = app(TeamContext::class)->run($team->getKey(), fn (): array => app(PersistDnaComparison::class)->execute($kitA, $kitB));
+    $persistedMatchCount = app(TeamContext::class)->run($team->getKey(), fn (): int => DnaMatch::query()
+        ->whereIn('external_id', ['kit:'.$kitA->getKey(), 'kit:'.$kitB->getKey()])
+        ->count());
+    expect($persisted['persisted_match_ids'])->toHaveCount(2)
+        ->and($persistedMatchCount)->toBe(2);
 
     app(TeamContext::class)->set($team->getKey());
     Livewire::actingAs($user)

@@ -10,6 +10,7 @@ use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\CreateDnaSegment;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaSegment;
+use Liberu\Genealogy\Dna\Actions\PersistDnaComparison;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaSegment;
 use Liberu\Genealogy\Dna\Models\DnaKit;
@@ -60,6 +61,18 @@ final class DnaMatchController
         $kitB = DnaKit::query()->findOrFail($values['kit_b']);
 
         return response()->json(['data' => $compare->execute($kitA, $kitB)]);
+    }
+
+    public function compareAndPersist(Request $request, PersistDnaComparison $compare): JsonResponse
+    {
+        $values = $request->validate([
+            'kit_a' => ['required', 'uuid', 'different:kit_b'],
+            'kit_b' => ['required', 'uuid'],
+        ]);
+        $kitA = DnaKit::query()->findOrFail($values['kit_a']);
+        $kitB = DnaKit::query()->findOrFail($values['kit_b']);
+
+        return response()->json(['data' => $compare->execute($kitA, $kitB)], 201);
     }
 
     public function triangulate(Request $request, TriangulateDna $triangulator): JsonResponse

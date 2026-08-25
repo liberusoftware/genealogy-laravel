@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add the consent-gated compare-and-persist operation for reciprocal DNA matches and segments.
 - Add authenticated provider CRUD endpoints and provider references on kit resources.
 - Add authenticated DNA kit import with encrypted-at-rest raw content handling.
 - Add consent-gated stored-kit comparison to the DNA match API.
