@@ -114,6 +114,46 @@ it('does not expose direct invitation editing in the Filament adapter', function
         ->not->toHaveKey('edit');
 });
 
+it('runs invitation lifecycle mutations through the Livewire action boundary', function (): void {
+    $owner = User::factory()->create();
+    $invitee = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $owner->id]);
+    $owner->forceFill(['current_team_id' => $team->getKey()])->save();
+    $invitee->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->getKey());
+
+    Livewire::actingAs($owner)
+        ->test('genealogy-collaboration-invitation-list')
+        ->set('email', $invitee->email)
+        ->set('role', 'reviewer')
+        ->call('invite')
+        ->assertDispatched('collaboration-invitation-created');
+
+    $invitation = CollaborationInvitation::query()->firstOrFail();
+    expect($invitation->email)->toBe(mb_strtolower($invitee->email))
+        ->and($invitation->status)->toBe('pending');
+
+    app(TeamContext::class)->set($team->getKey());
+    Livewire::actingAs($owner)
+        ->test('genealogy-collaboration-invitation-list')
+        ->call('revoke', (string) $invitation->getKey())
+        ->assertDispatched('collaboration-invitation-revoked');
+    expect($invitation->refresh()->status)->toBe('revoked');
+
+    app(TeamContext::class)->set($team->getKey());
+    $pending = app(InviteCollaborationMember::class)->execute([
+        'email' => $invitee->email,
+        'role' => 'viewer',
+    ]);
+    app(TeamContext::class)->set($team->getKey());
+    Livewire::actingAs($invitee)
+        ->test('genealogy-collaboration-invitation-list')
+        ->call('accept', (string) $pending->getKey())
+        ->assertDispatched('collaboration-invitation-accepted');
+
+    expect($pending->refresh()->status)->toBe('accepted');
+});
+
 it('exposes collaboration workflow operations through the authenticated API', function (): void {
     $owner = User::factory()->create();
     $member = User::factory()->create();
