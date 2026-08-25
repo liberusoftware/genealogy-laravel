@@ -12,6 +12,14 @@ updated-person snapshots, and new relationship identifiers in transfer metadata.
 matching API, Filament, or Livewire action to restore updated people and remove records created by
 that import. The transfer becomes `rolled_back`; expired or already undone transfers fail safely.
 
+## Export lifecycle
+
+`ExportGenealogyData` is the authoritative export boundary for GEDCOM 5.5.1 and GRAMPS XML.
+It requires the active team context, serializes only that team's people and relationships, and
+records an `export` transfer. Completed transfers include the record count, byte count, SHA-256
+checksum, and completion timestamp; serializer failures leave the transfer marked `failed` with
+an operator-safe error summary. API, Filament, and Livewire downloads all delegate to this action.
+
 - Composer package: `liberusoftware/module-genealogy-import-export`
 - Module installer name: `genealogy-import-export`
 - Category: capability

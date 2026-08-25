@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\ImportExport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Liberu\Genealogy\GenealogyCore\Policies\TeamOwnedPolicy;
+use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
 use Liberu\Genealogy\ImportExport\Exporters\GrampsExporter;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyDocumentParser;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
@@ -26,6 +27,7 @@ final class ImportExportServiceProvider extends ServiceProvider
         $this->app->singleton(GenealogyDocumentParser::class);
         $this->app->singleton(GenealogyImportService::class);
         $this->app->singleton(GrampsExporter::class);
+        $this->app->singleton(GedcomExporter::class);
         $this->app->singleton(Capability::class, fn (): Capability => new Capability(
             'genealogy-import-export',
             'Genealogy Import Export',

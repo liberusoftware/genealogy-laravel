@@ -17,7 +17,7 @@ paths:
   /api/v1/genealogy/import-export/import:
     post: {operationId: genealogy.importExport.import, security: [{sanctum: []}], requestBody: {$ref: '#/components/requestBodies/ImportPayload'}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/import-export/export:
-    get: {operationId: genealogy.importExport.export, security: [{sanctum: []}], parameters: [{name: format, in: query, schema: {type: string, enum: [gedcom, gramps-xml], default: gedcom}}], responses: {'200': {description: Genealogy export download, content: {text/plain: {schema: {type: string}}}}}}
+    get: {operationId: genealogy.importExport.export, security: [{sanctum: []}], parameters: [{name: format, in: query, schema: {type: string, enum: [gedcom, gramps-xml], default: gedcom}}, {name: name, in: query, schema: {type: string, maxLength: 255}}], responses: {'200': {description: Genealogy export download, headers: {X-Data-Transfer-ID: {schema: {type: string, format: uuid}}, X-Data-Transfer-Status: {schema: {type: string, const: completed}}}, content: {text/plain: {schema: {type: string}}, application/xml: {schema: {type: string}}}}}}
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   parameters:

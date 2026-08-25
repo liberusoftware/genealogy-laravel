@@ -9,14 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
 use Liberu\Genealogy\ImportExport\Actions\DeleteDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\ExportGenealogyData;
 use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
 use Liberu\Genealogy\ImportExport\Actions\UpdateDataTransfer;
-use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
-use Liberu\Genealogy\ImportExport\Exporters\GrampsExporter;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
-use Liberu\Genealogy\People\Models\Person;
-use Liberu\Genealogy\Relationships\Models\Relationship;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DataTransferController
@@ -68,20 +65,18 @@ final class DataTransferController
         return response()->json(['data' => $result, 'transfer' => $this->resource($transfer->refresh())], 201);
     }
 
-    public function export(Request $request, GedcomExporter $gedcom, GrampsExporter $gramps): StreamedResponse
+    public function export(Request $request, ExportGenealogyData $export): StreamedResponse
     {
         $format = $request->validate(['format' => ['sometimes', 'in:gedcom,gramps-xml']])['format'] ?? 'gedcom';
-        $exporter = $format === 'gramps-xml' ? $gramps : $gedcom;
+        $result = $export->execute($format, (string) $request->input('name', 'Genealogy export'));
 
-        $isGramps = $format === 'gramps-xml';
-        $filename = $isGramps ? 'genealogy.gramps.xml' : 'genealogy.ged';
-        $contentType = $isGramps ? 'application/xml; charset=UTF-8' : 'text/plain; charset=UTF-8';
-        $people = Person::query()->latest()->get();
-        $relationships = Relationship::query()->latest()->get();
-
-        return response()->streamDownload(function () use ($exporter, $people, $relationships): void {
-            echo $exporter->export($people, $relationships);
-        }, $filename, ['Content-Type' => $contentType]);
+        return response()->streamDownload(static function () use ($result): void {
+            echo $result->content;
+        }, $result->filename, [
+            'Content-Type' => $result->contentType,
+            'X-Data-Transfer-ID' => (string) $result->transfer->getKey(),
+            'X-Data-Transfer-Status' => $result->transfer->status,
+        ]);
     }
 
     public function undo(DataTransfer $record, UndoDataTransfer $undo): JsonResponse
