@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Media\Actions;
 
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Media\Contracts\TranscriptionProvider;
 use Liberu\Genealogy\Media\Models\MediaAsset;
 
@@ -15,6 +17,10 @@ final class TranscribeMediaAsset
     /** @return array{available: bool, success: bool, status: string, text: ?string, confidence: ?float, language: ?string, error: ?string} */
     public function execute(MediaAsset $asset): array
     {
+        if ((string) $asset->team_id !== app(TeamContext::class)->require()) {
+            throw new InvalidArgumentException('The media asset must belong to the active team.');
+        }
+
         if ($this->provider === null || ! $this->provider->isAvailable()) {
             return ['available' => false, 'success' => false, 'status' => 'not_started', 'text' => null, 'confidence' => null, 'language' => null, 'error' => 'Transcription is not configured.'];
         }
