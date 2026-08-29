@@ -16,6 +16,7 @@ use Liberu\Genealogy\Research\Events\ResearchEntryDeleted;
 use Liberu\Genealogy\Research\Events\ResearchEntryUpdated;
 use Liberu\Genealogy\Research\Livewire\ResearchEntryList;
 use Liberu\Genealogy\Research\Models\ResearchEntry;
+use Liberu\Genealogy\Research\Models\ResearchProject;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -114,4 +115,29 @@ it('rejects unsupported research entry statuses in the Livewire editor', functio
         ->set('status', 'unsupported')
         ->call('save')
         ->assertHasErrors(['status']);
+});
+
+it('supports research project creation and editing through the Livewire editor', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-research-project-editor')
+        ->set('name', 'Archive project')
+        ->set('status', 'active')
+        ->call('save')
+        ->assertDispatched('research-project-created');
+
+    $project = ResearchProject::query()->firstOrFail();
+    expect($project->name)->toBe('Archive project')->and($project->status)->toBe('active');
+
+    Livewire::actingAs($user)
+        ->test('genealogy-research-project-editor', ['projectId' => $project->getKey()])
+        ->set('name', 'Archived project')
+        ->set('status', 'archived')
+        ->call('save')
+        ->assertDispatched('research-project-updated');
+
+    expect($project->refresh()->name)->toBe('Archived project')->and($project->status)->toBe('archived');
 });
