@@ -22,7 +22,7 @@ final class BuildGenealogyReport
             'sources' => ['sources' => $this->rows('genealogy_evidence_sources', $teamId, ['id', 'name', 'record_type', 'url'])],
             'research' => $this->research($teamId),
             'timeline' => ['events' => $this->rows('timeline_events', $teamId, ['id', 'name', 'kind', 'subject_person_id', 'event_date', 'description'])],
-            default => $this->peopleGraph($teamId, $parameters),
+            default => $this->peopleGraph($teamId, $parameters, $type),
         };
 
         $content = match ($format) {
@@ -55,7 +55,7 @@ final class BuildGenealogyReport
     }
 
     /** @return array<string, mixed> */
-    private function peopleGraph(string $teamId, array $parameters): array
+    private function peopleGraph(string $teamId, array $parameters, string $type): array
     {
         $people = $this->rows('genealogy_people', $teamId, ['id', 'given_name', 'family_name', 'display_name', 'birth_date', 'death_date']);
         $relationships = $this->rows('genealogy_relationships', $teamId, ['id', 'person_id', 'related_person_id', 'type', 'confidence']);
@@ -70,10 +70,12 @@ final class BuildGenealogyReport
                     if ($relationship['type'] !== 'parent') {
                         continue;
                     }
-                    if (in_array($relationship['person_id'], $frontier, true)) {
-                        $id = (string) $relationship['related_person_id'];
-                    } elseif (in_array($relationship['related_person_id'], $frontier, true)) {
+                    $ancestorsOnly = $type === 'pedigree';
+                    $descendantsOnly = $type === 'descendants';
+                    if (! $descendantsOnly && in_array($relationship['related_person_id'], $frontier, true)) {
                         $id = (string) $relationship['person_id'];
+                    } elseif (! $ancestorsOnly && in_array($relationship['person_id'], $frontier, true)) {
+                        $id = (string) $relationship['related_person_id'];
                     } else {
                         continue;
                     }

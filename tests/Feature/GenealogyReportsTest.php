@@ -63,6 +63,28 @@ it('generates structured and exportable report output from the active team graph
         ->and($generated->generated_output['content'])->toContain('Parent');
 });
 
+it('limits pedigree and descendant reports to their requested direction', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $parent = app(CreatePerson::class)->execute(['given_name' => 'Parent']);
+    $root = app(CreatePerson::class)->execute(['given_name' => 'Root']);
+    $child = app(CreatePerson::class)->execute(['given_name' => 'Child']);
+    app(CreateRelationship::class)->execute(['person_id' => $parent->id, 'related_person_id' => $root->id, 'type' => 'parent']);
+    app(CreateRelationship::class)->execute(['person_id' => $root->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+
+    $pedigree = (new CreateGenealogyReport())->execute(['name' => 'Pedigree', 'type' => 'pedigree']);
+    $descendants = (new CreateGenealogyReport())->execute(['name' => 'Descendants', 'type' => 'descendants']);
+    (new GenerateGenealogyReport())->execute($pedigree, ['root_person_id' => $root->id]);
+    (new GenerateGenealogyReport())->execute($descendants, ['root_person_id' => $root->id]);
+
+    $pedigreeIds = collect($pedigree->fresh()->generated_output['content']['people'])->pluck('id')->all();
+    $descendantIds = collect($descendants->fresh()->generated_output['content']['people'])->pluck('id')->all();
+
+    expect($pedigreeIds)->toContain($parent->id)->not->toContain($child->id)
+        ->and($descendantIds)->toContain($child->id)->not->toContain($parent->id);
+});
+
 it('validates report generation inputs through the Livewire presentation surface', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
