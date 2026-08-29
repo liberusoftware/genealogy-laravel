@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Media\Actions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Media\Models\MediaAsset;
 use Throwable;
 
@@ -15,6 +16,10 @@ final class StoreMediaUpload
     /** @param array<string, mixed> $attributes */
     public function execute(UploadedFile $file, array $attributes = []): MediaAsset
     {
+        // Resolve tenant context before writing bytes so a missing context
+        // cannot leave an orphaned upload behind when asset creation fails.
+        app(TeamContext::class)->require();
+
         $disk = (string) ($attributes['storage_disk'] ?? config('filesystems.default', 'local'));
         $directory = trim((string) ($attributes['storage_directory'] ?? 'genealogy-media'), '/');
         $filesystem = Storage::disk($disk);
