@@ -56,7 +56,7 @@ final class DnaKitController
             'content' => ['required', 'string', 'max:104857600'],
             'name' => ['required', 'string', 'max:255'],
             'provider' => ['nullable', 'string', 'max:100'],
-            'provider_id' => ['nullable', 'uuid'],
+            'provider_id' => ['nullable', 'uuid', Rule::exists('genealogy_dna_providers', 'id')->where('team_id', app(TeamContext::class)->require())],
             'external_id' => ['nullable', 'string', 'max:255'],
             'person_id' => ['nullable', 'uuid'],
             'test_type' => ['nullable', 'string', 'max:100'],
