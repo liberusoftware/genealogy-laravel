@@ -22,7 +22,7 @@ final class UpdatePlace
         if (array_key_exists('name', $values)) {
             $values['name'] = trim((string) $values['name']);
         }
-        $parentId = $values['parent_id'] ?? $place->parent_id;
+        $parentId = array_key_exists('parent_id', $values) ? $values['parent_id'] : $place->parent_id;
         $this->assertParentChainIsValid($place, $parentId);
         (new CreatePlace())->validate(array_merge($place->toArray(), $values));
         $place->getConnection()->transaction(function () use ($place, $values): void {

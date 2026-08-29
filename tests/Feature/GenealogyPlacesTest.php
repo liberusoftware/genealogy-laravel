@@ -52,6 +52,17 @@ it('records tenant-owned places with hierarchy and coordinates', function (): vo
     Event::assertDispatched(PlaceCreated::class);
 });
 
+it('allows an existing place parent to be cleared', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $parent = (new CreatePlace())->execute(['name' => 'Parent']);
+    $child = (new CreatePlace())->execute(['name' => 'Child', 'parent_id' => $parent->getKey()]);
+
+    $updated = (new UpdatePlace())->execute($child, ['parent_id' => null]);
+
+    expect($updated->parent_id)->toBeNull();
+});
+
 it('rejects invalid place state and hierarchy cycles', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
