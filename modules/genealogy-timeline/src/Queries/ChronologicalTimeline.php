@@ -15,10 +15,20 @@ final class ChronologicalTimeline
             ->when($subjectPersonId !== null, fn ($query) => $query->where('subject_person_id', $subjectPersonId))
             ->when($familyKey !== null, fn ($query) => $query->where('family_key', $familyKey))
             ->when($from !== null, fn ($query) => $query->where(function ($query) use ($from): void {
-                $query->where('date_end', '>=', $from)->orWhere('event_date', '>=', $from);
+                $query->where('date_end', '>=', $from)
+                    ->orWhere('event_date', '>=', $from)
+                    ->orWhere('date_start', '>=', $from)
+                    ->orWhere(fn ($openEnded) => $openEnded
+                        ->whereNull('date_end')
+                        ->whereNotNull('date_start'));
             }))
             ->when($to !== null, fn ($query) => $query->where(function ($query) use ($to): void {
-                $query->where('date_start', '<=', $to)->orWhere('event_date', '<=', $to);
+                $query->where('date_start', '<=', $to)
+                    ->orWhere('event_date', '<=', $to)
+                    ->orWhere('date_end', '<=', $to)
+                    ->orWhere(fn ($openEnded) => $openEnded
+                        ->whereNull('date_start')
+                        ->whereNotNull('date_end'));
             }))
             ->when(! $includePrivate, fn ($query) => $query->where('is_private', false))
             ->orderByRaw('COALESCE(event_date, date_start, date_end) asc')

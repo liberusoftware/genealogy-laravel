@@ -109,6 +109,15 @@ it('supports tenant-scoped collaboration invitations, roles, discussions, watche
         ->and(CollaborationInvitation::query()->count())->toBe(1);
 });
 
+it('rejects incomplete collaboration attribution records', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(RecordCollaborationAttribution::class)->execute('discussion', 'record-1', '  '))
+        ->toThrow(InvalidArgumentException::class, 'required');
+});
+
 it('does not expose direct invitation editing in the Filament adapter', function (): void {
     expect(CollaborationInvitationResource::getPages())->toHaveKeys(['index', 'create'])
         ->not->toHaveKey('edit');
@@ -193,4 +202,24 @@ it('keeps collaboration space CRUD mutations behind tenant-safe actions', functi
 
     expect($space->refresh()->name)->toBe('Updated space')
         ->and(CollaborationSpace::query()->find($space->getKey()))->toBeNull();
+});
+
+it('validates and normalizes collaboration spaces at both mutation boundaries', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(CreateCollaborationSpace::class)->execute(['name' => '   ']))
+        ->toThrow(InvalidArgumentException::class, 'name is required');
+
+    $space = app(CreateCollaborationSpace::class)->execute(['name' => '  Research space  ']);
+    expect($space->name)->toBe('Research space');
+
+    expect(fn () => app(CreateCollaborationSpace::class)->execute(['name' => 'Space', 'status' => 'invalid']))
+        ->toThrow(InvalidArgumentException::class, 'status is invalid');
+    expect(fn () => app(UpdateCollaborationSpace::class)->execute($space, ['status' => 'invalid']))
+        ->toThrow(InvalidArgumentException::class, 'status is invalid');
+
+    expect(app(UpdateCollaborationSpace::class)->execute($space, ['name' => '  Updated space  '])->name)
+        ->toBe('Updated space');
 });

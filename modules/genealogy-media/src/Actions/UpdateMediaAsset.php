@@ -20,6 +20,9 @@ final class UpdateMediaAsset
         }
         $values = Arr::only($attributes, ['kind', 'name', 'storage_disk', 'storage_path', 'mime_type', 'byte_size', 'checksum', 'captured_at', 'captured_place_id', 'transcription', 'transcription_status', 'transcription_language', 'rights_holder', 'rights_status', 'license_url', 'rights_expires_at', 'is_public', 'preservation_metadata', 'status', 'metadata']);
         (new CreateMediaAsset())->validate(array_merge($asset->toArray(), $values));
+        if (array_key_exists('name', $values)) {
+            $values['name'] = trim((string) $values['name']);
+        }
         $asset->getConnection()->transaction(function () use ($asset, $values): void {
             $asset->update($values);
         });

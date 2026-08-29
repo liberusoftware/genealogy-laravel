@@ -17,6 +17,7 @@ final class CreatePlaceName
     {
         $values = Arr::only($attributes, ['place_id', 'name', 'type', 'locale', 'valid_from', 'valid_to', 'metadata']);
         $this->validate($values);
+        $values['name'] = trim((string) $values['name']);
 
         $model = PlaceName::query()->getModel();
         $schema = $model->getConnection()->getSchemaBuilder();

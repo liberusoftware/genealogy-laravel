@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Dna\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Liberu\Genealogy\Dna\Actions\CreateDnaMatch;
 use Liberu\Genealogy\Dna\Actions\CreateDnaSegment;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaMatch;
@@ -19,6 +20,7 @@ use Liberu\Genealogy\Dna\Models\DnaSegment;
 use Liberu\Genealogy\Dna\Services\AnalyzeDnaMatch;
 use Liberu\Genealogy\Dna\Services\CompareDnaKits;
 use Liberu\Genealogy\Dna\Services\TriangulateDna;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 
 final class DnaMatchController
 {
@@ -35,7 +37,7 @@ final class DnaMatchController
 
     public function store(Request $request, CreateDnaMatch $create): JsonResponse
     {
-        $values = $request->validate(['kit_id' => ['required', 'uuid'], 'external_id' => ['required', 'string', 'max:255'], 'display_name' => ['nullable', 'string', 'max:255'], 'predicted_relationship' => ['nullable', 'string', 'max:100'], 'confidence' => ['nullable', 'integer', 'between:0,100'], 'total_cm' => ['nullable', 'numeric', 'min:0'], 'shared_segments' => ['nullable', 'integer', 'min:0'], 'status' => ['sometimes', 'string', 'max:50'], 'is_private' => ['sometimes', 'boolean'], 'notes' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
+        $values = $request->validate(['kit_id' => ['required', 'uuid', Rule::exists('genealogy_dna_kits', 'id')->where('team_id', app(TeamContext::class)->require())], 'external_id' => ['required', 'string', 'max:255'], 'display_name' => ['nullable', 'string', 'max:255'], 'predicted_relationship' => ['nullable', 'string', 'max:100'], 'confidence' => ['nullable', 'integer', 'between:0,100'], 'total_cm' => ['nullable', 'numeric', 'min:0'], 'shared_segments' => ['nullable', 'integer', 'min:0'], 'status' => ['sometimes', 'string', 'max:50'], 'is_private' => ['sometimes', 'boolean'], 'notes' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
         $match = $create->execute($values);
 
         return response()->json(['data' => $this->resource($match)], 201);
@@ -54,8 +56,8 @@ final class DnaMatchController
     public function compare(Request $request, CompareDnaKits $compare): JsonResponse
     {
         $values = $request->validate([
-            'kit_a' => ['required', 'uuid', 'different:kit_b'],
-            'kit_b' => ['required', 'uuid'],
+            'kit_a' => ['required', 'uuid', 'different:kit_b', Rule::exists('genealogy_dna_kits', 'id')->where('team_id', app(TeamContext::class)->require())],
+            'kit_b' => ['required', 'uuid', Rule::exists('genealogy_dna_kits', 'id')->where('team_id', app(TeamContext::class)->require())],
         ]);
         $kitA = DnaKit::query()->findOrFail($values['kit_a']);
         $kitB = DnaKit::query()->findOrFail($values['kit_b']);
@@ -66,8 +68,8 @@ final class DnaMatchController
     public function compareAndPersist(Request $request, PersistDnaComparison $compare): JsonResponse
     {
         $values = $request->validate([
-            'kit_a' => ['required', 'uuid', 'different:kit_b'],
-            'kit_b' => ['required', 'uuid'],
+            'kit_a' => ['required', 'uuid', 'different:kit_b', Rule::exists('genealogy_dna_kits', 'id')->where('team_id', app(TeamContext::class)->require())],
+            'kit_b' => ['required', 'uuid', Rule::exists('genealogy_dna_kits', 'id')->where('team_id', app(TeamContext::class)->require())],
         ]);
         $kitA = DnaKit::query()->findOrFail($values['kit_a']);
         $kitB = DnaKit::query()->findOrFail($values['kit_b']);

@@ -15,7 +15,7 @@ final class CreatePersonLifeEvent
     public function execute(array $attributes): PersonLifeEvent
     {
         $values = Arr::only($attributes, ['person_id', 'type', 'date', 'place', 'description', 'metadata']);
-        if (empty($values['type'])) {
+        if (trim((string) ($values['type'] ?? '')) === '') {
             throw new InvalidArgumentException('A life event requires a person and type.');
         }
         $values['person_id'] = app(PersonReference::class)->require($values['person_id'] ?? null);

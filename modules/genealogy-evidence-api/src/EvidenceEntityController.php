@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 use Liberu\Genealogy\Evidence\Actions\CreateCitationLink;
 use Liberu\Genealogy\Evidence\Actions\CreateEvidenceEntity;
 use Liberu\Genealogy\Evidence\Actions\DeleteCitationLink;
@@ -79,7 +80,7 @@ final class EvidenceEntityController
     {
         $this->citation($citation);
         $values = $request->validate([
-            'subject_person_id' => ['required', 'uuid'],
+            'subject_person_id' => ['required', 'uuid', $this->teamReference('genealogy_people')],
             'group' => ['sometimes', 'in:'.implode(',', CitationLink::GROUPS)],
             'page' => ['nullable', 'string', 'max:255'],
             'quality' => ['nullable', 'string', 'max:255'],
@@ -145,14 +146,19 @@ final class EvidenceEntityController
         $required = $update ? 'sometimes' : 'required';
         $rules = match ($entity) {
             'sources' => ['name' => [$required, 'string', 'max:255'], 'description' => ['nullable', 'string'], 'url' => ['nullable', 'url', 'max:2048'], 'record_type' => ['nullable', 'string', 'max:100'], 'is_active' => ['sometimes', 'boolean'], 'metadata' => ['nullable', 'array']],
-            'repositories' => ['name' => [$required, 'string', 'max:255'], 'source_id' => ['nullable', 'uuid', Rule::exists('genealogy_evidence_sources', 'id')], 'description' => ['nullable', 'string'], 'address' => ['nullable', 'string'], 'url' => ['nullable', 'url', 'max:2048'], 'email' => ['nullable', 'email'], 'is_active' => ['sometimes', 'boolean'], 'metadata' => ['nullable', 'array']],
-            'citations' => ['source_id' => [$required, 'uuid', Rule::exists('genealogy_evidence_sources', 'id')], 'repository_id' => ['nullable', 'uuid', Rule::exists('genealogy_evidence_repositories', 'id')], 'title' => ['nullable', 'string', 'max:255'], 'volume' => ['nullable', 'string', 'max:255'], 'page' => ['nullable', 'string', 'max:255'], 'text' => ['nullable', 'string'], 'confidence' => ['sometimes', 'integer', 'between:0,100'], 'event_date' => ['nullable', 'date'], 'metadata' => ['nullable', 'array']],
-            'extracts' => ['citation_id' => [$required, 'uuid', Rule::exists('genealogy_evidence_citations', 'id')], 'content' => [$required, 'string'], 'transcription' => ['nullable', 'string'], 'page' => ['nullable', 'string', 'max:255'], 'metadata' => ['nullable', 'array']],
-            'assertions' => ['statement' => [$required, 'string'], 'subject_person_id' => ['nullable', 'uuid', Rule::exists('genealogy_people', 'id')], 'citation_id' => ['nullable', 'uuid', Rule::exists('genealogy_evidence_citations', 'id')], 'extract_id' => ['nullable', 'uuid', Rule::exists('genealogy_evidence_extracts', 'id')], 'confidence' => ['sometimes', 'integer', 'between:0,100'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['nullable', 'array']],
-            default => ['assertion_id' => [$required, 'uuid', Rule::exists('genealogy_evidence_assertions', 'id')], 'conclusion' => [$required, 'string'], 'confidence' => ['sometimes', 'integer', 'between:0,100'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['nullable', 'array']],
+            'repositories' => ['name' => [$required, 'string', 'max:255'], 'source_id' => ['nullable', 'uuid', $this->teamReference('genealogy_evidence_sources')], 'description' => ['nullable', 'string'], 'address' => ['nullable', 'string'], 'url' => ['nullable', 'url', 'max:2048'], 'email' => ['nullable', 'email'], 'is_active' => ['sometimes', 'boolean'], 'metadata' => ['nullable', 'array']],
+            'citations' => ['source_id' => [$required, 'uuid', $this->teamReference('genealogy_evidence_sources')], 'repository_id' => ['nullable', 'uuid', $this->teamReference('genealogy_evidence_repositories')], 'title' => ['nullable', 'string', 'max:255'], 'volume' => ['nullable', 'string', 'max:255'], 'page' => ['nullable', 'string', 'max:255'], 'text' => ['nullable', 'string'], 'confidence' => ['sometimes', 'integer', 'between:0,100'], 'event_date' => ['nullable', 'date'], 'metadata' => ['nullable', 'array']],
+            'extracts' => ['citation_id' => [$required, 'uuid', $this->teamReference('genealogy_evidence_citations')], 'content' => [$required, 'string'], 'transcription' => ['nullable', 'string'], 'page' => ['nullable', 'string', 'max:255'], 'metadata' => ['nullable', 'array']],
+            'assertions' => ['statement' => [$required, 'string'], 'subject_person_id' => ['nullable', 'uuid', $this->teamReference('genealogy_people')], 'citation_id' => ['nullable', 'uuid', $this->teamReference('genealogy_evidence_citations')], 'extract_id' => ['nullable', 'uuid', $this->teamReference('genealogy_evidence_extracts')], 'confidence' => ['sometimes', 'integer', 'between:0,100'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['nullable', 'array']],
+            default => ['assertion_id' => [$required, 'uuid', $this->teamReference('genealogy_evidence_assertions')], 'conclusion' => [$required, 'string'], 'confidence' => ['sometimes', 'integer', 'between:0,100'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['nullable', 'array']],
         };
 
         return $request->validate($rules);
+    }
+
+    private function teamReference(string $table): Exists
+    {
+        return Rule::exists($table, 'id')->where('team_id', app(TeamContext::class)->require());
     }
 
     /** @return array<string, mixed> */

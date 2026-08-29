@@ -6,16 +6,22 @@ namespace Liberu\Genealogy\Timeline\Actions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
+use Liberu\Genealogy\GenealogyCore\Contracts\PersonReferenceResolver;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Timeline\Events\TimelineEventCreated;
 use Liberu\Genealogy\Timeline\Models\TimelineEvent;
 
 final class CreateTimelineEvent
 {
+    public function __construct(private readonly ?PersonReferenceResolver $personReference = null) {}
+
     public function execute(array $attributes): TimelineEvent
     {
         $values = Arr::only($attributes, ['kind', 'name', 'subject_person_id', 'family_key', 'event_date', 'date_start', 'date_end', 'date_precision', 'place_id', 'description', 'historical_context', 'conflict_group', 'confidence', 'source_reference', 'is_private', 'status', 'metadata']);
         $this->validate($values);
+        $values['name'] = trim((string) $values['name']);
+        $this->validateSubjectPerson($values['subject_person_id'] ?? null);
 
         $model = TimelineEvent::query()->getModel();
         $schema = $model->getConnection()->getSchemaBuilder();
@@ -58,5 +64,17 @@ final class CreateTimelineEvent
             throw ValidationException::withMessages(['status' => 'The selected timeline event status is invalid.']);
         }
 
+    }
+
+    private function validateSubjectPerson(mixed $personId): void
+    {
+        if ($personId === null || $this->personReference === null) {
+            return;
+        }
+
+        $teamId = app(TeamContext::class)->require();
+        if (! $this->personReference->existsForTeam($personId, $teamId)) {
+            throw new InvalidArgumentException('The timeline subject person must belong to the active team.');
+        }
     }
 }

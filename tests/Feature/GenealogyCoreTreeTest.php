@@ -78,6 +78,17 @@ it('assigns and clears tree ownership only for active team members', function ()
     Event::assertDispatched(TreeUpdated::class, 2);
 });
 
+it('allows ownership to be restored to the team owner', function (): void {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $owner->id]);
+    $team->users()->attach($member->id, ['role' => 'member', 'status' => 'active']);
+    app(TeamContext::class)->set($team->id);
+    $tree = (new CreateTree())->execute(['name' => 'Owner restoration', 'user_id' => $member->id]);
+
+    expect((new SetTreeOwner())->execute($tree, $owner->id)->user_id)->toBe($owner->id);
+});
+
 it('keeps identifiers unique per team, stores terminology, and emits lifecycle events', function (): void {
     Event::fake();
     $user = User::factory()->create();
@@ -86,7 +97,7 @@ it('keeps identifiers unique per team, stores terminology, and emits lifecycle e
 
     $tree = (new CreateTree())->execute([
         'name' => 'Identified tree',
-        'identifier' => 'primary',
+        'identifier' => '  primary  ',
         'terminology' => ['ancestor' => 'forebear'],
         'user_id' => $user->id,
     ]);
@@ -111,6 +122,26 @@ it('rejects invalid lifecycle values before persistence', function (): void {
 
     expect(fn () => (new CreateTree())->execute(['name' => 'Tree', 'status' => 'unknown']))
         ->toThrow(InvalidArgumentException::class);
+});
+
+it('rejects an explicit tree owner outside the active team', function (): void {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $owner->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => (new CreateTree())->execute(['name' => 'Unsafe owner', 'user_id' => $otherUser->id]))
+        ->toThrow(InvalidArgumentException::class, 'active member');
+});
+
+it('rejects empty identifiers during tree updates', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $tree = (new CreateTree())->execute(['name' => 'Identified tree', 'identifier' => 'primary']);
+
+    expect(fn () => (new UpdateTree())->execute($tree, ['identifier' => '   ']))
+        ->toThrow(InvalidArgumentException::class, 'identifier cannot be empty');
+    expect($tree->fresh()->identifier)->toBe('primary');
 });
 
 it('rejects a root person from another team', function (): void {

@@ -19,6 +19,9 @@ final class UpdateDiscoveryMatch
         $this->assertTeam($match);
         $values = Arr::only($attributes, ['kind', 'name', 'subject_id', 'related_id', 'confidence', 'rationale', 'source_type', 'detected_at', 'reviewed_at', 'status', 'metadata']);
         $this->validate($values + $match->toArray());
+        if (array_key_exists('name', $values)) {
+            $values['name'] = trim((string) $values['name']);
+        }
 
         DB::transaction(fn (): bool => $match->update($values));
         $match = $match->refresh();

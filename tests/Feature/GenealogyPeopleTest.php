@@ -20,6 +20,7 @@ use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
 use Liberu\Genealogy\People\Actions\UpdatePersonAssociation;
 use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
+use Liberu\Genealogy\People\Actions\UpdatePersonSupportingRecord;
 use Liberu\Genealogy\People\Events\MergeCandidateReviewed;
 use Liberu\Genealogy\People\Events\PersonAttributesUpdated;
 use Liberu\Genealogy\People\Events\PersonDeleted;
@@ -52,9 +53,47 @@ it('owns names, identities, life events, and merge candidates inside the active 
         ->and(MergeCandidate::query()->where('person_id', $person->id)->exists())->toBeTrue();
 });
 
+it('protects supporting-record ownership and validates life-event updates', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = app(CreatePerson::class)->execute(['given_name' => 'Ada']);
+    $otherPerson = app(CreatePerson::class)->execute(['given_name' => 'Grace']);
+    $lifeEvent = app(CreatePersonLifeEvent::class)->execute([
+        'person_id' => $person->id, 'type' => '  birth  ',
+    ]);
+
+    expect($lifeEvent->type)->toBe('birth');
+    expect(fn () => app(UpdatePersonSupportingRecord::class)->execute($lifeEvent, [
+        'type' => '   ', 'person_id' => $otherPerson->id, 'team_id' => 'forbidden',
+    ]))->toThrow(InvalidArgumentException::class, 'type');
+
+    $updated = app(UpdatePersonSupportingRecord::class)->execute($lifeEvent, [
+        'type' => '  baptism  ', 'person_id' => $otherPerson->id, 'team_id' => 'forbidden',
+    ]);
+    expect($updated->type)->toBe('baptism')
+        ->and((string) $updated->person_id)->toBe((string) $person->id)
+        ->and((string) $updated->team_id)->toBe((string) $team->id);
+});
+
 it('does not allow a person to be created without a team context', function (): void {
     expect(fn () => (new CreatePerson())->execute(['given_name' => 'Guest']))
         ->toThrow(LogicException::class);
+});
+
+it('normalizes and validates canonical person sex values at the domain boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada', 'sex' => ' f ']);
+
+    expect($person->fresh()->sex)->toBe('F')
+        ->and($person->getSex())->toBe('F');
+    expect(fn () => (new CreatePerson())->execute(['given_name' => 'Invalid', 'sex' => 'Q']))
+        ->toThrow(InvalidArgumentException::class, 'one of M, F, U, or X');
+    expect(fn () => (new UpdatePerson())->execute($person, ['sex' => 'Q']))
+        ->toThrow(InvalidArgumentException::class, 'one of M, F, U, or X');
 });
 
 it('rejects supporting records that reference another team', function (): void {
@@ -129,7 +168,8 @@ it('publishes person update and deletion events after transactional mutations', 
     app(TeamContext::class)->set($team->id);
     $person = (new CreatePerson())->execute(['given_name' => 'Before']);
 
-    (new UpdatePerson())->execute($person, ['given_name' => 'After']);
+    (new UpdatePerson())->execute($person, ['given_name' => '  After  ']);
+    expect($person->fresh()->given_name)->toBe('After');
     Event::assertDispatched(PersonUpdated::class);
 
     (new DeletePerson())->execute($person);

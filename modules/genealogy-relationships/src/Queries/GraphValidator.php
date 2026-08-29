@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Relationships\Queries;
 
 use InvalidArgumentException;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 
 /**
@@ -27,9 +28,18 @@ final class GraphValidator
         }
 
         if (Relationship::query()
-            ->where('person_id', $personId)
-            ->where('related_person_id', $relatedPersonId)
+            ->forTeam(app(TeamContext::class)->require())
             ->where('type', $type)
+            ->where(function ($query) use ($personId, $relatedPersonId, $type): void {
+                $query->where('person_id', $personId)
+                    ->where('related_person_id', $relatedPersonId);
+
+                if ($type === 'partner') {
+                    $query->orWhere(fn ($reverse) => $reverse
+                        ->where('person_id', $relatedPersonId)
+                        ->where('related_person_id', $personId));
+                }
+            })
             ->when($ignoreRelationshipId !== null, fn ($query) => $query->where($query->getModel()->getQualifiedKeyName(), '<>', $ignoreRelationshipId))
             ->exists()) {
             return ['valid' => false, 'reason' => 'This relationship already exists.'];
@@ -70,6 +80,7 @@ final class GraphValidator
             $visited[$current] = true;
 
             $children = Relationship::query()
+                ->forTeam(app(TeamContext::class)->require())
                 ->where('type', 'parent')
                 ->where('person_id', $current)
                 ->pluck('related_person_id');

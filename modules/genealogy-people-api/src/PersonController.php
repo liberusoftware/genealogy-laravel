@@ -158,7 +158,7 @@ final class PersonController
             'given_name' => [$creating ? 'required' : 'sometimes', 'string', 'max:255'],
             'family_name' => ['nullable', 'string', 'max:255'],
             'display_name' => ['nullable', 'string', 'max:255'],
-            'sex' => ['nullable', 'string', 'size:1', 'in:M,F,U,X'],
+            'sex' => ['nullable', 'string', 'size:1', 'in:'.implode(',', Person::SEX_OPTIONS)],
             'aliases' => ['nullable', 'array'],
             'attributes' => ['nullable', 'array'],
             'birth_date' => ['nullable', 'date'],

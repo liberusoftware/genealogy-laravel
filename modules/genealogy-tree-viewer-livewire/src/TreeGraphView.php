@@ -41,7 +41,8 @@ final class TreeGraphView extends Component
             throw ValidationException::withMessages(['personId' => 'The selected person was not found.']);
         }
 
-        $this->data = $graph->for($person, $this->generations, $this->includeLiving, $this->view, $this->includeSiblings, $this->maxNodes);
+        $includeLiving = auth()->check() && $this->includeLiving;
+        $this->data = $graph->for($person, $this->generations, $includeLiving, $this->view, $this->includeSiblings, $this->maxNodes);
     }
 
     public function navigateTo(string $personId, TreeGraph $graph): void

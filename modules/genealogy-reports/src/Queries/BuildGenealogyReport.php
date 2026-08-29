@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Reports\Queries;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Builds report data from module-owned tables without importing another
@@ -22,8 +23,12 @@ final class BuildGenealogyReport
             'sources' => ['sources' => $this->rows('genealogy_evidence_sources', $teamId, ['id', 'name', 'record_type', 'url'])],
             'research' => $this->research($teamId),
             'timeline' => ['events' => $this->rows('timeline_events', $teamId, ['id', 'name', 'kind', 'subject_person_id', 'event_date', 'description'])],
-            default => $this->peopleGraph($teamId, $parameters),
+            default => $this->peopleGraph($teamId, $parameters, $type),
         };
+
+        if (isset($parameters['numbering'])) {
+            $payload['numbered_people'] = $this->numberedPeople($payload, (string) $parameters['numbering'], (int) ($parameters['max_depth'] ?? 20));
+        }
 
         $content = match ($format) {
             'csv' => $this->csv($payload),
@@ -55,7 +60,7 @@ final class BuildGenealogyReport
     }
 
     /** @return array<string, mixed> */
-    private function peopleGraph(string $teamId, array $parameters): array
+    private function peopleGraph(string $teamId, array $parameters, string $type): array
     {
         $people = $this->rows('genealogy_people', $teamId, ['id', 'given_name', 'family_name', 'display_name', 'birth_date', 'death_date']);
         $relationships = $this->rows('genealogy_relationships', $teamId, ['id', 'person_id', 'related_person_id', 'type', 'confidence']);
@@ -70,10 +75,12 @@ final class BuildGenealogyReport
                     if ($relationship['type'] !== 'parent') {
                         continue;
                     }
-                    if (in_array($relationship['person_id'], $frontier, true)) {
-                        $id = (string) $relationship['related_person_id'];
-                    } elseif (in_array($relationship['related_person_id'], $frontier, true)) {
+                    $ancestorsOnly = $type === 'pedigree';
+                    $descendantsOnly = $type === 'descendants';
+                    if (! $descendantsOnly && in_array($relationship['related_person_id'], $frontier, true)) {
                         $id = (string) $relationship['person_id'];
+                    } elseif (! $ancestorsOnly && in_array($relationship['person_id'], $frontier, true)) {
+                        $id = (string) $relationship['related_person_id'];
                     } else {
                         continue;
                     }
@@ -84,11 +91,86 @@ final class BuildGenealogyReport
                 }
                 $frontier = $next;
             }
+            if ($type === 'family_group') {
+                $expanded = true;
+                while ($expanded) {
+                    $expanded = false;
+                    foreach ($relationships as $relationship) {
+                        if ($relationship['type'] !== 'partner') {
+                            continue;
+                        }
+                        $left = (string) $relationship['person_id'];
+                        $right = (string) $relationship['related_person_id'];
+                        if (isset($ids[$left]) && ! isset($ids[$right])) {
+                            $ids[$right] = true;
+                            $expanded = true;
+                        } elseif (isset($ids[$right]) && ! isset($ids[$left])) {
+                            $ids[$left] = true;
+                            $expanded = true;
+                        }
+                    }
+                }
+            }
             $people = array_values(array_filter($people, fn (array $person): bool => isset($ids[(string) $person['id']])));
             $relationships = array_values(array_filter($relationships, fn (array $relationship): bool => isset($ids[(string) $relationship['person_id']]) && isset($ids[(string) $relationship['related_person_id']])));
         }
 
         return ['people' => $people, 'relationships' => $relationships, 'root_person_id' => $rootId];
+    }
+
+    /** @param array<string, mixed> $payload @return list<array<string, mixed>> */
+    private function numberedPeople(array $payload, string $numbering, int $maxDepth): array
+    {
+        if (! in_array($numbering, ['ahnentafel', 'henry', 'daboville', 'de_villiers'], true)) {
+            throw ValidationException::withMessages(['numbering' => 'The selected report numbering scheme is invalid.']);
+        }
+
+        $rootId = $payload['root_person_id'] ?? null;
+        if (! is_string($rootId) || $rootId === '') {
+            return [];
+        }
+
+        $maxDepth = min(max($maxDepth, 1), 100);
+        $people = collect($payload['people'] ?? [])->keyBy(fn (array $person): string => (string) $person['id']);
+        $relationships = collect($payload['relationships'] ?? [])->filter(fn (array $relationship): bool => $relationship['type'] === 'parent');
+        $children = [];
+        foreach ($relationships as $relationship) {
+            $children[(string) $relationship['person_id']][] = (string) $relationship['related_person_id'];
+        }
+
+        $result = [];
+        $visit = function (string $personId, string $number, int $depth, array $path = []) use (&$visit, &$result, $people, $children, $relationships, $numbering, $maxDepth): void {
+            $person = $people->get($personId);
+            if ($person === null || $depth > $maxDepth || isset($path[$personId])) {
+                return;
+            }
+            $path[$personId] = true;
+            $result[] = [...$person, 'number' => $number, 'depth' => $depth];
+
+            if ($numbering === 'ahnentafel') {
+                $parents = $relationships->filter(fn (array $relationship): bool => (string) $relationship['related_person_id'] === $personId)->values();
+                foreach ($parents as $index => $relationship) {
+                    $visit((string) $relationship['person_id'], (string) (((int) $number * 2) + $index), $depth + 1, $path);
+                }
+
+                return;
+            }
+
+            $childIds = collect($children[$personId] ?? [])->sortBy(fn (string $childId): string => (string) ($people->get($childId)['birth_date'] ?? '9999-12-31'))->values();
+            foreach ($childIds as $index => $childId) {
+                $rank = $index + 1;
+                $childNumber = match ($numbering) {
+                    'henry' => $number.($rank <= 9 ? (string) $rank : ($rank === 10 ? 'X' : chr(ord('A') + $rank - 11))),
+                    'daboville' => $number.'.'.$rank,
+                    default => ($depth === 0 ? '' : $number).chr(ord('a') + $depth + 1).$rank,
+                };
+                $visit($childId, $childNumber, $depth + 1, $path);
+            }
+        };
+
+        $visit($rootId, $numbering === 'de_villiers' ? 'a1' : '1', 0);
+
+        return $result;
     }
 
     /** @param array<string, mixed> $payload */

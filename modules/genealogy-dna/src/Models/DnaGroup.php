@@ -12,6 +12,8 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class DnaGroup extends Model
 {
+    public const STATUSES = ['draft', 'active', 'archived'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;

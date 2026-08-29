@@ -78,7 +78,6 @@ final class GenealogyDocumentParser
 
         $people = [];
         $families = [];
-
         foreach ($records as $record) {
             if ($record['type'] === 'INDI') {
                 $people[] = $this->personFromGedcom($record);
@@ -152,10 +151,30 @@ final class GenealogyDocumentParser
     /** @param array{xref: ?string, type: string, lines: list<array{level: int, tag: string, value: string}>} $record */
     private function familyFromGedcom(array $record): array
     {
-        $family = ['xref' => $record['xref'], 'husband' => null, 'wife' => null, 'children' => []];
+        $family = ['xref' => $record['xref'], 'husband' => null, 'wife' => null, 'children' => [], 'events' => []];
+        $event = null;
+        $eventData = [];
 
         foreach ($record['lines'] as $line) {
+            if ($line['level'] === 1) {
+                if ($eventData !== []) {
+                    $family['events'][] = $eventData;
+                }
+                $event = null;
+                $eventData = [];
+            }
+
             if ($line['level'] !== 1) {
+                if ($line['level'] >= 2 && $event !== null) {
+                    if ($line['tag'] === 'DATE') {
+                        $eventData['date'] = $this->date($line['value']);
+                    } elseif ($line['tag'] === 'PLAC') {
+                        $eventData['place'] = trim($line['value']);
+                    } elseif (in_array($line['tag'], ['NOTE', 'TEXT', 'AGNC', 'TYPE'], true)) {
+                        $eventData['description'] = trim($line['value']);
+                    }
+                }
+
                 continue;
             }
 
@@ -165,7 +184,14 @@ final class GenealogyDocumentParser
                 $family['wife'] = $line['value'];
             } elseif ($line['tag'] === 'CHIL') {
                 $family['children'][] = $line['value'];
+            } elseif (in_array($line['tag'], ['MARR', 'DIV'], true)) {
+                $event = $line['tag'];
+                $eventData = ['type' => $line['tag'] === 'MARR' ? 'marriage' : 'divorce', 'date' => null, 'place' => null, 'description' => null];
             }
+        }
+
+        if ($eventData !== []) {
+            $family['events'][] = $eventData;
         }
 
         return $family;
@@ -185,29 +211,58 @@ final class GenealogyDocumentParser
             throw new InvalidArgumentException('The uploaded XML document is invalid.');
         }
 
+        $xml->registerXPathNamespace('gramps', 'http://gramps-project.org/xml/1.7.1/');
+        $eventsById = [];
+        foreach ($xml->xpath('//gramps:event') ?: [] as $event) {
+            $id = isset($event['id']) ? (string) $event['id'] : (string) $event['handle'];
+            if ($id === '') {
+                continue;
+            }
+
+            $type = strtolower((string) $event['type']);
+            $eventsById[$id] = [
+                'type' => $type !== '' ? $type : 'event',
+                'date' => $this->date((string) ($event->dateval['val'] ?? '')),
+                'place' => trim((string) ($event->placeobj->ptitle ?? $event->place ?? '')) ?: null,
+                'description' => trim((string) ($event->description ?? '')) ?: null,
+            ];
+        }
+
         $people = [];
-        foreach ($xml->xpath('//person') ?: [] as $person) {
+        foreach ($xml->xpath('//gramps:person') ?: [] as $person) {
             $name = $person->name;
+            $lifeEvents = array_values(array_filter(array_map(
+                fn ($eventRef): ?array => $eventsById[(string) (isset($eventRef['hlink']) ? $eventRef['hlink'] : $eventRef['ref'])] ?? null,
+                iterator_to_array($person->eventref ?? [], false)
+            )));
+            $birthDate = collect($lifeEvents)->firstWhere('type', 'birth')['date'] ?? null;
+            $deathDate = collect($lifeEvents)->firstWhere('type', 'death')['date'] ?? null;
             $people[] = [
                 'xref' => (string) ($person['id'] ?: $person['handle']),
                 'given_name' => (string) ($name->first ?: $person->first),
                 'family_name' => (string) ($name->surname ?: $person->surname),
                 'sex' => strtoupper((string) $person['gender'] ?: (string) $person->gender) ?: null,
-                'birth_date' => null,
-                'death_date' => null,
+                'birth_date' => $birthDate,
+                'death_date' => $deathDate,
+                'names' => [],
+                'life_events' => $lifeEvents,
             ];
         }
 
         $families = [];
-        foreach ($xml->xpath('//family') ?: [] as $family) {
+        foreach ($xml->xpath('//gramps:family') ?: [] as $family) {
             $families[] = [
                 'xref' => (string) ($family['id'] ?: $family['handle']),
                 'husband' => isset($family->father['ref']) ? (string) $family->father['ref'] : null,
                 'wife' => isset($family->mother['ref']) ? (string) $family->mother['ref'] : null,
                 'children' => array_values(array_map(
                     static fn ($child): string => (string) $child['ref'],
-                    iterator_to_array($family->childref ?? [])
+                    iterator_to_array($family->childref ?? [], false)
                 )),
+                'events' => array_values(array_filter(array_map(
+                    fn ($eventRef): ?array => $eventsById[(string) (isset($eventRef['hlink']) ? $eventRef['hlink'] : $eventRef['ref'])] ?? null,
+                    iterator_to_array($family->eventref ?? [], false)
+                ))),
             ];
         }
 

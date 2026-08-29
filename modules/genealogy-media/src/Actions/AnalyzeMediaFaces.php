@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Media\Actions;
 
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Media\Contracts\FaceRecognitionProvider;
 use Liberu\Genealogy\Media\Models\MediaAsset;
 use Liberu\Genealogy\Media\Models\MediaFaceTag;
@@ -16,6 +18,10 @@ final class AnalyzeMediaFaces
     /** @return array{available: bool, success: bool, faces_detected: int, tags_created: int, error: ?string} */
     public function execute(MediaAsset $asset): array
     {
+        if ((string) $asset->team_id !== app(TeamContext::class)->require()) {
+            throw new InvalidArgumentException('The media asset must belong to the active team.');
+        }
+
         if ($this->provider === null || ! $this->provider->isAvailable()) {
             return ['available' => false, 'success' => false, 'faces_detected' => 0, 'tags_created' => 0, 'error' => 'Facial recognition is not configured.'];
         }

@@ -5,6 +5,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
+use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\Timeline\Actions\CreateTimelineEvent;
 use Liberu\Genealogy\Timeline\Actions\UpdateTimelineEvent;
 use Liberu\Genealogy\Timeline\Queries\ChronologicalTimeline;
@@ -25,12 +26,60 @@ it('supports historical context and conflict events in chronological navigation'
     expect($private->refresh()->confidence)->toBe(80);
 });
 
+it('normalizes timeline event names on create and update', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+
+    $event = (new CreateTimelineEvent())->execute(['name' => '  Birth record  ']);
+    expect($event->name)->toBe('Birth record');
+
+    $updated = (new UpdateTimelineEvent())->execute($event, ['name' => '  Updated birth record  ']);
+    expect($updated->name)->toBe('Updated birth record');
+});
+
 it('rejects invalid timeline date ranges', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);
 
     expect(fn () => (new CreateTimelineEvent())->execute(['name' => 'Invalid', 'date_start' => '1901-01-01', 'date_end' => '1900-01-01']))
         ->toThrow(ValidationException::class);
+});
+
+it('rejects a timeline subject person from another team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $person = app(CreatePerson::class)->execute(['given_name' => 'Other team']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => app(CreateTimelineEvent::class)->execute([
+        'name' => 'Private event',
+        'subject_person_id' => $person->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'subject person');
+});
+
+it('includes partial and open-ended dates in bounded timeline ranges', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $startOnly = (new CreateTimelineEvent())->execute(['name' => 'Starts in range', 'date_start' => '1950-01-01']);
+    $endOnly = (new CreateTimelineEvent())->execute(['name' => 'Ends in range', 'date_end' => '1951-01-01']);
+
+    $events = (new ChronologicalTimeline())->execute(from: '1949-01-01', to: '1952-01-01');
+    $eventIds = array_column($events, 'id');
+
+    expect($eventIds)->toContain($startOnly->id)->toContain($endOnly->id);
+});
+
+it('includes open-ended events that overlap a bounded range', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $startedBeforeRange = (new CreateTimelineEvent())->execute(['name' => 'Started before range', 'date_start' => '1900-01-01']);
+    $endsAfterRange = (new CreateTimelineEvent())->execute(['name' => 'Ends after range', 'date_end' => '2100-01-01']);
+
+    $eventIds = array_column((new ChronologicalTimeline())->execute(from: '1950-01-01', to: '2050-01-01'), 'id');
+
+    expect($eventIds)->toContain($startedBeforeRange->id)->toContain($endsAfterRange->id);
 });
 
 it('groups conflicting evidence and exposes the conflict view through the API', function (): void {

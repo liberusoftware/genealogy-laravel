@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Research\Actions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Research\Events\ResearchEntryCreated;
@@ -20,6 +21,7 @@ final class CreateResearchEntry
         $values = Arr::only($attributes, ['research_project_id', 'kind', 'title', 'body', 'status', 'due_date', 'completed_at', 'metadata']);
 
         $this->validate($values);
+        $values['title'] = trim((string) $values['title']);
         $values['team_id'] = app(TeamContext::class)->require();
 
         $entry = DB::transaction(fn (): ResearchEntry => ResearchEntry::query()->create($values));
@@ -31,6 +33,9 @@ final class CreateResearchEntry
     /** @param array<string, mixed> $values */
     public function validate(array $values): void
     {
+        if (trim((string) ($values['title'] ?? '')) === '') {
+            throw ValidationException::withMessages(['title' => 'A research entry title is required.']);
+        }
         if (! in_array($values['kind'] ?? null, ResearchEntry::KINDS, true)) {
             throw new InvalidArgumentException('The research entry kind is not supported.');
         }

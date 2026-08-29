@@ -36,7 +36,7 @@ it('records tenant-owned places with hierarchy and coordinates', function (): vo
     ]);
     $historicalName = (new CreatePlaceName())->execute([
         'place_id' => $city->id,
-        'name' => 'Londinium',
+        'name' => '  Londinium  ',
         'type' => 'historical',
         'valid_to' => '00410-01-01',
     ]);
@@ -46,9 +46,21 @@ it('records tenant-owned places with hierarchy and coordinates', function (): vo
         ->and($city->parent_id)->toBe($country->id)
         ->and($city->parent->is($country))->toBeTrue()
         ->and($historicalName->place->is($city))->toBeTrue()
+        ->and($historicalName->name)->toBe('Londinium')
         ->and($city->hasCoordinates())->toBeTrue()
         ->and($city->mapUrl())->toContain('openstreetmap.org');
     Event::assertDispatched(PlaceCreated::class);
+});
+
+it('allows an existing place parent to be cleared', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $parent = (new CreatePlace())->execute(['name' => 'Parent']);
+    $child = (new CreatePlace())->execute(['name' => 'Child', 'parent_id' => $parent->getKey()]);
+
+    $updated = (new UpdatePlace())->execute($child, ['parent_id' => null]);
+
+    expect($updated->parent_id)->toBeNull();
 });
 
 it('rejects invalid place state and hierarchy cycles', function (): void {
@@ -103,8 +115,9 @@ it('keeps place names behind domain lifecycle actions', function (): void {
     $place = (new CreatePlace())->execute(['name' => 'York']);
     $name = (new CreatePlaceName())->execute(['place_id' => $place->id, 'name' => 'Eboracum']);
 
-    (new UpdatePlaceName())->execute($name, ['valid_from' => '0071-01-01', 'valid_to' => '0400-01-01']);
-    expect($name->refresh()->valid_from->toDateString())->toBe('0071-01-01');
+    (new UpdatePlaceName())->execute($name, ['name' => '  Eboracum Nova  ', 'valid_from' => '0071-01-01', 'valid_to' => '0400-01-01']);
+    expect($name->refresh()->valid_from->toDateString())->toBe('0071-01-01')
+        ->and($name->name)->toBe('Eboracum Nova');
     (new DeletePlaceName())->execute($name);
     expect($name->refresh()->trashed())->toBeTrue();
 });
@@ -122,4 +135,21 @@ it('projects a nested place hierarchy through the API', function (): void {
         ->assertOk()
         ->assertJsonPath('data.0.name', 'Country')
         ->assertJsonPath('data.0.children.0.name', 'City');
+});
+
+it('retains disconnected place components in hierarchy projections', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $first = (new CreatePlace())->execute(['name' => 'First']);
+    $second = (new CreatePlace())->execute(['name' => 'Second']);
+
+    // Simulate a legacy/imported cycle that cannot be reached from a root.
+    $first->forceFill(['parent_id' => $second->id])->saveQuietly();
+    $second->forceFill(['parent_id' => $first->id])->saveQuietly();
+
+    $hierarchy = (new PlaceHierarchy())->execute(flat: true);
+
+    expect(collect($hierarchy)->pluck('id'))
+        ->toContain((string) $first->id)
+        ->toContain((string) $second->id);
 });

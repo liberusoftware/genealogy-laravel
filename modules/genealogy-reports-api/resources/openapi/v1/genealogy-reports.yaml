@@ -10,7 +10,7 @@ paths:
     patch: { operationId: genealogy.reports.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
     delete: { operationId: genealogy.reports.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
   /api/v1/genealogy/reports/{id}/generate:
-    post: { operationId: genealogy.reports.generate, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { type: object, properties: { format: { type: string, enum: [json, csv, gedcom, svg] }, parameters: { type: object } } } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
+    post: { operationId: genealogy.reports.generate, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { type: object, properties: { format: { type: string, enum: [json, csv, gedcom, svg] }, parameters: { type: object, properties: { root_person_id: { type: string, format: uuid }, max_depth: { type: integer, minimum: 1, maximum: 100 }, numbering: { type: string, enum: [ahnentafel, henry, daboville, de_villiers] } } } } } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   schemas:

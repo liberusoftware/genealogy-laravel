@@ -23,6 +23,7 @@ use Liberu\Genealogy\Dna\Actions\DeleteDnaSegment;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\ImportDnaKit;
 use Liberu\Genealogy\Dna\Actions\PersistDnaComparison;
+use Liberu\Genealogy\Dna\Actions\RevokeDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
@@ -30,6 +31,7 @@ use Liberu\Genealogy\Dna\Actions\UpdateDnaProvider;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaSegment;
 use Liberu\Genealogy\Dna\Events\DnaMatchesPersisted;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaProviderResource;
+use Liberu\Genealogy\Dna\Models\DnaConsent;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
@@ -260,6 +262,22 @@ it('rejects provider references owned by another team', function (): void {
         ->toThrow(ValidationException::class);
 });
 
+it('protects DNA kit and match references at the tenant boundary', function (): void {
+    $firstUser = User::factory()->create();
+    $firstTeam = Team::factory()->create(['user_id' => $firstUser->id]);
+    app(TeamContext::class)->set($firstTeam->getKey());
+    $person = app(CreatePerson::class)->execute(['given_name' => 'Private DNA subject']);
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Private kit', 'person_id' => $person->getKey()]);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->getKey());
+
+    expect(fn () => app(CreateDnaKit::class)->execute(['name' => 'Cross-team person', 'person_id' => $person->getKey()]))
+        ->toThrow(ValidationException::class, 'selected DNA person');
+    expect(fn () => app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'cross-team']))
+        ->toThrow(ValidationException::class, 'selected DNA kit');
+});
+
 it('rejects an oversized nested page size on DNA kit collections', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -343,6 +361,16 @@ it('keeps DNA group and match CRUD mutations behind domain actions', function ()
         ->and(DnaMatch::query()->find($match->getKey()))->toBeNull();
 });
 
+it('validates DNA group names and statuses through domain actions', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $group = app(CreateDnaGroup::class)->execute(['name' => 'Valid group']);
+
+    expect($group->status)->toBe('active')
+        ->and(fn () => app(UpdateDnaGroup::class)->execute($group, ['status' => 'invalid']))
+        ->toThrow(ValidationException::class);
+});
+
 it('exposes DNA notes and person relationship annotations through the API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -405,4 +433,21 @@ it('exposes tenant-safe segment lifecycle and consent history across presentatio
 
     expect(DnaSegment::query()->find($segment->getKey()))->toBeNull()
         ->and($consent->fresh()->granted)->toBeTrue();
+});
+
+it('rejects DNA consent mutations for kits outside the active team', function (): void {
+    $owner = User::factory()->create();
+    $kitTeam = Team::factory()->create(['user_id' => $owner->id]);
+    app(TeamContext::class)->set($kitTeam->getKey());
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Private consent kit']);
+
+    $otherTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($otherTeam->getKey());
+
+    expect(fn () => app(GrantDnaConsent::class)->execute($kit, 'matching'))
+        ->toThrow(InvalidArgumentException::class)
+        ->and(fn () => app(RevokeDnaKit::class)->execute($kit, 'No longer participating'))
+        ->toThrow(InvalidArgumentException::class)
+        ->and(DnaConsent::withoutGlobalScopes()->where('kit_id', $kit->getKey())->count())->toBe(0)
+        ->and($kit->refresh()->consent_status)->toBe('pending');
 });

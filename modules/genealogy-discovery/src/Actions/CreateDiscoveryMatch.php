@@ -14,7 +14,22 @@ final class CreateDiscoveryMatch
     public function execute(array $attributes): DiscoveryMatch
     {
         $values = Arr::only($attributes, ['kind', 'name', 'subject_id', 'related_id', 'confidence', 'rationale', 'source_type', 'detected_at', 'reviewed_at', 'status', 'metadata']);
+        $this->validate($values);
+        $values['name'] = trim((string) $values['name']);
 
+        if (DiscoveryMatch::query()->getModel()->getConnection()->getSchemaBuilder()->hasColumn('genealogy_discovery_matches', 'team_id')) {
+            $values['team_id'] = app(TeamContext::class)->require();
+        }
+
+        return DiscoveryMatch::query()->create($values);
+    }
+
+    /** @param array<string, mixed> $values */
+    private function validate(array $values): void
+    {
+        if (trim((string) ($values['name'] ?? '')) === '') {
+            throw ValidationException::withMessages(['name' => 'A discovery match name is required.']);
+        }
         if (isset($values['kind']) && ! in_array($values['kind'], DiscoveryMatch::KINDS, true)) {
             throw ValidationException::withMessages(['kind' => 'The selected discovery kind is invalid.']);
         }
@@ -24,10 +39,5 @@ final class CreateDiscoveryMatch
         if (isset($values['confidence']) && ($values['confidence'] < 0 || $values['confidence'] > 100)) {
             throw ValidationException::withMessages(['confidence' => 'Confidence must be between 0 and 100.']);
         }
-        if (DiscoveryMatch::query()->getModel()->getConnection()->getSchemaBuilder()->hasColumn('genealogy_discovery_matches', 'team_id')) {
-            $values['team_id'] = app(TeamContext::class)->require();
-        }
-
-        return DiscoveryMatch::query()->create($values);
     }
 }

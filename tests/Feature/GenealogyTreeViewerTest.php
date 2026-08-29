@@ -37,6 +37,31 @@ it('rejects public trees rooted at living people', function (): void {
         ->toThrow(InvalidArgumentException::class);
 });
 
+it('allows guests to read public trees but not private trees through the api', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $root = (new CreatePerson())->execute(['given_name' => 'Public root', 'death_date' => '1950-01-01']);
+    $public = (new CreateTreeView())->execute([
+        'name' => 'Public tree',
+        'root_person_id' => $root->id,
+        'is_public' => true,
+        'status' => 'active',
+    ]);
+    $private = (new CreateTreeView())->execute([
+        'name' => 'Private tree',
+        'root_person_id' => $root->id,
+        'is_public' => false,
+        'status' => 'active',
+    ]);
+
+    $this->getJson("/api/v1/genealogy/tree-viewer/{$public->id}")
+        ->assertOk()
+        ->assertJsonPath('data.type', 'genealogy-tree-viewer');
+    $this->getJson("/api/v1/genealogy/tree-viewer/{$private->id}")
+        ->assertNotFound();
+});
+
 it('navigates between graph nodes through the Livewire tree viewer', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -52,6 +77,19 @@ it('navigates between graph nodes through the Livewire tree viewer', function ()
         ->call('navigateTo', (string) $child->id)
         ->assertSet('personId', (string) $child->id)
         ->assertSee('Child');
+});
+
+it('masks living people for unauthenticated Livewire viewers', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $living = (new CreatePerson())->execute(['given_name' => 'Private living', 'is_public' => true]);
+
+    Livewire::test('genealogy-tree-viewer-graph')
+        ->set('personId', (string) $living->id)
+        ->set('includeLiving', true)
+        ->call('loadGraph')
+        ->assertSet('data.root.name', 'Living person')
+        ->assertDontSee('Private living');
 });
 
 it('restores optional sibling expansion from the legacy tree builder', function (): void {

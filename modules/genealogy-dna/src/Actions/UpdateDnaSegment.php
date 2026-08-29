@@ -23,6 +23,10 @@ final class UpdateDnaSegment
         $start = (int) ($values['start_position'] ?? $segment->start_position);
         $end = (int) ($values['end_position'] ?? $segment->end_position);
 
+        if (isset($values['chromosome']) && ($values['chromosome'] < 1 || $values['chromosome'] > 99)) {
+            throw ValidationException::withMessages(['chromosome' => 'The chromosome must be between 1 and 99.']);
+        }
+
         if ($start >= $end) {
             throw ValidationException::withMessages(['end_position' => 'The segment end must be after its start.']);
         }

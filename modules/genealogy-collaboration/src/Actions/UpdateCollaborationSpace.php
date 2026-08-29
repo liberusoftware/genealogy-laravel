@@ -16,8 +16,14 @@ final class UpdateCollaborationSpace
     {
         $this->assertTeam($space);
         $values = Arr::only($attributes, ['name', 'status', 'metadata']);
-        if (array_key_exists('name', $values) && trim((string) $values['name']) === '') {
-            throw new InvalidArgumentException('A collaboration space name is required.');
+        if (array_key_exists('name', $values)) {
+            $values['name'] = trim((string) $values['name']);
+            if ($values['name'] === '') {
+                throw new InvalidArgumentException('A collaboration space name is required.');
+            }
+        }
+        if (isset($values['status']) && ! in_array($values['status'], CollaborationSpace::STATUSES, true)) {
+            throw new InvalidArgumentException('The collaboration space status is invalid.');
         }
         DB::transaction(fn (): bool => $space->update($values));
 

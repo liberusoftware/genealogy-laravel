@@ -12,6 +12,8 @@ use Liberu\Genealogy\Relationships\Actions\UpdateRelationship;
 use Liberu\Genealogy\Relationships\Events\RelationshipCreated;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
+use Liberu\Genealogy\Relationships\Queries\RelationshipCalculator;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -69,6 +71,38 @@ it('rejects duplicate and cyclic parent edges while allowing uncertain links', f
         ->and($validator->validate($grandparent->id, $child->id, 'uncertain')['valid'])->toBeTrue();
 });
 
+it('rejects reversed duplicate partner edges', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $first = (new CreatePerson())->execute(['given_name' => 'First']);
+    $second = (new CreatePerson())->execute(['given_name' => 'Second']);
+    $create = new CreateRelationship();
+    $create->execute(['person_id' => $first->id, 'related_person_id' => $second->id, 'type' => 'partner']);
+
+    expect(fn () => $create->execute([
+        'person_id' => $second->id,
+        'related_person_id' => $first->id,
+        'type' => 'partner',
+    ]))->toThrow(InvalidArgumentException::class, 'already exists');
+});
+
+it('does not inspect another teams parent graph while validating an edge', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $parent = (new CreatePerson())->execute(['given_name' => 'Parent']);
+    $child = (new CreatePerson())->execute(['given_name' => 'Child']);
+
+    $otherTeam = Team::factory()->create();
+    $foreignRelationship = new Relationship([
+        'person_id' => $child->id,
+        'related_person_id' => $parent->id,
+        'type' => 'parent',
+    ]);
+    $foreignRelationship->forceFill(['team_id' => $otherTeam->id])->saveQuietly();
+
+    expect((new GraphValidator())->validate($parent->id, $child->id, 'parent')['valid'])->toBeTrue();
+});
+
 it('rejects direct relationship updates outside the active team', function (): void {
     $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($firstTeam->id);
@@ -118,4 +152,68 @@ it('filters relationship edges by person, type, and confidence through the API',
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.attributes.type', 'uncertain');
+});
+
+it('calculates direct, sibling, cousin, and unrelated relationships through the modular query', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $grandparent = (new CreatePerson())->execute(['given_name' => 'Grandparent']);
+    $parentA = (new CreatePerson())->execute(['given_name' => 'Parent A']);
+    $parentB = (new CreatePerson())->execute(['given_name' => 'Parent B']);
+    $childA = (new CreatePerson())->execute(['given_name' => 'Child A']);
+    $childB = (new CreatePerson())->execute(['given_name' => 'Child B']);
+    $unrelated = (new CreatePerson())->execute(['given_name' => 'Unrelated']);
+    $create = new CreateRelationship();
+
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $parentA->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $parentB->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $parentA->id, 'related_person_id' => $childA->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $parentB->id, 'related_person_id' => $childB->id, 'type' => 'parent']);
+
+    $calculator = new RelationshipCalculator();
+
+    expect($calculator->between($grandparent->id, $childA->id)['relationship'])->toBe('grandparent')
+        ->and($calculator->between($childA->id, $childB->id)['relationship'])->toBe('1st cousin')
+        ->and($calculator->between($parentA->id, $parentB->id)['relationship'])->toBe('sibling')
+        ->and($calculator->between($childA->id, $unrelated->id)['relationship'])->toBe('no traceable relationship');
+});
+
+it('preserves gendered collateral relationship labels from the legacy tree service', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $grandparent = (new CreatePerson())->execute(['given_name' => 'Grandparent']);
+    $uncle = (new CreatePerson())->execute(['given_name' => 'Uncle', 'sex' => 'M']);
+    $parent = (new CreatePerson())->execute(['given_name' => 'Parent']);
+    $cousin = (new CreatePerson())->execute(['given_name' => 'Cousin', 'sex' => 'F']);
+    $create = new CreateRelationship();
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $uncle->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $parent->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $parent->id, 'related_person_id' => $cousin->id, 'type' => 'parent']);
+
+    $calculator = new RelationshipCalculator();
+
+    expect($calculator->between($uncle->id, $cousin->id)['relationship'])->toBe('uncle')
+        ->and($calculator->between($cousin->id, $uncle->id)['relationship'])->toBe('niece');
+});
+
+it('exposes the relationship calculator through the API and Livewire adapter', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $parent = (new CreatePerson())->execute(['given_name' => 'Parent']);
+    $child = (new CreatePerson())->execute(['given_name' => 'Child']);
+    (new CreateRelationship())->execute(['person_id' => $parent->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+
+    $this->actingAs($user)->postJson('/api/v1/genealogy/relationships/calculate', [
+        'first_person_id' => $parent->id,
+        'second_person_id' => $child->id,
+    ])->assertOk()->assertJsonPath('data.relationship', 'parent');
+
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::test(Liberu\Genealogy\Relationships\Livewire\RelationshipCalculator::class)
+        ->set('firstPersonId', $parent->id)
+        ->set('secondPersonId', $child->id)
+        ->call('calculate')
+        ->assertSet('result.relationship', 'parent');
 });

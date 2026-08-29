@@ -19,11 +19,7 @@ final class SetTreeOwner
             throw new InvalidArgumentException('The tree must belong to the active team.');
         }
 
-        if ($userId !== null && ! DB::table('team_user')
-            ->where('team_id', $teamId)
-            ->where('user_id', $userId)
-            ->where('status', 'active')
-            ->exists()) {
+        if ($userId !== null && ! $this->userBelongsToTeam($userId, $teamId)) {
             throw new InvalidArgumentException('The tree owner must be an active member of the team.');
         }
 
@@ -32,5 +28,11 @@ final class SetTreeOwner
         event(new TreeUpdated($updated));
 
         return $updated;
+    }
+
+    private function userBelongsToTeam(string|int $userId, string $teamId): bool
+    {
+        return DB::table('teams')->where('id', $teamId)->where('user_id', $userId)->exists()
+            || DB::table('team_user')->where('team_id', $teamId)->where('user_id', $userId)->where('status', 'active')->exists();
     }
 }

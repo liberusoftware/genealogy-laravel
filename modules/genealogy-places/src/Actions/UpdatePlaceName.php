@@ -19,6 +19,9 @@ final class UpdatePlaceName
             throw new InvalidArgumentException('The place name must belong to the active team.');
         }
         $values = Arr::only($attributes, ['name', 'type', 'locale', 'valid_from', 'valid_to', 'metadata']);
+        if (array_key_exists('name', $values)) {
+            $values['name'] = trim((string) $values['name']);
+        }
         (new CreatePlaceName())->validate(array_merge($placeName->toArray(), $values));
 
         $placeName->getConnection()->transaction(function () use ($placeName, $values): void {

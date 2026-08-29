@@ -8,13 +8,17 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
+use Liberu\Genealogy\Media\Actions\AnalyzeMediaFaces;
 use Liberu\Genealogy\Media\Actions\CreateMediaAsset;
 use Liberu\Genealogy\Media\Actions\CreateMediaLink;
+use Liberu\Genealogy\Media\Actions\ReviewMediaFaceTag;
 use Liberu\Genealogy\Media\Actions\StoreMediaUpload;
 use Liberu\Genealogy\Media\Actions\TranscribeMediaAsset;
 use Liberu\Genealogy\Media\Actions\UpdateMediaAsset;
 use Liberu\Genealogy\Media\Events\MediaAssetCreated;
 use Liberu\Genealogy\Media\Models\MediaAsset;
+use Liberu\Genealogy\Media\Models\MediaFaceTag;
+use Liberu\Genealogy\People\Actions\CreatePerson;
 
 uses(RefreshDatabase::class);
 
@@ -36,6 +40,20 @@ it('persists media semantics through tenant-scoped domain actions', function ():
 it('rejects unsupported media semantics', function (): void {
     expect(fn () => (new CreateMediaAsset())->execute(['name' => 'Bad', 'kind' => 'spreadsheet']))
         ->toThrow(ValidationException::class);
+});
+
+it('requires and normalizes media asset names at both mutation boundaries', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => (new CreateMediaAsset())->execute(['name' => '   ']))
+        ->toThrow(ValidationException::class);
+
+    $asset = (new CreateMediaAsset())->execute(['name' => '  Family portrait  ']);
+    expect($asset->name)->toBe('Family portrait');
+
+    $updated = (new UpdateMediaAsset())->execute($asset, ['name' => '  Updated portrait  ']);
+    expect($updated->name)->toBe('Updated portrait');
 });
 
 it('stores uploaded media with preservation metadata and a checksum', function (): void {
@@ -79,4 +97,35 @@ it('rejects direct transcription for an asset outside the active team', function
 
     expect(fn () => (new TranscribeMediaAsset())->execute($asset->withoutRelations()))
         ->toThrow(InvalidArgumentException::class, 'active team');
+});
+
+it('rejects direct face analysis for an asset outside the active team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $asset = (new CreateMediaAsset())->execute(['kind' => 'photograph', 'name' => 'Private photograph']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => (new AnalyzeMediaFaces())->execute($asset->withoutRelations()))
+        ->toThrow(InvalidArgumentException::class, 'active team');
+});
+
+it('rejects face tags that assign a person from another team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Other team']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+    $asset = (new CreateMediaAsset())->execute(['kind' => 'photograph', 'name' => 'Tagged photograph']);
+    $tag = MediaFaceTag::query()->create([
+        'media_asset_id' => $asset->getKey(),
+        'confidence' => 90,
+        'bounding_box' => ['left' => 0, 'top' => 0, 'width' => 1, 'height' => 1],
+        'status' => 'pending',
+    ]);
+
+    expect(fn () => app(ReviewMediaFaceTag::class)->execute($tag->withoutRelations(), 'confirmed', $person->getKey()))
+        ->toThrow(InvalidArgumentException::class, 'tagged person');
 });

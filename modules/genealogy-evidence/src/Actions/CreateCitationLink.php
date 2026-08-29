@@ -23,6 +23,14 @@ final class CreateCitationLink
         if (! in_array($values['group'], CitationLink::GROUPS, true)) {
             throw new InvalidArgumentException('The citation link group is not supported.');
         }
+        if (CitationLink::query()
+            ->where('team_id', $teamId)
+            ->where('citation_id', $citation->getKey())
+            ->where('subject_person_id', $values['subject_person_id'])
+            ->where('group', $values['group'])
+            ->exists()) {
+            throw new InvalidArgumentException('The citation link already exists for this citation, person, and group.');
+        }
         $values['team_id'] = $teamId;
         $values['citation_id'] = $citation->getKey();
 
