@@ -13,6 +13,7 @@ use Liberu\Genealogy\Collaboration\Actions\InviteCollaborationMember;
 use Liberu\Genealogy\Collaboration\Actions\RecordCollaborationAttribution;
 use Liberu\Genealogy\Collaboration\Actions\ReviewCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Actions\ToggleCollaborationWatch;
+use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationDiscussion;
 use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalCreated;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalReviewed;
@@ -169,6 +170,22 @@ it('rejects incomplete collaboration attribution records', function (): void {
 
     expect(fn () => app(RecordCollaborationAttribution::class)->execute('discussion', 'record-1', '  '))
         ->toThrow(InvalidArgumentException::class, 'required');
+});
+
+it('enforces discussion statuses through domain actions', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(CreateCollaborationDiscussion::class)->execute([
+        'body' => 'Invalid status',
+        'status' => 'unsupported',
+    ]))->toThrow(InvalidArgumentException::class, 'status is invalid');
+
+    $discussion = app(CreateCollaborationDiscussion::class)->execute(['body' => 'Valid discussion']);
+    expect(fn () => app(UpdateCollaborationDiscussion::class)->execute($discussion, [
+        'status' => 'unsupported',
+    ]))->toThrow(InvalidArgumentException::class, 'status is invalid');
 });
 
 it('does not expose direct invitation editing in the Filament adapter', function (): void {

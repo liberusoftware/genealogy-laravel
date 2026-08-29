@@ -25,6 +25,9 @@ final class CreateCollaborationDiscussion
         $values = Arr::only($attributes, ['space_id', 'proposal_id', 'author_id', 'status', 'metadata']);
         $values['body'] = $body;
         $values['team_id'] = app(TeamContext::class)->require();
+        if (isset($values['status']) && ! in_array($values['status'], CollaborationDiscussion::STATUSES, true)) {
+            throw new InvalidArgumentException('The collaboration discussion status is invalid.');
+        }
         $this->assertReferenceBelongsToTeam(CollaborationSpace::class, $values['space_id'] ?? null, 'space');
         $this->assertReferenceBelongsToTeam(CollaborationProposal::class, $values['proposal_id'] ?? null, 'proposal');
 

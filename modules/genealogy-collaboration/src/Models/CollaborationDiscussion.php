@@ -11,6 +11,8 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class CollaborationDiscussion extends Model
 {
+    public const STATUSES = ['open', 'resolved', 'archived'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;
