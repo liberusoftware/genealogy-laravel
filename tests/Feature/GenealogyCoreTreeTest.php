@@ -113,6 +113,16 @@ it('rejects invalid lifecycle values before persistence', function (): void {
         ->toThrow(InvalidArgumentException::class);
 });
 
+it('rejects empty identifiers during tree updates', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $tree = (new CreateTree())->execute(['name' => 'Identified tree', 'identifier' => 'primary']);
+
+    expect(fn () => (new UpdateTree())->execute($tree, ['identifier' => '   ']))
+        ->toThrow(InvalidArgumentException::class, 'identifier cannot be empty');
+    expect($tree->fresh()->identifier)->toBe('primary');
+});
+
 it('rejects a root person from another team', function (): void {
     $owner = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $owner->id]);
