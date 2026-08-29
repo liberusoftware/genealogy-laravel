@@ -71,6 +71,21 @@ it('rejects duplicate and cyclic parent edges while allowing uncertain links', f
         ->and($validator->validate($grandparent->id, $child->id, 'uncertain')['valid'])->toBeTrue();
 });
 
+it('rejects reversed duplicate partner edges', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $first = (new CreatePerson())->execute(['given_name' => 'First']);
+    $second = (new CreatePerson())->execute(['given_name' => 'Second']);
+    $create = new CreateRelationship();
+    $create->execute(['person_id' => $first->id, 'related_person_id' => $second->id, 'type' => 'partner']);
+
+    expect(fn () => $create->execute([
+        'person_id' => $second->id,
+        'related_person_id' => $first->id,
+        'type' => 'partner',
+    ]))->toThrow(InvalidArgumentException::class, 'already exists');
+});
+
 it('does not inspect another teams parent graph while validating an edge', function (): void {
     $team = Team::factory()->create();
     app(TeamContext::class)->set($team->id);

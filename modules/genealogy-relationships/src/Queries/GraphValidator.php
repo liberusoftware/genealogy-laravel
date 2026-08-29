@@ -29,9 +29,17 @@ final class GraphValidator
 
         if (Relationship::query()
             ->forTeam(app(TeamContext::class)->require())
-            ->where('person_id', $personId)
-            ->where('related_person_id', $relatedPersonId)
             ->where('type', $type)
+            ->where(function ($query) use ($personId, $relatedPersonId, $type): void {
+                $query->where('person_id', $personId)
+                    ->where('related_person_id', $relatedPersonId);
+
+                if ($type === 'partner') {
+                    $query->orWhere(fn ($reverse) => $reverse
+                        ->where('person_id', $relatedPersonId)
+                        ->where('related_person_id', $personId));
+                }
+            })
             ->when($ignoreRelationshipId !== null, fn ($query) => $query->where($query->getModel()->getQualifiedKeyName(), '<>', $ignoreRelationshipId))
             ->exists()) {
             return ['valid' => false, 'reason' => 'This relationship already exists.'];
