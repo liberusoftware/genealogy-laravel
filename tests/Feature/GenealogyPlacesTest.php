@@ -123,3 +123,20 @@ it('projects a nested place hierarchy through the API', function (): void {
         ->assertJsonPath('data.0.name', 'Country')
         ->assertJsonPath('data.0.children.0.name', 'City');
 });
+
+it('retains disconnected place components in hierarchy projections', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $first = (new CreatePlace())->execute(['name' => 'First']);
+    $second = (new CreatePlace())->execute(['name' => 'Second']);
+
+    // Simulate a legacy/imported cycle that cannot be reached from a root.
+    $first->forceFill(['parent_id' => $second->id])->saveQuietly();
+    $second->forceFill(['parent_id' => $first->id])->saveQuietly();
+
+    $hierarchy = (new PlaceHierarchy())->execute(flat: true);
+
+    expect(collect($hierarchy)->pluck('id'))
+        ->toContain((string) $first->id)
+        ->toContain((string) $second->id);
+});
