@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
+use Liberu\Genealogy\Media\Actions\AnalyzeMediaFaces;
 use Liberu\Genealogy\Media\Actions\CreateMediaAsset;
 use Liberu\Genealogy\Media\Actions\CreateMediaLink;
 use Liberu\Genealogy\Media\Actions\StoreMediaUpload;
@@ -92,5 +93,17 @@ it('rejects direct transcription for an asset outside the active team', function
     app(TeamContext::class)->set($secondTeam->id);
 
     expect(fn () => (new TranscribeMediaAsset())->execute($asset->withoutRelations()))
+        ->toThrow(InvalidArgumentException::class, 'active team');
+});
+
+it('rejects direct face analysis for an asset outside the active team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $asset = (new CreateMediaAsset())->execute(['kind' => 'photograph', 'name' => 'Private photograph']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => (new AnalyzeMediaFaces())->execute($asset->withoutRelations()))
         ->toThrow(InvalidArgumentException::class, 'active team');
 });
