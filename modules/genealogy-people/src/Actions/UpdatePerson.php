@@ -22,8 +22,11 @@ final class UpdatePerson
             'given_name', 'family_name', 'display_name', 'sex', 'aliases', 'attributes',
             'birth_date', 'death_date', 'birth_place', 'death_place', 'is_public', 'metadata',
         ]);
-        if (array_key_exists('given_name', $values) && trim((string) $values['given_name']) === '') {
-            throw new InvalidArgumentException('A given name is required.');
+        if (array_key_exists('given_name', $values)) {
+            $values['given_name'] = trim((string) $values['given_name']);
+            if ($values['given_name'] === '') {
+                throw new InvalidArgumentException('A given name is required.');
+            }
         }
         if (array_key_exists('sex', $values)) {
             $values['sex'] = Person::normalizeSex($values['sex']);

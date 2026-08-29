@@ -144,7 +144,8 @@ it('publishes person update and deletion events after transactional mutations', 
     app(TeamContext::class)->set($team->id);
     $person = (new CreatePerson())->execute(['given_name' => 'Before']);
 
-    (new UpdatePerson())->execute($person, ['given_name' => 'After']);
+    (new UpdatePerson())->execute($person, ['given_name' => '  After  ']);
+    expect($person->fresh()->given_name)->toBe('After');
     Event::assertDispatched(PersonUpdated::class);
 
     (new DeletePerson())->execute($person);
