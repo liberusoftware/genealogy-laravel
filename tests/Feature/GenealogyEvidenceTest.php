@@ -14,6 +14,7 @@ use Liberu\Genealogy\Evidence\Actions\CreateProofConclusion;
 use Liberu\Genealogy\Evidence\Actions\CreateRepository;
 use Liberu\Genealogy\Evidence\Actions\CreateSource;
 use Liberu\Genealogy\Evidence\Actions\ReviewEvidenceRecord;
+use Liberu\Genealogy\Evidence\Actions\UpdateCitationLink;
 use Liberu\Genealogy\Evidence\Events\EvidenceRecordArchived;
 use Liberu\Genealogy\Evidence\Events\EvidenceRecordCreated;
 use Liberu\Genealogy\Evidence\Events\EvidenceRecordReviewed;
@@ -229,6 +230,29 @@ it('preserves person citation links with GEDCOM source metadata', function (): v
         'group' => 'indi_name', 'quality' => 'probably reliable',
     ]);
     expect($freeText->qualityLabel())->toBe('probably reliable');
+});
+
+it('rejects duplicate citation links at the domain boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada']);
+    $source = app(CreateSource::class)->execute(['name' => 'Parish register']);
+    $citation = app(CreateCitation::class)->execute(['source_id' => $source->id]);
+    $link = app(CreateCitationLink::class)->execute([
+        'citation_id' => $citation->id, 'subject_person_id' => $person->id, 'group' => 'indi',
+    ]);
+
+    expect(fn () => app(CreateCitationLink::class)->execute([
+        'citation_id' => $citation->id, 'subject_person_id' => $person->id, 'group' => 'indi',
+    ]))->toThrow(InvalidArgumentException::class, 'already exists');
+
+    $other = app(CreateCitationLink::class)->execute([
+        'citation_id' => $citation->id, 'subject_person_id' => $person->id, 'group' => 'indi_name',
+    ]);
+
+    expect(fn () => app(UpdateCitationLink::class)->execute($other, ['group' => 'indi']))
+        ->toThrow(InvalidArgumentException::class, 'already exists');
 });
 
 it('rejects supporting evidence references from another team', function (): void {
