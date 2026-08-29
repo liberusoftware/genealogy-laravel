@@ -198,6 +198,20 @@ it('does not expose direct invitation editing in the Filament adapter', function
         ->not->toHaveKey('edit');
 });
 
+it('validates collaboration Livewire review inputs', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->getKey());
+    $proposal = app(CreateCollaborationProposal::class)->execute(['title' => 'Review me']);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-collaboration-proposal-editor')
+        ->set('proposalId', $proposal->getKey())
+        ->call('review', 'unsupported')
+        ->assertHasErrors(['status']);
+});
+
 it('runs invitation lifecycle mutations through the Livewire action boundary', function (): void {
     $owner = User::factory()->create();
     $invitee = User::factory()->create();

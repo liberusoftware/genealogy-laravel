@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Collaboration\Livewire;
 
+use Illuminate\Support\Facades\Validator;
 use Liberu\Genealogy\Collaboration\Actions\CreateCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Actions\ReviewCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationProposal;
@@ -54,8 +55,11 @@ final class CollaborationProposalEditor extends Component
     public function review(string $status, ReviewCollaborationProposal $review): void
     {
         $this->validate(['proposalId' => ['required', 'uuid']]);
-        abort_unless(in_array($status, ['in_review', 'approved', 'rejected'], true), 422);
-        $review->execute($this->proposal(), $status, auth()->id());
+        $values = Validator::validate(
+            ['status' => $status],
+            ['status' => ['required', 'in:in_review,approved,rejected']],
+        );
+        $review->execute($this->proposal(), $values['status'], auth()->id());
         $this->dispatch('collaboration-proposal-reviewed');
     }
 
