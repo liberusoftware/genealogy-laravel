@@ -122,6 +122,31 @@ it('exports partner family events in GRAMPS XML', function (): void {
         ->toContain('<eventref hlink="E1" />');
 });
 
+it('consolidates partner and parent edges into one export family', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $father = (new CreatePerson())->execute(['given_name' => 'Father', 'sex' => 'M']);
+    $mother = (new CreatePerson())->execute(['given_name' => 'Mother', 'sex' => 'F']);
+    $firstChild = (new CreatePerson())->execute(['given_name' => 'First child']);
+    $secondChild = (new CreatePerson())->execute(['given_name' => 'Second child']);
+    $create = new CreateRelationship();
+    $create->execute(['person_id' => $father->id, 'related_person_id' => $mother->id, 'type' => 'partner']);
+    foreach ([$firstChild, $secondChild] as $child) {
+        $create->execute(['person_id' => $father->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+        $create->execute(['person_id' => $mother->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+    }
+
+    $people = Person::query()->get();
+    $relationships = Relationship::query()->get();
+    $gedcom = app(GedcomExporter::class)->export($people, $relationships);
+    $gramps = app(GrampsExporter::class)->export($people, $relationships);
+
+    expect(substr_count($gedcom, "@ FAM\n"))->toBe(1)
+        ->and(substr_count($gedcom, '1 CHIL '))->toBe(2)
+        ->and(substr_count($gramps, '<family id='))->toBe(1)
+        ->and(substr_count($gramps, '<childref ref='))->toBe(2);
+});
+
 it('maps alternate names and life events through the import boundary', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);

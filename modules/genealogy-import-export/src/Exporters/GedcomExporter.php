@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\ImportExport\Exporters;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 
@@ -61,7 +62,7 @@ final class GedcomExporter
                 if (in_array((string) $person->getKey(), $family['parents'], true)) {
                     $lines[] = '1 FAMS '.$family['xref'];
                 }
-                if ($family['child'] === (string) $person->getKey()) {
+                if (in_array((string) $person->getKey(), $family['children'], true)) {
                     $lines[] = '1 FAMC '.$family['xref'];
                 }
             }
@@ -76,8 +77,10 @@ final class GedcomExporter
                 }
                 $lines[] = '1 '.($parent->sex === 'F' ? 'WIFE ' : 'HUSB ').$this->xref($parent);
             }
-            if ($family['child'] !== null && ($child = $peopleById->get($family['child']))) {
-                $lines[] = '1 CHIL '.$this->xref($child);
+            foreach ($family['children'] as $childId) {
+                if ($child = $peopleById->get($childId)) {
+                    $lines[] = '1 CHIL '.$this->xref($child);
+                }
             }
             foreach ($family['events'] as $event) {
                 $tag = match ($event['type'] ?? null) {
@@ -106,22 +109,58 @@ final class GedcomExporter
         return implode("\n", $lines)."\n";
     }
 
-    /** @return list<array{xref: string, parents: list<string>, child: ?string, events: list<array<string, mixed>>}> */
+    /** @return list<array{xref: string, parents: list<string>, children: list<string>, events: list<array<string, mixed>>}> */
     private function families(Collection $people, Collection $relationships): array
     {
         $families = [];
-        foreach ($relationships as $relationship) {
-            if (! $people->has($relationship->person_id) || ! $people->has($relationship->related_person_id)) {
+        $partnerGroups = [];
+        foreach ($relationships->where('type', 'partner') as $relationship) {
+            $parents = [(string) $relationship->person_id, (string) $relationship->related_person_id];
+            if (! $people->has($parents[0]) || ! $people->has($parents[1])) {
                 continue;
             }
-            if ($relationship->type === 'parent') {
-                $families[] = ['xref' => '@F'.substr(sha1($relationship->person_id.$relationship->related_person_id), 0, 12).'@', 'parents' => [(string) $relationship->person_id], 'child' => (string) $relationship->related_person_id, 'events' => $relationship->metadata['family_events'] ?? []];
-            } elseif ($relationship->type === 'partner') {
-                $families[] = ['xref' => '@F'.substr(sha1($relationship->person_id.$relationship->related_person_id), 0, 12).'@', 'parents' => [(string) $relationship->person_id, (string) $relationship->related_person_id], 'child' => null, 'events' => $relationship->metadata['family_events'] ?? []];
-            }
+            sort($parents);
+            $key = implode('|', $parents);
+            $partnerGroups[$key] = ['parents' => $parents, 'children' => [], 'events' => $relationship->metadata['family_events'] ?? []];
         }
 
-        return $families;
+        foreach ($relationships->where('type', 'parent')->groupBy('related_person_id') as $childId => $parentRelationships) {
+            if (! $people->has((string) $childId)) {
+                continue;
+            }
+            $parents = $parentRelationships
+                ->map(fn (Model $relationship): string => (string) $relationship->person_id)
+                ->filter(fn (string $parentId): bool => $people->has($parentId))
+                ->unique()
+                ->sort()
+                ->values()
+                ->all();
+            if ($parents === []) {
+                continue;
+            }
+            $partnerKey = implode('|', $parents);
+            if (isset($partnerGroups[$partnerKey])) {
+                $partnerGroups[$partnerKey]['children'][] = (string) $childId;
+
+                continue;
+            }
+            $key = 'single:'.implode('|', $parents);
+            $families[$key] ??= ['parents' => $parents, 'children' => [], 'events' => []];
+            $families[$key]['children'][] = (string) $childId;
+        }
+
+        foreach ($partnerGroups as $key => $family) {
+            $families['partner:'.$key] = $family;
+        }
+
+        foreach ($families as $key => $family) {
+            $families[$key]['children'] = array_values(array_unique($family['children']));
+        }
+
+        return array_values(array_map(fn (array $family): array => [
+            'xref' => '@F'.substr(sha1(implode('|', $family['parents']).'|'.implode('|', $family['children'])), 0, 12).'@',
+            ...$family,
+        ], $families));
     }
 
     private function xref(Person $person): string
