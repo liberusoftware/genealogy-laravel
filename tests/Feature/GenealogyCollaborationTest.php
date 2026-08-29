@@ -67,6 +67,34 @@ it('exposes proposal creation, review, filtering, and bounded pagination through
         ->assertUnprocessable()->assertJsonValidationErrors(['page.size']);
 });
 
+it('serializes collaboration spaces through an explicit API resource', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+
+    $response = $this->actingAs($user)->postJson('/api/v1/genealogy/collaboration', [
+        'name' => 'Archive review',
+        'status' => 'active',
+        'metadata' => ['source' => 'api'],
+    ])->assertCreated()
+        ->assertJsonPath('data.type', 'genealogy-collaboration-space')
+        ->assertJsonPath('data.attributes.name', 'Archive review')
+        ->assertJsonPath('data.attributes.status', 'active');
+
+    $this->actingAs($user)->getJson('/api/v1/genealogy/collaboration')
+        ->assertOk()
+        ->assertJsonPath('data.0.type', 'genealogy-collaboration-space')
+        ->assertJsonMissingPath('data.0.team_id');
+
+    $this->actingAs($user)->postJson('/api/v1/genealogy/collaboration', [
+        'name' => 'Invalid space',
+        'status' => 'unsupported',
+    ])->assertUnprocessable()->assertJsonValidationErrors(['status']);
+
+    expect($response->json('data.attributes.metadata'))->toBe(['source' => 'api']);
+});
+
 it('filters proposals through the Livewire list', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
