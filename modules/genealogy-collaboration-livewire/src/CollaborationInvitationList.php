@@ -21,6 +21,19 @@ final class CollaborationInvitationList extends Component
 
     public ?string $spaceId = null;
 
+    /** @return array<string, array<int, mixed>> */
+    protected function rules(): array
+    {
+        return [
+            'status' => ['nullable', 'in:'.implode(',', CollaborationInvitation::STATUSES)],
+        ];
+    }
+
+    public function updatedStatus(): void
+    {
+        $this->validateOnly('status');
+    }
+
     public function invite(InviteCollaborationMember $invite): void
     {
         abort_unless(auth()->check(), 403);

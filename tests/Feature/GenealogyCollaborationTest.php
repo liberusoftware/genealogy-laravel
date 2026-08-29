@@ -213,6 +213,11 @@ it('runs invitation lifecycle mutations through the Livewire action boundary', f
         ->call('invite')
         ->assertDispatched('collaboration-invitation-created');
 
+    Livewire::actingAs($owner)
+        ->test('genealogy-collaboration-invitation-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
     $invitation = CollaborationInvitation::query()->firstOrFail();
     expect($invitation->email)->toBe(mb_strtolower($invitee->email))
         ->and($invitation->status)->toBe('pending');
