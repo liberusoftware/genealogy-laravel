@@ -5,6 +5,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
+use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\Timeline\Actions\CreateTimelineEvent;
 use Liberu\Genealogy\Timeline\Actions\UpdateTimelineEvent;
 use Liberu\Genealogy\Timeline\Queries\ChronologicalTimeline;
@@ -42,6 +43,20 @@ it('rejects invalid timeline date ranges', function (): void {
 
     expect(fn () => (new CreateTimelineEvent())->execute(['name' => 'Invalid', 'date_start' => '1901-01-01', 'date_end' => '1900-01-01']))
         ->toThrow(ValidationException::class);
+});
+
+it('rejects a timeline subject person from another team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $person = app(CreatePerson::class)->execute(['given_name' => 'Other team']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => app(CreateTimelineEvent::class)->execute([
+        'name' => 'Private event',
+        'subject_person_id' => $person->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'subject person');
 });
 
 it('includes partial and open-ended dates in bounded timeline ranges', function (): void {
