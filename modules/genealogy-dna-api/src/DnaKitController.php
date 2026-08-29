@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Dna\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Liberu\Genealogy\Dna\Actions\CreateDnaKit;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaKit;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
@@ -15,6 +16,7 @@ use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Models\DnaConsent;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Services\DnaFileValidator;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 
 final class DnaKitController
 {
@@ -32,7 +34,7 @@ final class DnaKitController
     public function store(Request $request, CreateDnaKit $create): JsonResponse
     {
         $record = $create->execute($request->validate([
-            'name' => ['required', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'provider_id' => ['nullable', 'uuid', 'exists:genealogy_dna_providers,id'], 'external_id' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'provider_id' => ['nullable', 'uuid', Rule::exists('genealogy_dna_providers', 'id')->where('team_id', app(TeamContext::class)->require())], 'external_id' => ['nullable', 'string', 'max:255'],
             'person_id' => ['nullable', 'uuid'], 'test_type' => ['nullable', 'string', 'max:100'], 'consent_status' => ['sometimes', 'in:'.implode(',', DnaKit::CONSENT_STATUSES)],
             'status' => ['sometimes', 'string', 'max:50'],
             'metadata' => ['nullable', 'array'],
@@ -77,7 +79,7 @@ final class DnaKitController
     public function update(Request $request, DnaKit $record, UpdateDnaKit $update): JsonResponse
     {
         $values = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'provider_id' => ['nullable', 'uuid', 'exists:genealogy_dna_providers,id'], 'external_id' => ['nullable', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'], 'provider' => ['nullable', 'string', 'max:100'], 'provider_id' => ['nullable', 'uuid', Rule::exists('genealogy_dna_providers', 'id')->where('team_id', app(TeamContext::class)->require())], 'external_id' => ['nullable', 'string', 'max:255'],
             'person_id' => ['nullable', 'uuid'], 'test_type' => ['nullable', 'string', 'max:100'], 'consent_status' => ['sometimes', 'in:'.implode(',', DnaKit::CONSENT_STATUSES)],
             'status' => ['sometimes', 'string', 'max:50'],
             'metadata' => ['nullable', 'array'],

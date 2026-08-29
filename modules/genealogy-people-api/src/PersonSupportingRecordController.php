@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreateMergeCandidate;
 use Liberu\Genealogy\People\Actions\CreatePersonIdentity;
 use Liberu\Genealogy\People\Actions\CreatePersonLifeEvent;
@@ -84,7 +85,7 @@ final class PersonSupportingRecordController
             'names' => ['type' => ['sometimes', 'string', 'max:50'], 'given_name' => [$required, 'nullable', 'string', 'max:255'], 'family_name' => [$required, 'nullable', 'string', 'max:255'], 'prefix' => ['nullable', 'string', 'max:50'], 'suffix' => ['nullable', 'string', 'max:50'], 'is_preferred' => ['sometimes', 'boolean'], 'metadata' => ['nullable', 'array']],
             'identities' => ['type' => [$required, 'string', 'max:100'], 'value' => [$required, 'string', 'max:500'], 'label' => ['nullable', 'string', 'max:255'], 'is_verified' => ['sometimes', 'boolean'], 'metadata' => ['nullable', 'array']],
             'life-events' => ['type' => [$required, 'string', 'max:100'], 'date' => ['nullable', 'date'], 'place' => ['nullable', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']],
-            default => ['candidate_person_id' => [$required, 'uuid', Rule::exists('genealogy_people', 'id')], 'status' => ['sometimes', 'in:pending,accepted,rejected'], 'score' => ['nullable', 'numeric', 'between:0,1'], 'reason' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']],
+            default => ['candidate_person_id' => [$required, 'uuid', Rule::exists('genealogy_people', 'id')->where('team_id', app(TeamContext::class)->require())], 'status' => ['sometimes', 'in:pending,accepted,rejected'], 'score' => ['nullable', 'numeric', 'between:0,1'], 'reason' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']],
         });
     }
 
