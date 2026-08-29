@@ -20,7 +20,6 @@ final class ChronologicalTimeline
                     ->orWhere('date_start', '>=', $from)
                     ->orWhere(fn ($openEnded) => $openEnded
                         ->whereNull('date_end')
-                        ->whereNull('event_date')
                         ->whereNotNull('date_start'));
             }))
             ->when($to !== null, fn ($query) => $query->where(function ($query) use ($to): void {
@@ -29,7 +28,6 @@ final class ChronologicalTimeline
                     ->orWhere('date_end', '<=', $to)
                     ->orWhere(fn ($openEnded) => $openEnded
                         ->whereNull('date_start')
-                        ->whereNull('event_date')
                         ->whereNotNull('date_end'));
             }))
             ->when(! $includePrivate, fn ($query) => $query->where('is_private', false))

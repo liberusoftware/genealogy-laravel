@@ -45,6 +45,17 @@ it('includes partial and open-ended dates in bounded timeline ranges', function 
     expect($eventIds)->toContain($startOnly->id)->toContain($endOnly->id);
 });
 
+it('includes open-ended events that overlap a bounded range', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $startedBeforeRange = (new CreateTimelineEvent())->execute(['name' => 'Started before range', 'date_start' => '1900-01-01']);
+    $endsAfterRange = (new CreateTimelineEvent())->execute(['name' => 'Ends after range', 'date_end' => '2100-01-01']);
+
+    $eventIds = array_column((new ChronologicalTimeline())->execute(from: '1950-01-01', to: '2050-01-01'), 'id');
+
+    expect($eventIds)->toContain($startedBeforeRange->id)->toContain($endsAfterRange->id);
+});
+
 it('groups conflicting evidence and exposes the conflict view through the API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
