@@ -38,6 +38,20 @@ it('rejects unsupported media semantics', function (): void {
         ->toThrow(ValidationException::class);
 });
 
+it('requires and normalizes media asset names at both mutation boundaries', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => (new CreateMediaAsset())->execute(['name' => '   ']))
+        ->toThrow(ValidationException::class);
+
+    $asset = (new CreateMediaAsset())->execute(['name' => '  Family portrait  ']);
+    expect($asset->name)->toBe('Family portrait');
+
+    $updated = (new UpdateMediaAsset())->execute($asset, ['name' => '  Updated portrait  ']);
+    expect($updated->name)->toBe('Updated portrait');
+});
+
 it('stores uploaded media with preservation metadata and a checksum', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);

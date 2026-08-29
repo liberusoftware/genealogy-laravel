@@ -15,6 +15,7 @@ final class CreateMediaAsset
     {
         $values = Arr::only($attributes, ['kind', 'name', 'storage_disk', 'storage_path', 'mime_type', 'byte_size', 'checksum', 'captured_at', 'captured_place_id', 'transcription', 'transcription_status', 'transcription_language', 'rights_holder', 'rights_status', 'license_url', 'rights_expires_at', 'is_public', 'preservation_metadata', 'status', 'metadata']);
         $this->validate($values);
+        $values['name'] = trim((string) $values['name']);
 
         $asset = MediaAsset::query()->getConnection()->transaction(function () use ($values): MediaAsset {
             $asset = MediaAsset::query()->create($values);
@@ -32,6 +33,9 @@ final class CreateMediaAsset
     /** @param array<string, mixed> $values */
     public function validate(array $values): void
     {
+        if (trim((string) ($values['name'] ?? '')) === '') {
+            throw ValidationException::withMessages(['name' => 'A media asset name is required.']);
+        }
         if (isset($values['kind']) && ! in_array($values['kind'], MediaAsset::KINDS, true)) {
             throw ValidationException::withMessages(['kind' => 'The selected media kind is invalid.']);
         }
