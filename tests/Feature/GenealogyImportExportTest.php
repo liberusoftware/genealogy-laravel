@@ -41,6 +41,33 @@ it('parses GEDCOM and reports malformed document errors without importing it', f
         ->and((new GenealogyDocumentParser())->parse('not GEDCOM')['errors'])->not->toBeEmpty();
 });
 
+it('preserves GEDCOM family marriage and divorce events through import and export', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $content = implode("\n", [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Ada /Example/',
+        '0 @I2@ INDI', '1 NAME Charles /Example/',
+        '0 @F1@ FAM', '1 HUSB @I1@', '1 WIFE @I2@',
+        '1 MARR', '2 DATE 10 DEC 1843', '2 PLAC London',
+        '1 DIV', '2 DATE 01 JAN 1850', '2 NOTE Civil record',
+        '0 TRLR',
+    ]);
+
+    $parsed = app(GenealogyDocumentParser::class)->parse($content);
+    expect($parsed['families'][0]['events'])->toBe([
+        ['type' => 'marriage', 'date' => '1843-12-10', 'place' => 'London', 'description' => null],
+        ['type' => 'divorce', 'date' => '1850-01-01', 'place' => null, 'description' => 'Civil record'],
+    ]);
+
+    app(GenealogyImportService::class)->import($content, false);
+    $gedcom = app(GedcomExporter::class)->export(Person::query()->get(), Relationship::query()->get());
+
+    expect($gedcom)->toContain("1 MARR\n2 DATE 1843-12-10\n2 PLAC London")
+        ->toContain("1 DIV\n2 DATE 1850-01-01\n2 NOTE Civil record");
+});
+
 it('maps alternate names and life events through the import boundary', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);

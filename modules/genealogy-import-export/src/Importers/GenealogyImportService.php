@@ -147,6 +147,10 @@ final class GenealogyImportService
                 $relationships = 0;
                 foreach ($document['families'] as $family) {
                     $parents = array_values(array_filter([$family['husband'], $family['wife']], fn (?string $xref): bool => $xref !== null && isset($byXref[$xref])));
+                    $familyMetadata = [
+                        'gedcom_xref' => $family['xref'],
+                        'family_events' => $family['events'] ?? [],
+                    ];
                     foreach ($family['children'] as $childXref) {
                         if (! isset($byXref[$childXref])) {
                             continue;
@@ -157,7 +161,7 @@ final class GenealogyImportService
                                 'related_person_id' => $byXref[$childXref]->getKey(),
                                 'type' => 'parent',
                                 'confidence' => 100,
-                                'metadata' => ['gedcom_xref' => $family['xref']],
+                                'metadata' => $familyMetadata,
                             ])) !== null) {
                                 $createdRelationships[] = (string) $relationship->getKey();
                                 $relationships++;
@@ -170,7 +174,7 @@ final class GenealogyImportService
                             'related_person_id' => $byXref[$parents[1]]->getKey(),
                             'type' => 'partner',
                             'confidence' => 100,
-                            'metadata' => ['gedcom_xref' => $family['xref']],
+                                'metadata' => $familyMetadata,
                         ])) !== null) {
                             $createdRelationships[] = (string) $relationship->getKey();
                             $relationships++;

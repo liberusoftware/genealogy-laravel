@@ -152,10 +152,30 @@ final class GenealogyDocumentParser
     /** @param array{xref: ?string, type: string, lines: list<array{level: int, tag: string, value: string}>} $record */
     private function familyFromGedcom(array $record): array
     {
-        $family = ['xref' => $record['xref'], 'husband' => null, 'wife' => null, 'children' => []];
+        $family = ['xref' => $record['xref'], 'husband' => null, 'wife' => null, 'children' => [], 'events' => []];
+        $event = null;
+        $eventData = [];
 
         foreach ($record['lines'] as $line) {
+            if ($line['level'] === 1) {
+                if ($eventData !== []) {
+                    $family['events'][] = $eventData;
+                }
+                $event = null;
+                $eventData = [];
+            }
+
             if ($line['level'] !== 1) {
+                if ($line['level'] >= 2 && $event !== null) {
+                    if ($line['tag'] === 'DATE') {
+                        $eventData['date'] = $this->date($line['value']);
+                    } elseif ($line['tag'] === 'PLAC') {
+                        $eventData['place'] = trim($line['value']);
+                    } elseif (in_array($line['tag'], ['NOTE', 'TEXT', 'AGNC', 'TYPE'], true)) {
+                        $eventData['description'] = trim($line['value']);
+                    }
+                }
+
                 continue;
             }
 
@@ -165,7 +185,14 @@ final class GenealogyDocumentParser
                 $family['wife'] = $line['value'];
             } elseif ($line['tag'] === 'CHIL') {
                 $family['children'][] = $line['value'];
+            } elseif (in_array($line['tag'], ['MARR', 'DIV'], true)) {
+                $event = $line['tag'];
+                $eventData = ['type' => $line['tag'] === 'MARR' ? 'marriage' : 'divorce', 'date' => null, 'place' => null, 'description' => null];
             }
+        }
+
+        if ($eventData !== []) {
+            $family['events'][] = $eventData;
         }
 
         return $family;

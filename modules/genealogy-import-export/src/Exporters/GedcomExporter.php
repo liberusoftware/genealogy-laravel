@@ -79,6 +79,26 @@ final class GedcomExporter
             if ($family['child'] !== null && ($child = $peopleById->get($family['child']))) {
                 $lines[] = '1 CHIL '.$this->xref($child);
             }
+            foreach ($family['events'] as $event) {
+                $tag = match ($event['type'] ?? null) {
+                    'marriage' => 'MARR',
+                    'divorce' => 'DIV',
+                    default => null,
+                };
+                if ($tag === null) {
+                    continue;
+                }
+                $lines[] = '1 '.$tag;
+                if (($event['date'] ?? null) !== null) {
+                    $lines[] = '2 DATE '.$event['date'];
+                }
+                if (($event['place'] ?? null) !== null) {
+                    $lines[] = '2 PLAC '.$event['place'];
+                }
+                if (($event['description'] ?? null) !== null) {
+                    $lines[] = '2 NOTE '.$event['description'];
+                }
+            }
         }
 
         $lines[] = '0 TRLR';
@@ -86,7 +106,7 @@ final class GedcomExporter
         return implode("\n", $lines)."\n";
     }
 
-    /** @return list<array{xref: string, parents: list<string>, child: ?string}> */
+    /** @return list<array{xref: string, parents: list<string>, child: ?string, events: list<array<string, mixed>>}> */
     private function families(Collection $people, Collection $relationships): array
     {
         $families = [];
@@ -95,9 +115,9 @@ final class GedcomExporter
                 continue;
             }
             if ($relationship->type === 'parent') {
-                $families[] = ['xref' => '@F'.substr(sha1($relationship->person_id.$relationship->related_person_id), 0, 12).'@', 'parents' => [(string) $relationship->person_id], 'child' => (string) $relationship->related_person_id];
+                $families[] = ['xref' => '@F'.substr(sha1($relationship->person_id.$relationship->related_person_id), 0, 12).'@', 'parents' => [(string) $relationship->person_id], 'child' => (string) $relationship->related_person_id, 'events' => $relationship->metadata['family_events'] ?? []];
             } elseif ($relationship->type === 'partner') {
-                $families[] = ['xref' => '@F'.substr(sha1($relationship->person_id.$relationship->related_person_id), 0, 12).'@', 'parents' => [(string) $relationship->person_id, (string) $relationship->related_person_id], 'child' => null];
+                $families[] = ['xref' => '@F'.substr(sha1($relationship->person_id.$relationship->related_person_id), 0, 12).'@', 'parents' => [(string) $relationship->person_id, (string) $relationship->related_person_id], 'child' => null, 'events' => $relationship->metadata['family_events'] ?? []];
             }
         }
 
