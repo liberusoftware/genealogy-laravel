@@ -86,7 +86,7 @@ it('keeps identifiers unique per team, stores terminology, and emits lifecycle e
 
     $tree = (new CreateTree())->execute([
         'name' => 'Identified tree',
-        'identifier' => 'primary',
+        'identifier' => '  primary  ',
         'terminology' => ['ancestor' => 'forebear'],
         'user_id' => $user->id,
     ]);

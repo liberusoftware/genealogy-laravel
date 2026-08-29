@@ -22,6 +22,9 @@ final class CreateTree
             'name', 'status', 'description', 'root_person_id', 'is_public', 'metadata', 'user_id', 'identifier', 'terminology',
         ]);
         $values['name'] = trim((string) ($values['name'] ?? ''));
+        if (array_key_exists('identifier', $values) && $values['identifier'] !== null) {
+            $values['identifier'] = trim((string) $values['identifier']);
+        }
         $values['team_id'] = app(TeamContext::class)->require();
         if ($values['name'] === '') {
             throw new InvalidArgumentException('A tree name is required.');
@@ -29,7 +32,7 @@ final class CreateTree
         if (isset($values['status']) && ! in_array($values['status'], ['draft', 'active', 'archived'], true)) {
             throw new InvalidArgumentException('The tree status is invalid.');
         }
-        if (isset($values['identifier']) && trim((string) $values['identifier']) === '') {
+        if (isset($values['identifier']) && $values['identifier'] === '') {
             throw new InvalidArgumentException('A tree identifier cannot be empty.');
         }
         if (isset($values['root_person_id']) && ! $this->personBelongsToTeam($values['root_person_id'], $values['team_id'])) {

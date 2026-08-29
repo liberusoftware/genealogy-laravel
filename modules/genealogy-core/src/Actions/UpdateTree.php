@@ -21,9 +21,13 @@ final class UpdateTree
         if ((string) $tree->team_id !== app(TeamContext::class)->require()) {
             throw new InvalidArgumentException('The tree must belong to the active team.');
         }
-        $tree->fill(Arr::only($attributes, [
+        $values = Arr::only($attributes, [
             'name', 'status', 'description', 'root_person_id', 'is_public', 'metadata', 'identifier', 'terminology',
-        ]));
+        ]);
+        if (array_key_exists('identifier', $values) && $values['identifier'] !== null) {
+            $values['identifier'] = trim((string) $values['identifier']);
+        }
+        $tree->fill($values);
         if ($tree->name !== null) {
             $tree->name = trim((string) $tree->name);
         }
