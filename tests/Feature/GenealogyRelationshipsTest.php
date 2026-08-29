@@ -217,3 +217,20 @@ it('exposes the relationship calculator through the API and Livewire adapter', f
         ->call('calculate')
         ->assertSet('result.relationship', 'parent');
 });
+
+it('validates relationship list filters and protects editor mutations', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-relationships-list')
+        ->set('type', 'unsupported')
+        ->assertHasErrors(['type']);
+
+    auth()->logout();
+
+    Livewire::test('genealogy-relationships-editor')
+        ->call('save')
+        ->assertForbidden();
+});
