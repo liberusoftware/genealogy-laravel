@@ -19,6 +19,9 @@ final class UpdatePlace
             throw new InvalidArgumentException('The place must belong to the active team.');
         }
         $values = Arr::only($attributes, ['name', 'parent_id', 'historical_names', 'latitude', 'longitude', 'jurisdiction', 'is_current', 'status', 'metadata']);
+        if (array_key_exists('name', $values)) {
+            $values['name'] = trim((string) $values['name']);
+        }
         $parentId = $values['parent_id'] ?? $place->parent_id;
         $this->assertParentChainIsValid($place, $parentId);
         (new CreatePlace())->validate(array_merge($place->toArray(), $values));

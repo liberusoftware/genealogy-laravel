@@ -36,7 +36,7 @@ it('records tenant-owned places with hierarchy and coordinates', function (): vo
     ]);
     $historicalName = (new CreatePlaceName())->execute([
         'place_id' => $city->id,
-        'name' => 'Londinium',
+        'name' => '  Londinium  ',
         'type' => 'historical',
         'valid_to' => '00410-01-01',
     ]);
@@ -46,6 +46,7 @@ it('records tenant-owned places with hierarchy and coordinates', function (): vo
         ->and($city->parent_id)->toBe($country->id)
         ->and($city->parent->is($country))->toBeTrue()
         ->and($historicalName->place->is($city))->toBeTrue()
+        ->and($historicalName->name)->toBe('Londinium')
         ->and($city->hasCoordinates())->toBeTrue()
         ->and($city->mapUrl())->toContain('openstreetmap.org');
     Event::assertDispatched(PlaceCreated::class);
@@ -103,8 +104,9 @@ it('keeps place names behind domain lifecycle actions', function (): void {
     $place = (new CreatePlace())->execute(['name' => 'York']);
     $name = (new CreatePlaceName())->execute(['place_id' => $place->id, 'name' => 'Eboracum']);
 
-    (new UpdatePlaceName())->execute($name, ['valid_from' => '0071-01-01', 'valid_to' => '0400-01-01']);
-    expect($name->refresh()->valid_from->toDateString())->toBe('0071-01-01');
+    (new UpdatePlaceName())->execute($name, ['name' => '  Eboracum Nova  ', 'valid_from' => '0071-01-01', 'valid_to' => '0400-01-01']);
+    expect($name->refresh()->valid_from->toDateString())->toBe('0071-01-01')
+        ->and($name->name)->toBe('Eboracum Nova');
     (new DeletePlaceName())->execute($name);
     expect($name->refresh()->trashed())->toBeTrue();
 });
