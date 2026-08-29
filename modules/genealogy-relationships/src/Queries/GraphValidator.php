@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Relationships\Queries;
 
 use InvalidArgumentException;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 
 /**
@@ -27,6 +28,7 @@ final class GraphValidator
         }
 
         if (Relationship::query()
+            ->forTeam(app(TeamContext::class)->require())
             ->where('person_id', $personId)
             ->where('related_person_id', $relatedPersonId)
             ->where('type', $type)
@@ -70,6 +72,7 @@ final class GraphValidator
             $visited[$current] = true;
 
             $children = Relationship::query()
+                ->forTeam(app(TeamContext::class)->require())
                 ->where('type', 'parent')
                 ->where('person_id', $current)
                 ->pluck('related_person_id');

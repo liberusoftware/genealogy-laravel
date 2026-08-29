@@ -71,6 +71,23 @@ it('rejects duplicate and cyclic parent edges while allowing uncertain links', f
         ->and($validator->validate($grandparent->id, $child->id, 'uncertain')['valid'])->toBeTrue();
 });
 
+it('does not inspect another teams parent graph while validating an edge', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $parent = (new CreatePerson())->execute(['given_name' => 'Parent']);
+    $child = (new CreatePerson())->execute(['given_name' => 'Child']);
+
+    $otherTeam = Team::factory()->create();
+    $foreignRelationship = new Relationship([
+        'person_id' => $child->id,
+        'related_person_id' => $parent->id,
+        'type' => 'parent',
+    ]);
+    $foreignRelationship->forceFill(['team_id' => $otherTeam->id])->saveQuietly();
+
+    expect((new GraphValidator())->validate($parent->id, $child->id, 'parent')['valid'])->toBeTrue();
+});
+
 it('rejects direct relationship updates outside the active team', function (): void {
     $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($firstTeam->id);
