@@ -126,6 +126,6 @@ it('rejects face tags that assign a person from another team', function (): void
         'status' => 'pending',
     ]);
 
-    expect(fn () => (new ReviewMediaFaceTag())->execute($tag->withoutRelations(), 'confirmed', $person->getKey()))
+    expect(fn () => app(ReviewMediaFaceTag::class)->execute($tag->withoutRelations(), 'confirmed', $person->getKey()))
         ->toThrow(InvalidArgumentException::class, 'tagged person');
 });
