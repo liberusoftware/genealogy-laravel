@@ -24,14 +24,14 @@ final class UpdateTreeView
         $rootId = array_key_exists('root_person_id', $values) ? $values['root_person_id'] : $tree->root_person_id;
         $isPublic = array_key_exists('is_public', $values) ? (bool) $values['is_public'] : (bool) $tree->is_public;
 
-        if ($isPublic && $rootId !== null) {
+        if ($rootId !== null) {
             $person = Person::query()->find($rootId);
 
             if (! $person) {
                 throw new InvalidArgumentException('The tree root person must belong to the active team.');
             }
 
-            if ($person->isLiving()) {
+            if ($isPublic && $person->isLiving()) {
                 throw new InvalidArgumentException('A public tree cannot expose a living root person.');
             }
         }

@@ -7,6 +7,7 @@ use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\Relationships\Actions\RecordRelationship;
 use Liberu\Genealogy\TreeViewer\Actions\CreateTreeView;
+use Liberu\Genealogy\TreeViewer\Actions\UpdateTreeView;
 use Liberu\Genealogy\TreeViewer\Queries\TreeGraph;
 use Livewire\Livewire;
 
@@ -35,6 +36,24 @@ it('rejects public trees rooted at living people', function (): void {
 
     expect(fn () => (new CreateTreeView())->execute(['name' => 'Unsafe', 'root_person_id' => $living->id, 'is_public' => true]))
         ->toThrow(InvalidArgumentException::class);
+});
+
+it('rejects private tree roots outside the active team', function (): void {
+    $owner = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $owner->id]);
+    app(TeamContext::class)->set($team->id);
+    $local = (new CreatePerson())->execute(['given_name' => 'Local']);
+    $tree = (new CreateTreeView())->execute(['name' => 'Private tree', 'root_person_id' => $local->id]);
+
+    $otherTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($otherTeam->id);
+    $remote = (new CreatePerson())->execute(['given_name' => 'Remote']);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => (new CreateTreeView())->execute(['name' => 'Unsafe private tree', 'root_person_id' => $remote->id]))
+        ->toThrow(InvalidArgumentException::class, 'active team');
+    expect(fn () => (new UpdateTreeView())->execute($tree, ['root_person_id' => $remote->id]))
+        ->toThrow(InvalidArgumentException::class, 'active team');
 });
 
 it('allows guests to read public trees but not private trees through the api', function (): void {

@@ -37,7 +37,7 @@ final class CreateTreeView
     /** @param array<string, mixed> $attributes */
     private function guardVisibility(array $attributes): void
     {
-        if (! ($attributes['is_public'] ?? false) || ! isset($attributes['root_person_id'])) {
+        if (! isset($attributes['root_person_id'])) {
             return;
         }
 
@@ -47,7 +47,7 @@ final class CreateTreeView
             throw new InvalidArgumentException('The tree root person must belong to the active team.');
         }
 
-        if ($person->isLiving()) {
+        if (($attributes['is_public'] ?? false) && $person->isLiving()) {
             throw new InvalidArgumentException('A public tree cannot expose a living root person.');
         }
     }
