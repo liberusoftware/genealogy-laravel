@@ -43,6 +43,18 @@ it('rejects unsupported research entry kinds', function (): void {
         ->toThrow(InvalidArgumentException::class);
 });
 
+it('requires and normalizes research entry titles at the domain boundary', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $project = (new CreateResearchProject())->execute(['name' => 'Title validation']);
+
+    expect(fn () => (new CreateResearchEntry())->execute(['research_project_id' => $project->id, 'kind' => 'question', 'title' => '   ']))
+        ->toThrow(ValidationException::class);
+
+    $entry = (new CreateResearchEntry())->execute(['research_project_id' => $project->id, 'kind' => 'question', 'title' => '  Find the baptism  ']);
+    expect($entry->title)->toBe('Find the baptism');
+});
+
 it('validates research project updates through the domain boundary', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);
