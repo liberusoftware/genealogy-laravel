@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Media\Models\MediaFaceTag;
+use Liberu\Genealogy\People\Models\Person;
 
 final class ReviewMediaFaceTag
 {
@@ -19,6 +20,10 @@ final class ReviewMediaFaceTag
 
         if (app()->bound(TeamContext::class) && $tag->team_id !== app(TeamContext::class)->require()) {
             throw new InvalidArgumentException('The face tag must belong to the active team.');
+        }
+
+        if ($personId !== null && ! Person::query()->whereKey($personId)->exists()) {
+            throw new InvalidArgumentException('The tagged person must belong to the active team.');
         }
 
         $values = ['status' => $status, 'person_id' => $status === 'confirmed' ? $personId : null, 'confirmed_by' => $actorId, 'confirmed_at' => now()];

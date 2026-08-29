@@ -11,11 +11,14 @@ use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Media\Actions\AnalyzeMediaFaces;
 use Liberu\Genealogy\Media\Actions\CreateMediaAsset;
 use Liberu\Genealogy\Media\Actions\CreateMediaLink;
+use Liberu\Genealogy\Media\Actions\ReviewMediaFaceTag;
 use Liberu\Genealogy\Media\Actions\StoreMediaUpload;
 use Liberu\Genealogy\Media\Actions\TranscribeMediaAsset;
 use Liberu\Genealogy\Media\Actions\UpdateMediaAsset;
 use Liberu\Genealogy\Media\Events\MediaAssetCreated;
 use Liberu\Genealogy\Media\Models\MediaAsset;
+use Liberu\Genealogy\Media\Models\MediaFaceTag;
+use Liberu\Genealogy\People\Actions\CreatePerson;
 
 uses(RefreshDatabase::class);
 
@@ -106,4 +109,23 @@ it('rejects direct face analysis for an asset outside the active team', function
 
     expect(fn () => (new AnalyzeMediaFaces())->execute($asset->withoutRelations()))
         ->toThrow(InvalidArgumentException::class, 'active team');
+});
+
+it('rejects face tags that assign a person from another team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Other team']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+    $asset = (new CreateMediaAsset())->execute(['kind' => 'photograph', 'name' => 'Tagged photograph']);
+    $tag = MediaFaceTag::query()->create([
+        'media_asset_id' => $asset->getKey(),
+        'confidence' => 90,
+        'bounding_box' => ['left' => 0, 'top' => 0, 'width' => 1, 'height' => 1],
+        'status' => 'pending',
+    ]);
+
+    expect(fn () => (new ReviewMediaFaceTag())->execute($tag->withoutRelations(), 'confirmed', $person->getKey()))
+        ->toThrow(InvalidArgumentException::class, 'tagged person');
 });
