@@ -105,6 +105,11 @@ it('validates report generation inputs through the Livewire presentation surface
 
     Livewire::actingAs($user)
         ->test(GenealogyReportList::class)
+        ->set('status', 'invalid')
+        ->assertHasErrors(['status']);
+
+    Livewire::actingAs($user)
+        ->test(GenealogyReportList::class)
         ->set('format', 'csv')
         ->call('generate', (string) $report->getKey())
         ->assertDispatched('genealogy-report-generated');
