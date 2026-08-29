@@ -19,6 +19,7 @@ final class MediaFaceReview extends Component
 
     public function mount(): void
     {
+        abort_unless(auth()->check(), 403);
         $this->loadPendingTags();
     }
 
@@ -84,6 +85,7 @@ final class MediaFaceReview extends Component
 
     private function reviewCurrentTag(ReviewMediaFaceTag $review, string $status): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate(['selectedPersonId' => ['nullable', 'uuid']]);
         $tag = $this->currentTag();
         if ($tag === null) {

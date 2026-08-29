@@ -19,6 +19,8 @@ use Liberu\Genealogy\Media\Events\MediaAssetCreated;
 use Liberu\Genealogy\Media\Models\MediaAsset;
 use Liberu\Genealogy\Media\Models\MediaFaceTag;
 use Liberu\Genealogy\People\Actions\CreatePerson;
+use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
@@ -128,4 +130,11 @@ it('rejects face tags that assign a person from another team', function (): void
 
     expect(fn () => app(ReviewMediaFaceTag::class)->execute($tag->withoutRelations(), 'confirmed', $person->getKey()))
         ->toThrow(InvalidArgumentException::class, 'tagged person');
+});
+
+it('requires authentication for media upload and face review Livewire surfaces', function (): void {
+    auth()->logout();
+
+    Livewire::test('genealogy-media-upload')->call('save')->assertForbidden();
+    Livewire::test('genealogy-media-face-review')->assertForbidden();
 });
