@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Reports\Queries;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Builds report data from module-owned tables without importing another
@@ -24,6 +25,10 @@ final class BuildGenealogyReport
             'timeline' => ['events' => $this->rows('timeline_events', $teamId, ['id', 'name', 'kind', 'subject_person_id', 'event_date', 'description'])],
             default => $this->peopleGraph($teamId, $parameters, $type),
         };
+
+        if (isset($parameters['numbering'])) {
+            $payload['numbered_people'] = $this->numberedPeople($payload, (string) $parameters['numbering'], (int) ($parameters['max_depth'] ?? 20));
+        }
 
         $content = match ($format) {
             'csv' => $this->csv($payload),
@@ -111,6 +116,61 @@ final class BuildGenealogyReport
         }
 
         return ['people' => $people, 'relationships' => $relationships, 'root_person_id' => $rootId];
+    }
+
+    /** @param array<string, mixed> $payload @return list<array<string, mixed>> */
+    private function numberedPeople(array $payload, string $numbering, int $maxDepth): array
+    {
+        if (! in_array($numbering, ['ahnentafel', 'henry', 'daboville', 'de_villiers'], true)) {
+            throw ValidationException::withMessages(['numbering' => 'The selected report numbering scheme is invalid.']);
+        }
+
+        $rootId = $payload['root_person_id'] ?? null;
+        if (! is_string($rootId) || $rootId === '') {
+            return [];
+        }
+
+        $maxDepth = min(max($maxDepth, 1), 100);
+        $people = collect($payload['people'] ?? [])->keyBy(fn (array $person): string => (string) $person['id']);
+        $relationships = collect($payload['relationships'] ?? [])->filter(fn (array $relationship): bool => $relationship['type'] === 'parent');
+        $children = [];
+        foreach ($relationships as $relationship) {
+            $children[(string) $relationship['person_id']][] = (string) $relationship['related_person_id'];
+        }
+
+        $result = [];
+        $visit = function (string $personId, string $number, int $depth, array $path = []) use (&$visit, &$result, $people, $children, $relationships, $numbering, $maxDepth): void {
+            $person = $people->get($personId);
+            if ($person === null || $depth > $maxDepth || isset($path[$personId])) {
+                return;
+            }
+            $path[$personId] = true;
+            $result[] = [...$person, 'number' => $number, 'depth' => $depth];
+
+            if ($numbering === 'ahnentafel') {
+                $parents = $relationships->filter(fn (array $relationship): bool => (string) $relationship['related_person_id'] === $personId)->values();
+                foreach ($parents as $index => $relationship) {
+                    $visit((string) $relationship['person_id'], (string) (((int) $number * 2) + $index), $depth + 1, $path);
+                }
+
+                return;
+            }
+
+            $childIds = collect($children[$personId] ?? [])->sortBy(fn (string $childId): string => (string) ($people->get($childId)['birth_date'] ?? '9999-12-31'))->values();
+            foreach ($childIds as $index => $childId) {
+                $rank = $index + 1;
+                $childNumber = match ($numbering) {
+                    'henry' => $number.($rank <= 9 ? (string) $rank : ($rank === 10 ? 'X' : chr(ord('A') + $rank - 11))),
+                    'daboville' => $number.'.'.$rank,
+                    default => ($depth === 0 ? '' : $number).chr(ord('a') + $depth + 1).$rank,
+                };
+                $visit($childId, $childNumber, $depth + 1, $path);
+            }
+        };
+
+        $visit($rootId, $numbering === 'de_villiers' ? 'a1' : '1', 0);
+
+        return $result;
     }
 
     /** @param array<string, mixed> $payload */

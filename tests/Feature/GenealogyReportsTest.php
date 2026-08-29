@@ -111,3 +111,25 @@ it('validates report generation inputs through the Livewire presentation surface
 
     expect($report->fresh()->generated_output['format'])->toBe('csv');
 });
+
+it('preserves legacy genealogy numbering schemes in bounded report output', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $parent = app(CreatePerson::class)->execute(['given_name' => 'Parent']);
+    $root = app(CreatePerson::class)->execute(['given_name' => 'Root']);
+    $child = app(CreatePerson::class)->execute(['given_name' => 'Child']);
+    app(CreateRelationship::class)->execute(['person_id' => $parent->id, 'related_person_id' => $root->id, 'type' => 'parent']);
+    app(CreateRelationship::class)->execute(['person_id' => $root->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+
+    foreach (['ahnentafel', 'henry', 'daboville', 'de_villiers'] as $numbering) {
+        $report = (new CreateGenealogyReport())->execute(['name' => $numbering, 'type' => 'chart']);
+        (new GenerateGenealogyReport())->execute($report, ['root_person_id' => $root->id, 'numbering' => $numbering]);
+        $rows = collect($report->fresh()->generated_output['content']['numbered_people']);
+        $parentNumber = $rows->firstWhere('id', $parent->id)['number'] ?? null;
+        $childNumber = $rows->firstWhere('id', $child->id)['number'] ?? null;
+
+        expect($rows->firstWhere('id', $root->id)['number'])->toBe($numbering === 'de_villiers' ? 'a1' : '1')
+            ->and($parentNumber)->toBe($numbering === 'ahnentafel' ? '2' : null)
+            ->and($childNumber)->toBe($numbering === 'ahnentafel' ? null : ($numbering === 'henry' ? '11' : ($numbering === 'daboville' ? '1.1' : 'b1')));
+    }
+});
