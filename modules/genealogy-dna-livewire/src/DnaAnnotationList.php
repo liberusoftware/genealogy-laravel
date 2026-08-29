@@ -16,6 +16,7 @@ final class DnaAnnotationList extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
         $teamId = app(TeamContext::class)->current() ?? auth()->user()?->currentTeam?->getKey();
         if ($teamId === null) {
             return view('genealogy-dna-livewire::annotations', ['notes' => collect(), 'relationships' => collect()]);

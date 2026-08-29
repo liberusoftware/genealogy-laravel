@@ -336,12 +336,42 @@ it('filters DNA matches and groups through their Livewire presentation component
         ->assertSee('Maternal match');
 
     Livewire::actingAs($user)
+        ->test('genealogy-dna-match-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    Livewire::actingAs($user)
         ->test('genealogy-dna-group-list')
         ->set('status', 'active')
         ->assertSee('Maternal group');
 
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-group-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
     expect(DnaKit::query()->count())->toBe(1)
         ->and(DnaGroup::query()->count())->toBe(1);
+});
+
+it('requires authentication for DNA Livewire read surfaces', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-provider-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    auth()->logout();
+
+    Livewire::test('genealogy-dna-list')->assertForbidden();
 });
 
 it('keeps DNA group and match CRUD mutations behind domain actions', function (): void {
