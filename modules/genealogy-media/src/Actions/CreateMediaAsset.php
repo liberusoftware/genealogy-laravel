@@ -39,6 +39,9 @@ final class CreateMediaAsset
         if (isset($values['kind']) && ! in_array($values['kind'], MediaAsset::KINDS, true)) {
             throw ValidationException::withMessages(['kind' => 'The selected media kind is invalid.']);
         }
+        if (isset($values['status']) && ! in_array($values['status'], MediaAsset::STATUSES, true)) {
+            throw ValidationException::withMessages(['status' => 'The selected media status is invalid.']);
+        }
         if (isset($values['transcription_status']) && ! in_array($values['transcription_status'], MediaAsset::TRANSCRIPTION_STATUSES, true)) {
             throw ValidationException::withMessages(['transcription_status' => 'The selected transcription status is invalid.']);
         }

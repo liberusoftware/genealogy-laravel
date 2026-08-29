@@ -35,11 +35,7 @@ final class MediaAssetResource extends Resource
             FileUpload::make('upload')->storeFiles(false)->nullable(),
             TextInput::make('name')->required()->maxLength(255),
             Select::make('kind')->options(array_combine(MediaAsset::KINDS, MediaAsset::KINDS))->required(),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            Select::make('status')->options(array_combine(MediaAsset::STATUSES, MediaAsset::STATUSES))->required(),
             TextInput::make('storage_disk')->maxLength(100)->nullable(),
             TextInput::make('storage_path')->maxLength(2000)->nullable(),
             TextInput::make('mime_type')->maxLength(255)->nullable(),

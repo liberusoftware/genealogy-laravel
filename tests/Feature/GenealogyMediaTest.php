@@ -20,7 +20,6 @@ use Liberu\Genealogy\Media\Models\MediaAsset;
 use Liberu\Genealogy\Media\Models\MediaFaceTag;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Livewire\Livewire;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
@@ -42,6 +41,9 @@ it('persists media semantics through tenant-scoped domain actions', function ():
 it('rejects unsupported media semantics', function (): void {
     expect(fn () => (new CreateMediaAsset())->execute(['name' => 'Bad', 'kind' => 'spreadsheet']))
         ->toThrow(ValidationException::class);
+
+    expect(fn () => (new CreateMediaAsset())->execute(['name' => 'Bad status', 'status' => 'unknown']))
+        ->toThrow(ValidationException::class);
 });
 
 it('requires and normalizes media asset names at both mutation boundaries', function (): void {
@@ -56,6 +58,9 @@ it('requires and normalizes media asset names at both mutation boundaries', func
 
     $updated = (new UpdateMediaAsset())->execute($asset, ['name' => '  Updated portrait  ']);
     expect($updated->name)->toBe('Updated portrait');
+
+    expect(fn () => (new UpdateMediaAsset())->execute($asset, ['status' => 'unknown']))
+        ->toThrow(ValidationException::class);
 });
 
 it('stores uploaded media with preservation metadata and a checksum', function (): void {
