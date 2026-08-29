@@ -4,9 +4,9 @@
     <label for="genealogy-dna-match-status">Status</label>
     <select id="genealogy-dna-match-status" wire:model.live="status">
         <option value="">All</option>
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
+        @foreach (\Liberu\Genealogy\Dna\Models\DnaMatch::STATUSES as $statusOption)
+            <option value="{{ $statusOption }}">{{ ucfirst($statusOption) }}</option>
+        @endforeach
     </select>
     <label><input type="checkbox" wire:model.live="includePrivate"> Include private matches</label>
     <ul>
