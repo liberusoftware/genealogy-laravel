@@ -100,3 +100,18 @@ it('completes research entries through the tenant-scoped Livewire list', functio
     expect($entry->fresh()->status)->toBe('completed')
         ->and($entry->fresh()->completed_at)->not->toBeNull();
 });
+
+it('rejects unsupported research entry statuses in the Livewire editor', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $project = (new CreateResearchProject())->execute(['name' => 'Status validation']);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-research-entry-editor')
+        ->set('projectId', $project->id)
+        ->set('title', 'Invalid status')
+        ->set('status', 'unsupported')
+        ->call('save')
+        ->assertHasErrors(['status']);
+});
