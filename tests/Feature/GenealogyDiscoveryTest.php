@@ -149,3 +149,16 @@ it('searches normalized evidence sources while retaining legacy evidence records
     $legacyResults = app(DiscoverySearch::class)->execute('Census 1851');
     expect(collect($legacyResults['sources'])->pluck('name')->all())->toContain('Legacy census index');
 });
+
+it('excludes living people from public-only discovery searches', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    app(CreatePerson::class)->execute(['given_name' => 'Public Living', 'is_public' => true]);
+    app(CreatePerson::class)->execute(['given_name' => 'Public Ancestor', 'death_date' => '1970-01-01', 'is_public' => true]);
+
+    $results = app(DiscoverySearch::class)->execute('Public', ['public_only' => true]);
+
+    expect(collect($results['people'])->pluck('name')->all())
+        ->toContain('Public Ancestor')
+        ->not->toContain('Public Living');
+});

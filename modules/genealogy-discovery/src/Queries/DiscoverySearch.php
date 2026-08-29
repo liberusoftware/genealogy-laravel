@@ -28,7 +28,7 @@ final class DiscoverySearch
             ? Person::query()->where(function ($query) use ($term): void {
                 $like = '%'.$term.'%';
                 $query->where('given_name', 'like', $like)->orWhere('family_name', 'like', $like)->orWhere('display_name', 'like', $like)->orWhereJsonContains('aliases', $term);
-            })->when($publicOnly, fn ($query) => $query->where('is_public', true))->when(! $includeLiving, fn ($query) => $query->deceased())->limit($limit)->get()
+            })->when($publicOnly, fn ($query) => $query->where('is_public', true))->when($publicOnly || ! $includeLiving, fn ($query) => $query->deceased())->limit($limit)->get()
             : collect();
 
         $places = in_array('places', $types, true)
