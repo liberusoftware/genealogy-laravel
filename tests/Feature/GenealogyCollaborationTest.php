@@ -108,6 +108,11 @@ it('filters proposals through the Livewire list', function (): void {
         ->set('search', 'Visible')
         ->assertSee('Visible branch proposal');
 
+    Livewire::actingAs($user)
+        ->test('genealogy-collaboration-proposal-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
     expect(CollaborationProposal::query()->count())->toBe(1);
 });
 

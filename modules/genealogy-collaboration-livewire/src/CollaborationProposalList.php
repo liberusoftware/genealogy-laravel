@@ -14,6 +14,25 @@ final class CollaborationProposalList extends Component
 
     public string $search = '';
 
+    /** @return array<string, array<int, mixed>> */
+    protected function rules(): array
+    {
+        return [
+            'status' => ['nullable', 'in:'.implode(',', CollaborationProposal::STATUSES)],
+            'search' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    public function updatedStatus(): void
+    {
+        $this->validateOnly('status');
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->validateOnly('search');
+    }
+
     public function render(): mixed
     {
         $teamId = app(TeamContext::class)->current() ?? auth()->user()?->currentTeam?->getKey();
