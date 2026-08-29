@@ -109,6 +109,15 @@ it('supports tenant-scoped collaboration invitations, roles, discussions, watche
         ->and(CollaborationInvitation::query()->count())->toBe(1);
 });
 
+it('rejects incomplete collaboration attribution records', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(RecordCollaborationAttribution::class)->execute('discussion', 'record-1', '  '))
+        ->toThrow(InvalidArgumentException::class, 'required');
+});
+
 it('does not expose direct invitation editing in the Filament adapter', function (): void {
     expect(CollaborationInvitationResource::getPages())->toHaveKeys(['index', 'create'])
         ->not->toHaveKey('edit');
