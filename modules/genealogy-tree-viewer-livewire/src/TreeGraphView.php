@@ -25,16 +25,22 @@ final class TreeGraphView extends Component
 
     public array $data = [];
 
-    public function loadGraph(TreeGraph $graph): void
+    /** @return array<string, array<int, mixed>> */
+    protected function rules(): array
     {
-        $this->validate([
+        return [
             'personId' => ['required', 'uuid'],
             'generations' => ['integer', 'between:0,12'],
-            'view' => ['in:pedigree,descendants,fan,chart'],
+            'view' => ['required', 'in:pedigree,descendants,fan,chart'],
             'includeLiving' => ['boolean'],
             'includeSiblings' => ['boolean'],
             'maxNodes' => ['integer', 'between:100,5000'],
-        ]);
+        ];
+    }
+
+    public function loadGraph(TreeGraph $graph): void
+    {
+        $this->validate();
         $person = Person::query()->find($this->personId);
 
         if (! $person) {
@@ -54,6 +60,7 @@ final class TreeGraphView extends Component
     public function setView(string $view, TreeGraph $graph): void
     {
         $this->view = $view;
+        $this->validateOnly('view');
 
         if ($this->personId !== '') {
             $this->loadGraph($graph);

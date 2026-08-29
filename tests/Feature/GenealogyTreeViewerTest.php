@@ -98,6 +98,17 @@ it('navigates between graph nodes through the Livewire tree viewer', function ()
         ->assertSee('Child');
 });
 
+it('validates graph view changes at the Livewire boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-tree-viewer-graph')
+        ->call('setView', 'unsupported')
+        ->assertHasErrors(['view']);
+});
+
 it('masks living people for unauthenticated Livewire viewers', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);
