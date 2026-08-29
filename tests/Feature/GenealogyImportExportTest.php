@@ -75,9 +75,14 @@ it('preserves GRAMPS family events through parsing', function (): void {
     $content = <<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
 <database xmlns="http://gramps-project.org/xml/1.7.1/">
+  <people>
+    <person id="I1"><name><first>Ada</first><surname>Example</surname></name><gender>F</gender><eventref hlink="E3"/><eventref hlink="E4"/></person>
+  </people>
   <events>
     <event id="E1" type="Marriage"><dateval val="1843-12-10"/><placeobj><ptitle>London</ptitle></placeobj></event>
     <event id="E2" type="Divorce"><dateval val="1850-01-01"/><description>Civil record</description></event>
+    <event id="E3" type="Birth"><dateval val="1815-12-10"/><placeobj><ptitle>London</ptitle></placeobj></event>
+    <event id="E4" type="Occupation"><description>Mathematician</description></event>
   </events>
   <families>
     <family id="F1"><father ref="I1"/><mother ref="I2"/><eventref hlink="E1"/><eventref hlink="E2"/></family>
@@ -85,12 +90,17 @@ it('preserves GRAMPS family events through parsing', function (): void {
 </database>
 XML;
 
-    $family = app(GenealogyDocumentParser::class)->parse($content)['families'][0];
+    $parsed = app(GenealogyDocumentParser::class)->parse($content);
+    $family = $parsed['families'][0];
 
     expect($family['events'])->toBe([
         ['type' => 'marriage', 'date' => '1843-12-10', 'place' => 'London', 'description' => null],
         ['type' => 'divorce', 'date' => '1850-01-01', 'place' => null, 'description' => 'Civil record'],
     ]);
+    expect($parsed['people'][0]['birth_date'])->toBe('1815-12-10')
+        ->and($parsed['people'][0]['life_events'])->toContain(
+            ['type' => 'occupation', 'date' => null, 'place' => null, 'description' => 'Mathematician']
+        );
 });
 
 it('exports partner family events in GRAMPS XML', function (): void {

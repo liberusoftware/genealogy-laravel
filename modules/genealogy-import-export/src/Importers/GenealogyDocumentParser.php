@@ -212,19 +212,6 @@ final class GenealogyDocumentParser
         }
 
         $xml->registerXPathNamespace('gramps', 'http://gramps-project.org/xml/1.7.1/');
-        $people = [];
-        foreach ($xml->xpath('//gramps:person') ?: [] as $person) {
-            $name = $person->name;
-            $people[] = [
-                'xref' => (string) ($person['id'] ?: $person['handle']),
-                'given_name' => (string) ($name->first ?: $person->first),
-                'family_name' => (string) ($name->surname ?: $person->surname),
-                'sex' => strtoupper((string) $person['gender'] ?: (string) $person->gender) ?: null,
-                'birth_date' => null,
-                'death_date' => null,
-            ];
-        }
-
         $eventsById = [];
         foreach ($xml->xpath('//gramps:event') ?: [] as $event) {
             $id = isset($event['id']) ? (string) $event['id'] : (string) $event['handle'];
@@ -238,6 +225,27 @@ final class GenealogyDocumentParser
                 'date' => $this->date((string) ($event->dateval['val'] ?? '')),
                 'place' => trim((string) ($event->placeobj->ptitle ?? $event->place ?? '')) ?: null,
                 'description' => trim((string) ($event->description ?? '')) ?: null,
+            ];
+        }
+
+        $people = [];
+        foreach ($xml->xpath('//gramps:person') ?: [] as $person) {
+            $name = $person->name;
+            $lifeEvents = array_values(array_filter(array_map(
+                fn ($eventRef): ?array => $eventsById[(string) (isset($eventRef['hlink']) ? $eventRef['hlink'] : $eventRef['ref'])] ?? null,
+                iterator_to_array($person->eventref ?? [], false)
+            )));
+            $birthDate = collect($lifeEvents)->firstWhere('type', 'birth')['date'] ?? null;
+            $deathDate = collect($lifeEvents)->firstWhere('type', 'death')['date'] ?? null;
+            $people[] = [
+                'xref' => (string) ($person['id'] ?: $person['handle']),
+                'given_name' => (string) ($name->first ?: $person->first),
+                'family_name' => (string) ($name->surname ?: $person->surname),
+                'sex' => strtoupper((string) $person['gender'] ?: (string) $person->gender) ?: null,
+                'birth_date' => $birthDate,
+                'death_date' => $deathDate,
+                'names' => [],
+                'life_events' => $lifeEvents,
             ];
         }
 
