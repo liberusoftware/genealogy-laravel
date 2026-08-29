@@ -29,6 +29,7 @@ final class PlaceEditor extends Component
 
     public function save(CreatePlace $create, CreatePlaceName $createName): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'parentId' => ['nullable', 'uuid'],
