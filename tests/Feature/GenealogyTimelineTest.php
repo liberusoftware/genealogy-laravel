@@ -111,3 +111,17 @@ it('does not allow anonymous Livewire viewers to reveal private timeline events'
         ->assertDontSee('Private timeline event')
         ->assertSee('Public timeline event');
 });
+
+it('validates and protects the timeline Livewire list boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-timeline-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    auth()->logout();
+    Livewire::test('genealogy-timeline-list')->assertForbidden();
+});
