@@ -53,6 +53,17 @@ it('reviews discovery matches through the tenant-safe Livewire control', functio
     expect(DiscoveryMatch::query()->findOrFail($match->getKey())->status)->toBe('dismissed');
 });
 
+it('validates discovery status filters at the Livewire boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-discovery-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+});
+
 it('keeps discovery updates and deletion behind domain lifecycle actions', function (): void {
     Event::fake();
     $user = User::factory()->create();
