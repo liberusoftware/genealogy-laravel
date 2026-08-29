@@ -29,7 +29,7 @@ final class CreateTree
         if ($values['name'] === '') {
             throw new InvalidArgumentException('A tree name is required.');
         }
-        if (isset($values['status']) && ! in_array($values['status'], ['draft', 'active', 'archived'], true)) {
+        if (isset($values['status']) && ! in_array($values['status'], Tree::STATUSES, true)) {
             throw new InvalidArgumentException('The tree status is invalid.');
         }
         if (isset($values['identifier']) && $values['identifier'] === '') {

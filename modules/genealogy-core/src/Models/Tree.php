@@ -15,6 +15,8 @@ use LogicException;
 
 class Tree extends Model
 {
+    public const STATUSES = ['draft', 'active', 'archived'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;
