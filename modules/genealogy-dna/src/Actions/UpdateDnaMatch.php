@@ -21,6 +21,9 @@ final class UpdateDnaMatch
         if (isset($values['confidence']) && ($values['confidence'] < 0 || $values['confidence'] > 100)) {
             throw new InvalidArgumentException('DNA match confidence must be between 0 and 100.');
         }
+        if (isset($values['status']) && ! in_array($values['status'], DnaMatch::STATUSES, true)) {
+            throw new InvalidArgumentException('The selected DNA match status is invalid.');
+        }
         DB::transaction(fn (): bool => $match->update($values));
 
         return $match->refresh();

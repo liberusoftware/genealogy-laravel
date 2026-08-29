@@ -401,6 +401,28 @@ it('validates DNA group names and statuses through domain actions', function ():
         ->toThrow(ValidationException::class);
 });
 
+it('enforces DNA kit and match status contracts through domain actions', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(CreateDnaKit::class)->execute(['name' => 'Invalid kit', 'status' => 'invalid']))
+        ->toThrow(ValidationException::class);
+
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Status kit']);
+    expect(fn () => app(UpdateDnaKit::class)->execute($kit, ['status' => 'invalid']))
+        ->toThrow(ValidationException::class);
+
+    expect(fn () => app(CreateDnaMatch::class)->execute([
+        'kit_id' => $kit->getKey(),
+        'external_id' => 'invalid-status-match',
+        'status' => 'invalid',
+    ]))->toThrow(ValidationException::class);
+
+    $match = app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'status-match']);
+    expect(fn () => app(UpdateDnaMatch::class)->execute($match, ['status' => 'invalid']))
+        ->toThrow(InvalidArgumentException::class);
+});
+
 it('exposes DNA notes and person relationship annotations through the API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
