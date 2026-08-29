@@ -11,6 +11,8 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class CollaborationSpace extends Model
 {
+    public const STATUSES = ['draft', 'active', 'completed'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;
