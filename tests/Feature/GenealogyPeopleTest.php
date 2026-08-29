@@ -57,6 +57,21 @@ it('does not allow a person to be created without a team context', function (): 
         ->toThrow(LogicException::class);
 });
 
+it('normalizes and validates canonical person sex values at the domain boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada', 'sex' => ' f ']);
+
+    expect($person->fresh()->sex)->toBe('F')
+        ->and($person->getSex())->toBe('F');
+    expect(fn () => (new CreatePerson())->execute(['given_name' => 'Invalid', 'sex' => 'Q']))
+        ->toThrow(InvalidArgumentException::class, 'one of M, F, U, or X');
+    expect(fn () => (new UpdatePerson())->execute($person, ['sex' => 'Q']))
+        ->toThrow(InvalidArgumentException::class, 'one of M, F, U, or X');
+});
+
 it('rejects supporting records that reference another team', function (): void {
     $owner = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $owner->id]);

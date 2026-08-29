@@ -25,6 +25,9 @@ final class UpdatePerson
         if (array_key_exists('given_name', $values) && trim((string) $values['given_name']) === '') {
             throw new InvalidArgumentException('A given name is required.');
         }
+        if (array_key_exists('sex', $values)) {
+            $values['sex'] = Person::normalizeSex($values['sex']);
+        }
         if (isset($values['birth_date'], $values['death_date']) && $values['death_date'] < $values['birth_date']) {
             throw new InvalidArgumentException('A death date cannot precede a birth date.');
         }

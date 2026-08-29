@@ -13,6 +13,21 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class Person extends Model
 {
+    public const GENDER_MALE = 'M';
+
+    public const GENDER_FEMALE = 'F';
+
+    public const GENDER_UNKNOWN = 'U';
+
+    public const GENDER_OTHER = 'X';
+
+    public const SEX_OPTIONS = [
+        self::GENDER_MALE,
+        self::GENDER_FEMALE,
+        self::GENDER_UNKNOWN,
+        self::GENDER_OTHER,
+    ];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;
@@ -79,6 +94,26 @@ final class Person extends Model
     public function isDeceased(): bool
     {
         return ! $this->isLiving();
+    }
+
+    public function getSex(): string
+    {
+        return $this->sex ?: self::GENDER_UNKNOWN;
+    }
+
+    public static function normalizeSex(mixed $sex): ?string
+    {
+        if ($sex === null || trim((string) $sex) === '') {
+            return null;
+        }
+
+        $normalized = strtoupper(trim((string) $sex));
+
+        if (! in_array($normalized, self::SEX_OPTIONS, true)) {
+            throw new \InvalidArgumentException('A person sex must be one of M, F, U, or X.');
+        }
+
+        return $normalized;
     }
 
     public function scopeLiving(Builder $query): Builder

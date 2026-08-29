@@ -46,7 +46,12 @@ final class PersonResource extends Resource
             TextInput::make('given_name')->required()->maxLength(255),
             TextInput::make('family_name')->maxLength(255),
             TextInput::make('display_name')->maxLength(255),
-            TextInput::make('sex')->maxLength(1),
+            Select::make('sex')->options([
+                Person::GENDER_MALE => 'Male',
+                Person::GENDER_FEMALE => 'Female',
+                Person::GENDER_UNKNOWN => 'Unknown',
+                Person::GENDER_OTHER => 'Other',
+            ]),
             DatePicker::make('birth_date'),
             DatePicker::make('death_date')->afterOrEqual('birth_date'),
             TextInput::make('birth_place')->maxLength(255),
