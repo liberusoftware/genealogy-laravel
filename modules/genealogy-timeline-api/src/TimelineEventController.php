@@ -22,9 +22,11 @@ final class TimelineEventController
         $values = $request->validate([
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'kind' => ['sometimes', 'in:'.implode(',', TimelineEvent::KINDS)],
+            'include_private' => ['sometimes', 'boolean'],
         ]);
         $perPage = $values['page']['size'] ?? 25;
-        $events = TimelineEvent::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when(! $request->boolean('include_private'), fn ($query) => $query->where('is_private', false))->orderByRaw('COALESCE(event_date, date_start, date_end) desc')->paginate($perPage);
+        $events = TimelineEvent::query()->when(isset($values['kind']), fn ($query) => $query->where('kind', $values['kind']))->when(! ($values['include_private'] ?? false), fn ($query) => $query->where('is_private', false))->orderByRaw('COALESCE(event_date, date_start, date_end) desc')->paginate($perPage);
 
         return response()->json(['data' => $events->getCollection()->map(fn (TimelineEvent $event): array => $this->resource($event))->values()->all(), 'meta' => ['current_page' => $events->currentPage(), 'per_page' => $events->perPage(), 'total' => $events->total()]]);
     }
