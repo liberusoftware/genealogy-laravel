@@ -102,6 +102,20 @@ it('completes research entries through the tenant-scoped Livewire list', functio
         ->and($entry->fresh()->completed_at)->not->toBeNull();
 });
 
+it('protects and validates the research project Livewire list boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-research-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    auth()->logout();
+    Livewire::test('genealogy-research-list')->assertForbidden();
+});
+
 it('rejects unsupported research entry statuses in the Livewire editor', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
