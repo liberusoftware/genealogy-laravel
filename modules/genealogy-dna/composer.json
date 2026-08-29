@@ -7,6 +7,8 @@
   "require": {
     "php": "^8.5",
     "illuminate/database": "^13.0",
+    "illuminate/encryption": "^13.0",
+    "illuminate/filesystem": "^13.0",
     "illuminate/support": "^13.0",
     "liberusoftware/module-genealogy-core": "^1.0",
     "liberusoftware/module-genealogy-people": "^1.0"

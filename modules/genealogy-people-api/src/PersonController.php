@@ -7,11 +7,18 @@ namespace Liberu\Genealogy\People\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\People\Actions\CreatePerson;
+use Liberu\Genealogy\People\Actions\CreatePersonAssociation;
 use Liberu\Genealogy\People\Actions\DeletePerson;
+use Liberu\Genealogy\People\Actions\DeletePersonAssociation;
+use Liberu\Genealogy\People\Actions\RemovePersonAttribute;
 use Liberu\Genealogy\People\Actions\ReviewMergeCandidate;
+use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
+use Liberu\Genealogy\People\Actions\UpdatePersonAssociation;
+use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
 use Liberu\Genealogy\People\Models\MergeCandidate;
 use Liberu\Genealogy\People\Models\Person;
+use Liberu\Genealogy\People\Models\PersonAssociation;
 
 final class PersonController
 {
@@ -21,7 +28,8 @@ final class PersonController
             'search' => ['nullable', 'string', 'max:200'],
             'public_only' => ['sometimes', 'boolean'],
             'include_living' => ['sometimes', 'boolean'],
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
         ]);
 
         $people = Person::query()
@@ -37,7 +45,7 @@ final class PersonController
             ->when(($values['public_only'] ?? false) === true, fn ($query) => $query->where('is_public', true))
             ->when(($values['include_living'] ?? true) === false, fn ($query) => $query->deceased())
             ->latest()
-            ->paginate($values['page[size]'] ?? 25);
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json([
             'data' => $people->getCollection()->map(fn (Person $person): array => $this->resource($person))->values()->all(),
@@ -65,6 +73,55 @@ final class PersonController
     public function destroy(Person $person, DeletePerson $delete): JsonResponse
     {
         $delete->execute($person);
+
+        return response()->json(status: 204);
+    }
+
+    public function updateAttributes(Request $request, Person $person, UpdatePersonAttributes $update): JsonResponse
+    {
+        $values = $request->validate([
+            'attributes' => ['required', 'array'],
+            'replace' => ['sometimes', 'boolean'],
+        ]);
+
+        return response()->json(['data' => $this->resource($update->execute($person, $values['attributes'], $values['replace'] ?? false))]);
+    }
+
+    public function removeAttribute(Person $person, string $attribute, RemovePersonAttribute $remove): JsonResponse
+    {
+        return response()->json(['data' => $this->resource($remove->execute($person, $attribute))]);
+    }
+
+    public function setLifeStatus(Request $request, Person $person, SetPersonLifeStatus $setStatus): JsonResponse
+    {
+        $values = $request->validate([
+            'status' => ['required', 'in:living,deceased'],
+            'death_date' => ['nullable', 'date'],
+        ]);
+
+        return response()->json(['data' => $this->resource($setStatus->execute($person, $values['status'], $values['death_date'] ?? null))]);
+    }
+
+    public function storeAssociation(Request $request, Person $person, CreatePersonAssociation $create): JsonResponse
+    {
+        $values = $request->validate(['associated_person_id' => ['nullable', 'uuid'], 'associated_external_id' => ['nullable', 'string', 'max:255'], 'relationship' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
+        $association = $create->execute(['person_id' => $person->getKey(), ...$values]);
+
+        return response()->json(['data' => $this->associationResource($association)], 201);
+    }
+
+    public function updateAssociation(Request $request, Person $person, PersonAssociation $association, UpdatePersonAssociation $update): JsonResponse
+    {
+        abort_unless((string) $association->person_id === (string) $person->getKey(), 404);
+        $values = $request->validate(['associated_person_id' => ['nullable', 'uuid'], 'associated_external_id' => ['nullable', 'string', 'max:255'], 'relationship' => ['sometimes', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
+
+        return response()->json(['data' => $this->associationResource($update->execute($association, $values))]);
+    }
+
+    public function destroyAssociation(Person $person, PersonAssociation $association, DeletePersonAssociation $delete): JsonResponse
+    {
+        abort_unless((string) $association->person_id === (string) $person->getKey(), 404);
+        $delete->execute($association);
 
         return response()->json(status: 204);
     }
@@ -132,6 +189,7 @@ final class PersonController
                 'death_place' => $person->death_place,
                 'is_public' => $person->is_public,
                 'is_living' => $person->isLiving(),
+                'life_status' => $person->isLiving() ? 'living' : 'deceased',
                 'metadata' => $person->metadata,
             ],
             'relationships' => [
@@ -150,14 +208,20 @@ final class PersonController
                     'type' => 'genealogy-person-life-event',
                     'attributes' => $event->only(['type', 'date', 'place', 'description', 'metadata']),
                 ])->values()->all() : [],
+                'associations' => $person->relationLoaded('associations') ? $person->associations->map(fn (PersonAssociation $association): array => $this->associationResource($association))->values()->all() : [],
             ],
         ];
+    }
+
+    private function associationResource(PersonAssociation $association): array
+    {
+        return ['id' => (string) $association->getKey(), 'type' => 'genealogy-person-association', 'attributes' => $association->only(['person_id', 'associated_person_id', 'associated_external_id', 'relationship', 'description', 'metadata']), 'resolved' => $association->isResolved()];
     }
 
     /** @return list<string> */
     private function includes(Request $request): array
     {
-        $allowed = ['names', 'identities', 'lifeEvents'];
+        $allowed = ['names', 'identities', 'lifeEvents', 'associations'];
         $requested = array_filter(explode(',', (string) $request->query('include', '')));
 
         return array_values(array_intersect($requested, $allowed));

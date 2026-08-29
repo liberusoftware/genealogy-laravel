@@ -4,10 +4,13 @@ This independent Liberu module owns the provider-neutral **Genealogy Discovery**
 
 It exposes a stable capability descriptor and service provider. Domain persistence, authorization, tenancy, jobs, and presentation adapters remain behind this package's public boundary; the matching API, Filament, and Livewire packages are optional adapters and never become core dependencies.
 
+Duplicate discovery has two explicit boundaries: `DuplicateCandidates` computes privacy-scoped
+candidate pairs, while `ScanDuplicateCandidates` persists each pair as a tenant-owned discovery
+match and is safe to repeat without creating duplicate rows.
+
 - Composer package: `liberusoftware/module-genealogy-discovery`
 - Module installer name: `genealogy-discovery`
 - Category: capability
 - PHP/Laravel: PHP 8.5 / Laravel 13
 
 The package is designed for the Liberu Composer installer and must not depend on an application's `App\\` classes.
-

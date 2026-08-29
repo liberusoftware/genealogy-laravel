@@ -1,4 +1,8 @@
 <div>
+    <button type="button" wire:click="scanDuplicates">Scan duplicates</button>
+    @if ($scanReport)
+        <p role="status">Scanned {{ $scanReport['scanned'] }} candidates; created {{ $scanReport['created'] }} new matches.</p>
+    @endif
     <label for="genealogy-discovery-list-status">Status</label>
     <select id="genealogy-discovery-list-status" wire:model.live="status">
         <option value="">All</option>

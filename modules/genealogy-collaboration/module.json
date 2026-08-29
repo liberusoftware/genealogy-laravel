@@ -12,10 +12,24 @@
   },
   "capabilities": [
     "genealogy.collaboration",
+    "genealogy.collaboration.invitations",
+    "genealogy.collaboration.roles",
+    "genealogy.collaboration.proposals",
+    "genealogy.collaboration.review",
+    "genealogy.collaboration.discussions",
+    "genealogy.collaboration.watch-lists",
+    "genealogy.collaboration.attribution",
     "genealogy.collaboration.lifecycle"
   ],
   "features": [
     "genealogy collaboration",
+    "genealogy collaboration invitations",
+    "genealogy collaboration roles",
+    "genealogy collaboration proposals",
+    "genealogy collaboration review",
+    "genealogy collaboration discussions",
+    "genealogy collaboration watch-lists",
+    "genealogy collaboration attribution",
     "genealogy collaboration lifecycle"
   ],
   "default_enabled": true

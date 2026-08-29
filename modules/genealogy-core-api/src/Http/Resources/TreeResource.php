@@ -20,6 +20,7 @@ final class TreeResource extends JsonResource
                 'identifier' => $this->identifier,
                 'terminology' => $this->terminology,
                 'root_person_id' => $this->root_person_id,
+                'owner_id' => $this->user_id,
                 'is_public' => $this->is_public,
                 'metadata' => $this->metadata,
                 'stats' => $this->getStats(),

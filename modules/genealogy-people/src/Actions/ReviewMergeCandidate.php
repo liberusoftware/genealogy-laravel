@@ -12,6 +12,8 @@ use Liberu\Genealogy\People\Models\MergeCandidate;
 
 final class ReviewMergeCandidate
 {
+    public function __construct(private readonly ?MergePersons $mergePersons = null) {}
+
     public function execute(MergeCandidate $candidate, string $status, ?string $reason = null): MergeCandidate
     {
         if ((string) $candidate->team_id !== app(TeamContext::class)->require()) {
@@ -28,6 +30,12 @@ final class ReviewMergeCandidate
                 'reviewed_at' => now(),
             ])->save();
         });
+        if ($status === 'accepted') {
+            ($this->mergePersons ?? new MergePersons())->execute(
+                $candidate->person()->firstOrFail(),
+                $candidate->candidatePerson()->firstOrFail(),
+            );
+        }
         event(new MergeCandidateReviewed($candidate->refresh()));
 
         return $candidate;

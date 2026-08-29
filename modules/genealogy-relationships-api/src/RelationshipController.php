@@ -22,15 +22,15 @@ final class RelationshipController
             'type' => ['sometimes', Rule::in(Relationship::TYPES)],
             'person_id' => ['sometimes', 'uuid', $this->personRule()],
             'confidence_min' => ['sometimes', 'integer', 'between:0,100'],
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
         ]);
-        $perPage = min(max($request->integer('page[size]', 25), 1), 100);
         $relationships = Relationship::query()
             ->when(isset($values['type']), fn ($query) => $query->where('type', $values['type']))
             ->when(isset($values['person_id']), fn ($query) => $query->where(fn ($nested) => $nested->where('person_id', $values['person_id'])->orWhere('related_person_id', $values['person_id'])))
             ->when(isset($values['confidence_min']), fn ($query) => $query->where('confidence', '>=', $values['confidence_min']))
             ->latest()
-            ->paginate($values['page[size]'] ?? $perPage);
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json([
             'data' => $relationships->getCollection()->map(fn (Relationship $relationship): array => $this->resource($relationship))->values()->all(),

@@ -21,7 +21,8 @@ final class TreeViewApiController
         $values = $request->validate([
             'status' => ['nullable', 'string', 'in:draft,active,completed,archived'],
             'public_only' => ['sometimes', 'boolean'],
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
         ]);
         $query = TreeView::query()->latest('created_at');
 
@@ -32,7 +33,7 @@ final class TreeViewApiController
         }
 
         $trees = $query->when(isset($values['status']), fn ($trees) => $trees->where('status', $values['status']))
-            ->paginate($values['page[size]'] ?? 25);
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json(TreeViewResource::collection($trees)->response()->getData(true));
     }
@@ -63,6 +64,8 @@ final class TreeViewApiController
             'generations' => ['sometimes', 'integer', 'between:0,12'],
             'view' => ['sometimes', 'string', 'in:pedigree,descendants,fan,chart'],
             'include_living' => ['sometimes', 'boolean'],
+            'include_siblings' => ['sometimes', 'boolean'],
+            'max_nodes' => ['sometimes', 'integer', 'between:100,5000'],
         ]);
 
         return response()->json(['data' => $graph->for(
@@ -70,6 +73,8 @@ final class TreeViewApiController
             (int) ($values['generations'] ?? 3),
             ! $tree->is_public && (bool) ($values['include_living'] ?? true),
             $values['view'] ?? 'chart',
+            (bool) ($values['include_siblings'] ?? false),
+            (int) ($values['max_nodes'] ?? 2000),
         )]);
     }
 

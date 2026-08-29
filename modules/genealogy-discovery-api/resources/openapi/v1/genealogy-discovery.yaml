@@ -3,6 +3,12 @@ info:
   title: Genealogy Discovery API
   version: 1.0.0
 paths:
+  /api/v1/genealogy/discovery/external-search:
+    post:
+      operationId: genealogy.discovery.external-search
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [person], properties: { person: { type: object }, weights: { type: object } } } } } }
+      responses: { '200': { description: External discovery candidates or unavailable status } }
   /api/v1/genealogy/discovery:
     get:
       operationId: genealogy.discovery.list
@@ -17,6 +23,12 @@ paths:
       security: [{ sanctum: [] }]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DiscoveryCreate' } } } }
       responses: { '201': { $ref: '#/components/responses/Discovery' }, '422': { $ref: '#/components/responses/Problem' } }
+  /api/v1/genealogy/discovery/{record}/review:
+    post:
+      operationId: genealogy.discovery.review
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [active, completed, dismissed] } } } } } }
+      responses: { '200': { $ref: '#/components/responses/Discovery' }, '422': { $ref: '#/components/responses/Problem' } }
   /api/v1/genealogy/discovery/search:
     get:
       operationId: genealogy.discovery.search
@@ -32,6 +44,12 @@ paths:
       operationId: genealogy.discovery.duplicates
       security: [{ sanctum: [] }]
       responses: { '200': { description: Duplicate candidate pairs } }
+  /api/v1/genealogy/discovery/duplicates/scan:
+    post:
+      operationId: genealogy.discovery.duplicates.scan
+      security: [{ sanctum: [] }]
+      requestBody: { required: false, content: { application/json: { schema: { type: object, properties: { threshold: { type: number, minimum: 0, maximum: 1, default: 0.7 }, limit: { type: integer, minimum: 1, maximum: 1000, default: 100 } } } } } }
+      responses: { '201': { description: Persisted duplicate discovery matches }, '422': { $ref: '#/components/responses/Problem' } }
   /api/v1/genealogy/discovery/paths/{from}/{to}:
     get:
       operationId: genealogy.discovery.relationshipPath

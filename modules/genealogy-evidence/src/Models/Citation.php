@@ -43,4 +43,9 @@ final class Citation extends Model
     {
         return $this->hasMany(Assertion::class);
     }
+
+    public function personLinks(): HasMany
+    {
+        return $this->hasMany(CitationLink::class);
+    }
 }

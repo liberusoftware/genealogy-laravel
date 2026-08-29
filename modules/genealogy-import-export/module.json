@@ -9,6 +9,7 @@
     "php": "^8.5",
     "laravel": "^13.0",
     "packages": {
+      "liberusoftware/audit": "^1.0",
       "liberusoftware/module-genealogy-core": "^1.0",
       "liberusoftware/module-genealogy-people": "^1.0",
       "liberusoftware/module-genealogy-relationships": "^1.0"
@@ -16,10 +17,24 @@
   },
   "capabilities": [
     "genealogy.import-export",
+    "genealogy.import-export.gedcom",
+    "genealogy.import-export.gramps",
+    "genealogy.import-export.validation",
+    "genealogy.import-export.dry-run",
+    "genealogy.import-export.duplicates",
+    "genealogy.import-export.reports",
+    "genealogy.import-export.round-trip",
     "genealogy.import-export.lifecycle"
   ],
   "features": [
     "genealogy import export",
+    "genealogy import export gedcom",
+    "genealogy import export gramps",
+    "genealogy import export validation",
+    "genealogy import export dry-run",
+    "genealogy import export duplicates",
+    "genealogy import export reports",
+    "genealogy import export round-trip",
     "genealogy import export lifecycle"
   ],
   "default_enabled": true

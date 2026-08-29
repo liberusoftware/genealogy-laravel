@@ -15,10 +15,14 @@ final class ResearchProjectController
 {
     public function index(Request $request): JsonResponse
     {
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
         $projects = ResearchProject::query()
             ->when($request->filled('status'), fn ($query) => $query->where('status', (string) $request->string('status')))
             ->latest()
-            ->paginate(min(max($request->integer('page[size]', 25), 1), 100));
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json(['data' => $projects->getCollection()->map(fn (ResearchProject $project): array => $this->resource($project))->values()->all(), 'meta' => ['current_page' => $projects->currentPage(), 'per_page' => $projects->perPage(), 'total' => $projects->total()]]);
     }

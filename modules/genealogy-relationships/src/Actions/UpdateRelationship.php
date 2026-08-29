@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Relationships\Actions;
 
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Events\RelationshipUpdated;
 use Liberu\Genealogy\Relationships\Models\Relationship;
@@ -17,6 +18,10 @@ final class UpdateRelationship
 
     public function execute(Relationship $relationship, array $attributes): Relationship
     {
+        if ((string) $relationship->team_id !== app(TeamContext::class)->require()) {
+            throw new InvalidArgumentException('The relationship must belong to the active team.');
+        }
+
         $values = Arr::only($attributes, ['person_id', 'related_person_id', 'type', 'confidence', 'metadata']);
         $personId = (string) ($values['person_id'] ?? $relationship->person_id);
         $relatedPersonId = (string) ($values['related_person_id'] ?? $relationship->related_person_id);

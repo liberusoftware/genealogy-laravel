@@ -1,6 +1,33 @@
 openapi: 3.1.0
 info: { title: Genealogy Media API, version: 1.0.0 }
 paths:
+  /api/v1/genealogy/media/{record}/analyze-faces:
+    post:
+      operationId: genealogy.media.analyze-faces
+      security: [{ sanctum: [] }]
+      responses: { '200': { description: Face analysis result } }
+  /api/v1/genealogy/media/{record}/transcribe:
+    post:
+      operationId: genealogy.media.transcribe
+      security: [{ sanctum: [] }]
+      responses: { '200': { description: Transcription result } }
+  /api/v1/genealogy/media/{record}/transcription-corrections:
+    post:
+      operationId: genealogy.media.transcription-corrections
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [text], properties: { text: { type: string, maxLength: 2000000 } } } } } }
+      responses: { '201': { description: Transcription correction } }
+  /api/v1/genealogy/media/{record}/face-tags:
+    get:
+      operationId: genealogy.media.face-tags
+      security: [{ sanctum: [] }]
+      responses: { '200': { description: Reviewable face tags } }
+  /api/v1/genealogy/media/face-tags/{tag}:
+    patch:
+      operationId: genealogy.media.face-tags.review
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [confirmed, rejected] }, person_id: { type: string, format: uuid, nullable: true } } } } } }
+      responses: { '200': { description: Reviewed face tag } }
   /api/v1/genealogy/media/upload:
     post:
       operationId: genealogy.media.upload

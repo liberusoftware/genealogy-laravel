@@ -2,15 +2,20 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\ExportGenealogyData;
+use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
 use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyDocumentParser;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
+use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Models\Relationship;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -87,4 +92,99 @@ it('round trips GEDCOM people and relationship edges without duplicate creation'
 
     $gedcom = app(GedcomExporter::class)->export(Person::query()->get(), Relationship::query()->get());
     expect($gedcom)->toContain('0 @I1@ INDI')->toContain('1 HUSB')->toContain('1 NAME Parent /Example/');
+});
+
+it('supports an audited undo window for completed imports', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $transfer = app(CreateDataTransfer::class)->execute([
+        'name' => 'Undoable archive',
+        'format' => 'gedcom',
+        'direction' => 'import',
+        'status' => 'active',
+    ]);
+    $content = implode("\n", [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Parent /Example/',
+        '0 @I2@ INDI', '1 NAME Child /Example/',
+        '0 @F1@ FAM', '1 HUSB @I1@', '1 CHIL @I2@',
+        '0 TRLR',
+    ]);
+
+    app(GenealogyImportService::class)->import($content, false, $transfer);
+    $transfer->refresh();
+
+    expect($transfer->status)->toBe('completed')
+        ->and($transfer->metadata['undo']['created_people'])->toHaveCount(2)
+        ->and(Relationship::query()->count())->toBe(1);
+
+    $undone = app(UndoDataTransfer::class)->execute($transfer);
+
+    expect($undone->status)->toBe('rolled_back')
+        ->and(Person::withTrashed()->count())->toBe(0)
+        ->and(Relationship::query()->count())->toBe(0)
+        ->and(DB::table('activity_log')->where('event', 'data_transfer_undone')->exists())->toBeTrue();
+});
+
+it('records a failed transfer when validation rejects an import', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $transfer = app(CreateDataTransfer::class)->execute([
+        'name' => 'Invalid archive',
+        'format' => 'gedcom',
+        'direction' => 'import',
+        'status' => 'active',
+    ]);
+
+    expect(fn () => app(GenealogyImportService::class)->import('not a genealogy document', false, $transfer))
+        ->toThrow(InvalidArgumentException::class);
+
+    expect($transfer->refresh()->status)->toBe('failed')
+        ->and($transfer->metadata['failure']['message'])->toContain('invalid records');
+});
+
+it('exports through the audited domain boundary for both supported formats', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = (new CreatePerson())->execute(['given_name' => 'Ada', 'family_name' => 'Lovelace']);
+
+    $gedcom = app(ExportGenealogyData::class)->execute('gedcom', 'GEDCOM archive');
+    $gramps = app(ExportGenealogyData::class)->execute('gramps-xml', 'GRAMPS archive');
+
+    expect($gedcom->transfer->status)->toBe('completed')
+        ->and($gedcom->transfer->direction)->toBe('export')
+        ->and($gedcom->transfer->records_count)->toBe(1)
+        ->and($gedcom->transfer->metadata['sha256'])->toBe(hash('sha256', $gedcom->content))
+        ->and($gedcom->content)->toContain('Ada /Lovelace/')
+        ->and($gramps->filename)->toBe('genealogy.gramps.xml')
+        ->and($gramps->content)->toContain('<database')
+        ->and((string) $person->fresh()->team_id)->toBe((string) $team->id);
+});
+
+it('exposes audited export downloads through API and Livewire adapters', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+    (new CreatePerson())->execute(['given_name' => 'Grace', 'family_name' => 'Hopper']);
+    app(TeamContext::class)->clear();
+
+    $this->actingAs($user)
+        ->get('/api/v1/genealogy/import-export/export?format=gedcom&name=API%20archive')
+        ->assertOk()
+        ->assertHeader('Content-Disposition')
+        ->assertHeader('X-Data-Transfer-Status', 'completed');
+
+    app(TeamContext::class)->set($team->id);
+    Livewire::actingAs($user)
+        ->test('genealogy-import-export-export')
+        ->set('format', 'gramps-xml')
+        ->set('name', 'Livewire archive')
+        ->call('export')
+        ->assertDispatched('genealogy-export-completed');
+
+    expect(DataTransfer::query()->where('direction', 'export')->count())->toBe(2);
 });

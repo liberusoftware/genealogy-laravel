@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Liberu\Genealogy\Collaboration\Actions\DeleteCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationSpaceResource\Pages\CreateCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationSpaceResource\Pages\EditCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Filament\Resources\CollaborationSpaceResource\Pages\ListCollaborationSpaces;
@@ -46,7 +47,7 @@ final class CollaborationSpaceResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (CollaborationSpace $record): mixed => app(DeleteCollaborationSpace::class)->execute($record)),
         ]);
     }
 

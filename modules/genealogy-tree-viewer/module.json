@@ -16,10 +16,22 @@
   },
   "capabilities": [
     "genealogy.tree-viewer",
+    "genealogy.tree-viewer.pedigree",
+    "genealogy.tree-viewer.descendants",
+    "genealogy.tree-viewer.fan-chart",
+    "genealogy.tree-viewer.navigation",
+    "genealogy.tree-viewer.filters",
+    "genealogy.tree-viewer.large-tree-rendering",
     "genealogy.tree-viewer.lifecycle"
   ],
   "features": [
     "genealogy tree viewer",
+    "genealogy tree viewer pedigree",
+    "genealogy tree viewer descendants",
+    "genealogy tree viewer fan-chart",
+    "genealogy tree viewer navigation",
+    "genealogy tree viewer filters",
+    "genealogy tree viewer large-tree-rendering",
     "genealogy tree viewer lifecycle"
   ],
   "default_enabled": true

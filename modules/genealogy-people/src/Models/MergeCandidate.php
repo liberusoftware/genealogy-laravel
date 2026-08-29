@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\People\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class MergeCandidate extends Model
@@ -20,5 +21,15 @@ final class MergeCandidate extends Model
     protected function casts(): array
     {
         return ['score' => 'decimal:4', 'metadata' => 'array', 'reviewed_at' => 'datetime'];
+    }
+
+    public function person(): BelongsTo
+    {
+        return $this->belongsTo(Person::class);
+    }
+
+    public function candidatePerson(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'candidate_person_id');
     }
 }

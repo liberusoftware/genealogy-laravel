@@ -38,6 +38,18 @@ paths:
             schema: { $ref: '#/components/schemas/TreeRequest' }
       responses: { '200': { description: Updated tree } }
     delete: { operationId: genealogy.core.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted tree } } }
+  /api/v1/genealogy/genealogy-core/{tree}/visibility:
+    patch:
+      operationId: genealogy.core.visibility
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [is_public], properties: { is_public: { type: boolean } } } } } }
+      responses: { '200': { description: Updated tree visibility } }
+  /api/v1/genealogy/genealogy-core/{tree}/owner:
+    patch:
+      operationId: genealogy.core.owner
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { user_id: { type: [integer, 'null'] } } } } } }
+      responses: { '200': { description: Updated tree ownership } }
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   schemas:
@@ -52,6 +64,7 @@ components:
         is_public: { type: boolean, default: false }
         metadata: { type: [object, 'null'], additionalProperties: true }
         terminology: { type: [object, 'null'], additionalProperties: { type: string } }
+        owner_id: { type: [integer, 'null'] }
     TreeResource:
       type: object
       required: [id, type, attributes]

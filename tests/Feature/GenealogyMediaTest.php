@@ -11,6 +11,7 @@ use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Media\Actions\CreateMediaAsset;
 use Liberu\Genealogy\Media\Actions\CreateMediaLink;
 use Liberu\Genealogy\Media\Actions\StoreMediaUpload;
+use Liberu\Genealogy\Media\Actions\TranscribeMediaAsset;
 use Liberu\Genealogy\Media\Actions\UpdateMediaAsset;
 use Liberu\Genealogy\Media\Events\MediaAssetCreated;
 use Liberu\Genealogy\Media\Models\MediaAsset;
@@ -66,4 +67,16 @@ it('dispatches creation events after the media transaction commits', function ()
     ]))->toThrow(RuntimeException::class);
 
     expect(MediaAsset::query()->where('name', 'Committed document')->exists())->toBeTrue();
+});
+
+it('rejects direct transcription for an asset outside the active team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $asset = (new CreateMediaAsset())->execute(['kind' => 'document', 'name' => 'Private document']);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => (new TranscribeMediaAsset())->execute($asset->withoutRelations()))
+        ->toThrow(InvalidArgumentException::class, 'active team');
 });

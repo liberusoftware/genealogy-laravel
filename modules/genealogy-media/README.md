@@ -9,5 +9,8 @@ It exposes a stable capability descriptor and service provider. Domain persisten
 - Category: capability
 - PHP/Laravel: PHP 8.5 / Laravel 13
 
-The package is designed for the Liberu Composer installer and must not depend on an application's `App\\` classes.
+Facial recognition is an optional integration: applications must bind a `FaceRecognitionProvider` explicitly. Analysis stores reviewable bounding-box tags only and fails closed when no provider is configured.
 
+OCR/handwriting transcription is similarly opt-in through `TranscriptionProvider`; an unconfigured provider never writes placeholder text or confidence values.
+
+The package is designed for the Liberu Composer installer and must not depend on an application's `App\\` classes.

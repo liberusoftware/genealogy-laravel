@@ -17,12 +17,16 @@ final class ResearchEntryController
 {
     public function index(Request $request, ResearchProject $project): JsonResponse
     {
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
         $entries = $project->entries()
             ->when($request->filled('kind'), fn ($query) => $query->where('kind', (string) $request->string('kind')))
             ->when($request->filled('status'), fn ($query) => $query->where('status', (string) $request->string('status')))
             ->when($request->boolean('overdue'), fn ($query) => $query->whereNotNull('due_date')->whereDate('due_date', '<', today())->where('status', '<>', 'completed'))
             ->latest()
-            ->paginate(min(max($request->integer('page[size]', 25), 1), 100));
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json(['data' => $entries->getCollection()->map(fn (ResearchEntry $entry): array => $this->resource($entry))->values()->all(), 'meta' => ['current_page' => $entries->currentPage(), 'per_page' => $entries->perPage(), 'total' => $entries->total()]]);
     }

@@ -11,6 +11,8 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class DnaRelationship extends Model
 {
+    public const STATUSES = ['proposed', 'confirmed', 'rejected'];
+
     use BelongsToTeam;
     use HasUuids;
 

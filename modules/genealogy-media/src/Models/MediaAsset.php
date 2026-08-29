@@ -40,4 +40,14 @@ final class MediaAsset extends Model
     {
         return $this->hasMany(MediaLink::class, 'media_asset_id');
     }
+
+    public function faceTags(): HasMany
+    {
+        return $this->hasMany(MediaFaceTag::class, 'media_asset_id');
+    }
+
+    public function transcriptionCorrections(): HasMany
+    {
+        return $this->hasMany(MediaTranscriptionCorrection::class, 'media_asset_id');
+    }
 }

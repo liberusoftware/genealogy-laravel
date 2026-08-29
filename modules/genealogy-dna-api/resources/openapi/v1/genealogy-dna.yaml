@@ -1,9 +1,21 @@
 openapi: 3.1.0
 info: {title: Genealogy DNA API, version: 1.0.0}
 paths:
+  /api/v1/genealogy/dna/providers:
+    get: {operationId: genealogy.dna.providers.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.dna.providers.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/providers/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
+    get: {operationId: genealogy.dna.providers.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    patch: {operationId: genealogy.dna.providers.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    delete: {operationId: genealogy.dna.providers.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/kits:
     get: {operationId: genealogy.dna.kits.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.kits.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/KitInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/kits/import:
+    post: {operationId: genealogy.dna.kits.import, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ImportInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/kits/validate:
+    post: {operationId: genealogy.dna.kits.validate, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ValidationInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/kits/{record}:
     parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.dna.kits.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
@@ -11,35 +23,68 @@ paths:
     delete: {operationId: genealogy.dna.kits.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/kits/{kit}/consent:
     post: {operationId: genealogy.dna.kits.consent, security: [{sanctum: []}], parameters: [{name: kit, in: path, required: true, schema: {type: string, format: uuid}}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ConsentInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/kits/{kit}/consents:
+    get: {operationId: genealogy.dna.kits.consents, security: [{sanctum: []}], parameters: [{name: kit, in: path, required: true, schema: {type: string, format: uuid}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
   /api/v1/genealogy/dna/kits/{kit}/revoke:
     post: {operationId: genealogy.dna.kits.revoke, security: [{sanctum: []}], parameters: [{name: kit, in: path, required: true, schema: {type: string, format: uuid}}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RevokeInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/matches:
     get: {operationId: genealogy.dna.matches.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.matches.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MatchInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/matches/analyze:
+    post: {operationId: genealogy.dna.matches.analyze, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnalyzeInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/matches/compare:
+    post: {operationId: genealogy.dna.matches.compare, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CompareInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/matches/compare-and-persist:
+    post: {operationId: genealogy.dna.matches.compare-and-persist, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CompareInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/matches/triangulate:
+    post: {operationId: genealogy.dna.matches.triangulate, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TriangulateInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/matches/{record}:
     parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.dna.matches.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.dna.matches.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MatchInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.dna.matches.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/matches/{record}/segments:
+    get: {operationId: genealogy.dna.matches.segments, security: [{sanctum: []}], parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.matches.segment, security: [{sanctum: []}], parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SegmentInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/segments/{record}:
+    parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch: {operationId: genealogy.dna.segments.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SegmentInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+    delete: {operationId: genealogy.dna.segments.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/dna/groups:
-    get: {operationId: genealogy.dna.groups.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    get: {operationId: genealogy.dna.groups.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.dna.groups.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GroupInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/dna/groups/{record}:
     parameters: [{name: record, in: path, required: true, schema: {type: string, format: uuid}}]
     get: {operationId: genealogy.dna.groups.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.dna.groups.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GroupInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.dna.groups.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+  /api/v1/genealogy/dna/notes:
+    get: {operationId: genealogy.dna.notes.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.dna.notes.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/NoteInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/notes/{record}:
+    delete: {operationId: genealogy.dna.notes.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+  /api/v1/genealogy/dna/relationships:
+    get: {operationId: genealogy.dna.relationships.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    post: {operationId: genealogy.dna.relationships.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RelationshipInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/dna/relationships/{record}:
+    delete: {operationId: genealogy.dna.relationships.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   schemas:
-    KitInput: {type: object, properties: {person_id: {type: string, format: uuid}, provider: {type: string}, external_id: {type: string}, status: {type: string}, metadata: {type: object}}}
+    KitInput: {type: object, properties: {person_id: {type: string, format: uuid}, provider: {type: string}, provider_id: {type: string, format: uuid}, external_id: {type: string}, status: {type: string}, metadata: {type: object}}}
+    ProviderInput: {type: object, required: [name], properties: {name: {type: string, maxLength: 255}, slug: {type: string, maxLength: 255}, status: {type: string, enum: [active, inactive]}, website: {type: string, format: uri, nullable: true}, metadata: {type: object, nullable: true}}}
+    ValidationInput: {type: object, required: [content], properties: {content: {type: string, description: DNA file content is validated in memory and never persisted by this operation}}}
+    ImportInput: {type: object, required: [content, name], properties: {content: {type: string, description: Raw DNA content is encrypted before it is persisted}, name: {type: string}, provider_id: {type: string, format: uuid}, provider: {type: string}, external_id: {type: string}, metadata: {type: object}}}
     ConsentInput: {type: object, required: [scope], properties: {scope: {type: string, maxLength: 100}, policy_version: {type: string, nullable: true}}}
     RevokeInput: {type: object, required: [reason], properties: {reason: {type: string, maxLength: 1000}}}
     MatchInput: {type: object, required: [kit_id, external_id], properties: {kit_id: {type: string, format: uuid}, external_id: {type: string}, display_name: {type: string, nullable: true}, predicted_relationship: {type: string, nullable: true}, confidence: {type: integer, minimum: 0, maximum: 100}, total_cm: {type: number, minimum: 0}, shared_segments: {type: integer, minimum: 0}, status: {type: string}, is_private: {type: boolean}, notes: {type: string, nullable: true}, metadata: {type: object}}}
+    AnalyzeInput: {type: object, required: [kit_a, kit_b], properties: {kit_a: {type: object, description: Normalized chromosome-to-position genotype map}, kit_b: {type: object, description: Normalized chromosome-to-position genotype map}}}
+    CompareInput: {type: object, required: [kit_a, kit_b], properties: {kit_a: {type: string, format: uuid, description: Consented imported kit identifier}, kit_b: {type: string, format: uuid, description: Consented imported kit identifier}}}
+    TriangulateInput: {type: object, required: [matches], properties: {matches: {type: array, minItems: 3, items: {type: object, required: [id, segments], properties: {id: {type: string}, segments: {type: array, items: {type: object, required: [chromosome, start, end], properties: {chromosome: {type: string}, start: {type: integer, minimum: 0}, end: {type: integer, minimum: 0}}}}}}}, minimum_shared_cm: {type: number, minimum: 0, default: 20}}}
     SegmentInput: {type: object, required: [chromosome, start_position, end_position], properties: {chromosome: {type: integer, minimum: 1, maximum: 99}, start_position: {type: integer, minimum: 0}, end_position: {type: integer, minimum: 0}, centimorgans: {type: number, minimum: 0}, snps: {type: integer, minimum: 0}, side: {type: string, nullable: true}, metadata: {type: object}}}
     GroupInput: {type: object, required: [name], properties: {name: {type: string, maxLength: 255}, description: {type: string, nullable: true}, status: {type: string}, metadata: {type: object}}}
+    NoteInput: {type: object, required: [noteable_type, noteable_id, body], properties: {noteable_type: {type: string}, noteable_id: {type: string, format: uuid}, body: {type: string, maxLength: 50000}}}
+    RelationshipInput: {type: object, required: [match_id, person_id, relationship_type], properties: {match_id: {type: string, format: uuid}, person_id: {type: string, format: uuid}, relationship_type: {type: string}, confidence: {type: integer, minimum: 0, maximum: 100}, status: {type: string, enum: [proposed, confirmed, rejected]}, rationale: {type: string, nullable: true}, metadata: {type: object}}}
     Resource: {type: object, required: [data], properties: {data: {type: object}}}
   responses:
     Resource: {description: DNA resource, content: {application/json: {schema: {$ref: '#/components/schemas/Resource'}}}}

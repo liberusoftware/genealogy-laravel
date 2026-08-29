@@ -10,6 +10,7 @@ use Liberu\Genealogy\GenealogyCore\Contracts\PersonReferenceResolver;
 use Liberu\Genealogy\GenealogyCore\Policies\TeamOwnedPolicy;
 use Liberu\Genealogy\People\Models\MergeCandidate;
 use Liberu\Genealogy\People\Models\Person;
+use Liberu\Genealogy\People\Models\PersonAssociation;
 use Liberu\Genealogy\People\Models\PersonIdentity;
 use Liberu\Genealogy\People\Models\PersonLifeEvent;
 use Liberu\Genealogy\People\Models\PersonName;
@@ -20,7 +21,7 @@ final class PeopleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        foreach ([Person::class, PersonName::class, PersonIdentity::class, PersonLifeEvent::class, MergeCandidate::class] as $model) {
+        foreach ([Person::class, PersonName::class, PersonIdentity::class, PersonLifeEvent::class, PersonAssociation::class, MergeCandidate::class] as $model) {
             Gate::policy($model, TeamOwnedPolicy::class);
         }
     }

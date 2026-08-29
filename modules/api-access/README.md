@@ -21,6 +21,7 @@ Token and service-identity policy, scopes, versions, rate limits, idempotency, e
 - Versions
 - Rate limits
 - Idempotency
+- Conditional HTTP requests (`ETag`, `If-None-Match`, and `If-Match`)
 - Expiry
 - Revocation
 
@@ -53,7 +54,10 @@ The trusted `liberusoftware/composer-installer` places it in `/modules/api-acces
 
 ### Public contracts
 
-- No separate contract type is declared; use the documented provider and capability boundary.
+- `Liberu\Foundation\ApiAccess\Http\Middleware\ApiContract` provides opt-in idempotency replay/conflict handling for state-changing requests and conditional response/precondition handling.
+- `Liberu\Foundation\ApiAccess\Support\IdempotencyStore` persists request fingerprints and completed responses for safe retries.
+
+Attach `ApiContract` to an API route group after authentication and tenant context. Requests without an `Idempotency-Key` remain backward compatible; supplied keys are scoped to actor, tenant, method, path, and query string. Reusing a key with a different body returns a Problem Details `409`. Successful resource reads expose an `ETag`; matching `If-None-Match` returns `304`, and stale `If-Match` returns `412`.
 
 ### Commands
 

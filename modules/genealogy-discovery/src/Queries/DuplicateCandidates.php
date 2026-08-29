@@ -9,7 +9,7 @@ use Liberu\Genealogy\People\Models\Person;
 final class DuplicateCandidates
 {
     /** @return list<array{person_id: string, candidate_id: string, confidence: int, reasons: list<string>}> */
-    public function execute(int $limit = 100): array
+    public function execute(int $limit = 100, int $minimumConfidence = 70): array
     {
         $people = Person::query()->orderBy('family_name')->orderBy('given_name')->get();
         $results = [];
@@ -31,7 +31,7 @@ final class DuplicateCandidates
                     $confidence += 30;
                     $reasons[] = 'matching_birth_date';
                 }
-                if ($confidence >= 70) {
+                if ($confidence >= $minimumConfidence) {
                     $results[] = ['person_id' => (string) $person->getKey(), 'candidate_id' => (string) $candidate->getKey(), 'confidence' => $confidence, 'reasons' => $reasons];
                 }
                 if (count($results) >= $limit) {

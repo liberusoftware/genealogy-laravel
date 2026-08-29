@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\Event;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
+use Liberu\Genealogy\People\Actions\MergePersons;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
+use Liberu\Genealogy\Relationships\Actions\UpdateRelationship;
 use Liberu\Genealogy\Relationships\Events\RelationshipCreated;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
@@ -65,6 +67,42 @@ it('rejects duplicate and cyclic parent edges while allowing uncertain links', f
     expect($validator->validate($child->id, $grandparent->id, 'parent')['valid'])->toBeFalse()
         ->and($validator->validate($grandparent->id, $parent->id, 'parent')['valid'])->toBeFalse()
         ->and($validator->validate($grandparent->id, $child->id, 'uncertain')['valid'])->toBeTrue();
+});
+
+it('rejects direct relationship updates outside the active team', function (): void {
+    $firstTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($firstTeam->id);
+    $left = (new CreatePerson())->execute(['given_name' => 'Left']);
+    $right = (new CreatePerson())->execute(['given_name' => 'Right']);
+    $relationship = (new CreateRelationship())->execute([
+        'person_id' => $left->id,
+        'related_person_id' => $right->id,
+        'type' => 'household',
+    ]);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->id);
+
+    expect(fn () => app(UpdateRelationship::class)->execute($relationship->withoutRelations(), ['confidence' => 50]))
+        ->toThrow(InvalidArgumentException::class, 'active team');
+});
+
+it('reconciles relationship endpoints when a person is merged', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $primary = (new CreatePerson())->execute(['given_name' => 'Primary']);
+    $duplicate = (new CreatePerson())->execute(['given_name' => 'Duplicate']);
+    $related = (new CreatePerson())->execute(['given_name' => 'Related']);
+    (new CreateRelationship())->execute([
+        'person_id' => $duplicate->id,
+        'related_person_id' => $related->id,
+        'type' => 'parent',
+    ]);
+
+    app(MergePersons::class)->execute($primary, $duplicate);
+
+    expect(Relationship::query()->where('person_id', $primary->id)->where('related_person_id', $related->id)->exists())->toBeTrue()
+        ->and(Relationship::query()->where('person_id', $duplicate->id)->exists())->toBeFalse();
 });
 
 it('filters relationship edges by person, type, and confidence through the API', function (): void {

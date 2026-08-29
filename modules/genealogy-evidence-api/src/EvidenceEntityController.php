@@ -8,22 +8,33 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Liberu\Genealogy\Evidence\Actions\CreateCitationLink;
 use Liberu\Genealogy\Evidence\Actions\CreateEvidenceEntity;
+use Liberu\Genealogy\Evidence\Actions\DeleteCitationLink;
 use Liberu\Genealogy\Evidence\Actions\DeleteEvidenceEntity;
+use Liberu\Genealogy\Evidence\Actions\UpdateCitationLink;
 use Liberu\Genealogy\Evidence\Actions\UpdateEvidenceEntity;
 use Liberu\Genealogy\Evidence\Models\Assertion;
 use Liberu\Genealogy\Evidence\Models\Citation;
+use Liberu\Genealogy\Evidence\Models\CitationLink;
 use Liberu\Genealogy\Evidence\Models\Extract;
 use Liberu\Genealogy\Evidence\Models\ProofConclusion;
 use Liberu\Genealogy\Evidence\Models\Repository;
 use Liberu\Genealogy\Evidence\Models\Source;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 
 final class EvidenceEntityController
 {
     public function index(Request $request, string $entity): JsonResponse
     {
         $model = $this->model($entity);
-        $records = $model::query()->latest()->paginate($request->integer('per_page', 25));
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'per_page' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $perPage = $values['page']['size'] ?? $values['per_page'] ?? 25;
+        $records = $model::query()->latest()->paginate($perPage);
 
         return response()->json(['data' => $records->getCollection()->map(fn ($record): array => $this->resource($record))->values()->all(), 'meta' => [
             'current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total(),
@@ -57,6 +68,52 @@ final class EvidenceEntityController
         return response()->json(status: 204);
     }
 
+    public function citationLinks(string $citation): JsonResponse
+    {
+        $this->citation($citation);
+
+        return response()->json(['data' => CitationLink::query()->where('citation_id', $citation)->latest()->get()->map(fn (CitationLink $link): array => $this->citationLinkResource($link))->values()->all()]);
+    }
+
+    public function storeCitationLink(Request $request, string $citation, CreateCitationLink $create): JsonResponse
+    {
+        $this->citation($citation);
+        $values = $request->validate([
+            'subject_person_id' => ['required', 'uuid'],
+            'group' => ['sometimes', 'in:'.implode(',', CitationLink::GROUPS)],
+            'page' => ['nullable', 'string', 'max:255'],
+            'quality' => ['nullable', 'string', 'max:255'],
+            'text' => ['nullable', 'string'],
+            'metadata' => ['nullable', 'array'],
+        ]);
+        $link = $create->execute(['citation_id' => $citation, ...$values]);
+
+        return response()->json(['data' => $this->citationLinkResource($link)], 201);
+    }
+
+    public function updateCitationLink(Request $request, string $citation, string $link, UpdateCitationLink $update): JsonResponse
+    {
+        $this->citation($citation);
+        $record = CitationLink::query()->where('citation_id', $citation)->findOrFail($link);
+        $values = $request->validate([
+            'group' => ['sometimes', 'in:'.implode(',', CitationLink::GROUPS)],
+            'page' => ['nullable', 'string', 'max:255'],
+            'quality' => ['nullable', 'string', 'max:255'],
+            'text' => ['nullable', 'string'],
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        return response()->json(['data' => $this->citationLinkResource($update->execute($record, $values))]);
+    }
+
+    public function destroyCitationLink(string $citation, string $link, DeleteCitationLink $delete): JsonResponse
+    {
+        $this->citation($citation);
+        $delete->execute(CitationLink::query()->where('citation_id', $citation)->findOrFail($link));
+
+        return response()->json(status: 204);
+    }
+
     /** @return class-string<Model> */
     private function model(string $entity): string
     {
@@ -69,6 +126,17 @@ final class EvidenceEntityController
             'proof-conclusions' => ProofConclusion::class,
             default => abort(404),
         };
+    }
+
+    private function citation(string $id): Citation
+    {
+        return Citation::query()->where('team_id', app(TeamContext::class)->require())->findOrFail($id);
+    }
+
+    /** @return array<string, mixed> */
+    private function citationLinkResource(CitationLink $link): array
+    {
+        return ['id' => (string) $link->getKey(), 'type' => 'genealogy-evidence-citation-link', 'attributes' => $link->only(['citation_id', 'subject_person_id', 'group', 'page', 'quality', 'text', 'metadata']), 'quality_label' => $link->qualityLabel()];
     }
 
     /** @return array<string, mixed> */

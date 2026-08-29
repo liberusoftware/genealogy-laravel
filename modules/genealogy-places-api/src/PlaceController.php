@@ -24,13 +24,14 @@ final class PlaceController
         $values = $request->validate([
             'status' => ['sometimes', Rule::in(Place::STATUSES)],
             'jurisdiction' => ['sometimes', 'string', 'max:255'],
-            'page[size]' => ['sometimes', 'integer', 'between:1,100'],
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
         ]);
         $places = Place::query()
             ->when(isset($values['status']), fn ($query) => $query->where('status', $values['status']))
             ->when(isset($values['jurisdiction']), fn ($query) => $query->where('jurisdiction', $values['jurisdiction']))
             ->latest()
-            ->paginate($values['page[size]'] ?? 25);
+            ->paginate($values['page']['size'] ?? 25);
 
         return response()->json([
             'data' => $places->getCollection()->map(fn (Place $place): array => $this->resource($place))->values()->all(),

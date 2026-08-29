@@ -16,6 +16,7 @@ final class EvidenceLivewireServiceProvider extends ServiceProvider
         Livewire::component('genealogy-evidence-editor', EvidenceEditor::class);
         Livewire::component('module-genealogy-evidence::evidence-list', EvidenceRecordList::class);
         Livewire::component('module-genealogy-evidence::evidence-editor', EvidenceEditor::class);
+        Livewire::component('module-genealogy-evidence::citation-links', CitationLinks::class);
         Livewire::component('module-genealogy-evidence::evidence-entity-list', EvidenceEntityList::class);
         Livewire::component('module-genealogy-evidence::evidence-entity-editor', EvidenceEntityEditor::class);
         Livewire::component('module-genealogy-evidence::source-list', EvidenceEntityList::class);

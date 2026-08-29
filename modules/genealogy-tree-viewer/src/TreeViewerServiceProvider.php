@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\TreeViewer;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Liberu\Genealogy\GenealogyCore\Policies\TeamOwnedPolicy;
+use Liberu\Genealogy\People\Events\PersonMerged;
+use Liberu\Genealogy\TreeViewer\Listeners\ReconcilePersonMerge;
 use Liberu\Genealogy\TreeViewer\Models\TreeView;
 
 final class TreeViewerServiceProvider extends ServiceProvider
@@ -15,6 +18,7 @@ final class TreeViewerServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Gate::policy(TreeView::class, TeamOwnedPolicy::class);
+        Event::listen(PersonMerged::class, ReconcilePersonMerge::class);
     }
 
     public function register(): void
