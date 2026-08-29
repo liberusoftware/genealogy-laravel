@@ -25,6 +25,17 @@ it('supports historical context and conflict events in chronological navigation'
     expect($private->refresh()->confidence)->toBe(80);
 });
 
+it('normalizes timeline event names on create and update', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+
+    $event = (new CreateTimelineEvent())->execute(['name' => '  Birth record  ']);
+    expect($event->name)->toBe('Birth record');
+
+    $updated = (new UpdateTimelineEvent())->execute($event, ['name' => '  Updated birth record  ']);
+    expect($updated->name)->toBe('Updated birth record');
+});
+
 it('rejects invalid timeline date ranges', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);

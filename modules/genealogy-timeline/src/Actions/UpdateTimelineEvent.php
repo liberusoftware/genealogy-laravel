@@ -19,6 +19,9 @@ final class UpdateTimelineEvent
         }
         $values = Arr::only($attributes, $event->getFillable());
         (new CreateTimelineEvent())->validate(array_merge($event->toArray(), $values));
+        if (array_key_exists('name', $values)) {
+            $values['name'] = trim((string) $values['name']);
+        }
         $event->getConnection()->transaction(function () use ($event, $values): void {
             $event->update($values);
         });

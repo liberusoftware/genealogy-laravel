@@ -16,6 +16,7 @@ final class CreateTimelineEvent
     {
         $values = Arr::only($attributes, ['kind', 'name', 'subject_person_id', 'family_key', 'event_date', 'date_start', 'date_end', 'date_precision', 'place_id', 'description', 'historical_context', 'conflict_group', 'confidence', 'source_reference', 'is_private', 'status', 'metadata']);
         $this->validate($values);
+        $values['name'] = trim((string) $values['name']);
 
         $model = TimelineEvent::query()->getModel();
         $schema = $model->getConnection()->getSchemaBuilder();
