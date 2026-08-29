@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Discovery\Actions\CreateDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Actions\DeleteDiscoveryMatch;
@@ -66,6 +67,21 @@ it('keeps discovery updates and deletion behind domain lifecycle actions', funct
         ->and(DiscoveryMatch::query()->find($match->getKey()))->toBeNull();
     Event::assertDispatched(DiscoveryMatchUpdated::class);
     Event::assertDispatched(DiscoveryMatchDeleted::class);
+});
+
+it('requires and normalizes discovery match names on every mutation boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(CreateDiscoveryMatch::class)->execute(['name' => '   ']))
+        ->toThrow(ValidationException::class);
+
+    $match = app(CreateDiscoveryMatch::class)->execute(['name' => '  Initial hint  ']);
+    expect($match->name)->toBe('Initial hint');
+
+    $updated = app(UpdateDiscoveryMatch::class)->execute($match, ['name' => '  Updated hint  ']);
+    expect($updated->name)->toBe('Updated hint');
 });
 
 it('persists tenant-scoped duplicate scans once and exposes them through API and Livewire', function (): void {
