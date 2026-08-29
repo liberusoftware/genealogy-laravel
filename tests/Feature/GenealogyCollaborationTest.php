@@ -116,6 +116,12 @@ it('filters proposals through the Livewire list', function (): void {
     expect(CollaborationProposal::query()->count())->toBe(1);
 });
 
+it('forbids guests from collaboration list surfaces', function (): void {
+    Livewire::test('genealogy-collaboration-list')->assertForbidden();
+    Livewire::test('genealogy-collaboration-proposal-list')->assertForbidden();
+    Livewire::test('genealogy-collaboration-watch-list')->assertForbidden();
+});
+
 it('supports tenant-scoped collaboration invitations, roles, discussions, watches, and attribution', function (): void {
     $owner = User::factory()->create();
     $member = User::factory()->create();

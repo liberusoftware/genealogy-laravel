@@ -28,6 +28,8 @@ final class CollaborationSpaceList extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
+
         return view('genealogy-collaboration-livewire::list', [
             'records' => CollaborationSpace::query()
                 ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))
