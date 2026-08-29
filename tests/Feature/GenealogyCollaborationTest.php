@@ -137,6 +137,31 @@ it('supports tenant-scoped collaboration invitations, roles, discussions, watche
         ->and(CollaborationInvitation::query()->count())->toBe(1);
 });
 
+it('rejects cross-team collaboration space and proposal references', function (): void {
+    $localOwner = User::factory()->create();
+    $remoteOwner = User::factory()->create();
+    $localTeam = Team::factory()->create(['user_id' => $localOwner->id]);
+    $remoteTeam = Team::factory()->create(['user_id' => $remoteOwner->id]);
+
+    app(TeamContext::class)->set($remoteTeam->id);
+    $remoteSpace = app(CreateCollaborationSpace::class)->execute(['name' => 'Remote space']);
+    $remoteProposal = app(CreateCollaborationProposal::class)->execute(['title' => 'Remote proposal', 'proposer_id' => $remoteOwner->id]);
+
+    app(TeamContext::class)->set($localTeam->id);
+    expect(fn () => app(InviteCollaborationMember::class)->execute([
+        'email' => $localOwner->email,
+        'space_id' => $remoteSpace->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'active team');
+    expect(fn () => app(CreateCollaborationDiscussion::class)->execute([
+        'body' => 'Cross-team reference',
+        'space_id' => $remoteSpace->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'active team');
+    expect(fn () => app(CreateCollaborationDiscussion::class)->execute([
+        'body' => 'Cross-team proposal reference',
+        'proposal_id' => $remoteProposal->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'active team');
+});
+
 it('rejects incomplete collaboration attribution records', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
