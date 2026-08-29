@@ -61,7 +61,7 @@ if command -v docker >/dev/null 2>&1; then
     docker compose config --quiet
 fi
 
-if command -v kubectl >/dev/null 2>&1 && [[ -d k8s ]]; then
+if command -v kubectl >/dev/null 2>&1 && [[ -f k8s/kustomization.yaml || -f k8s/kustomization.yml || -f k8s/Kustomization ]]; then
     kubectl kustomize k8s >/dev/null
 fi
 

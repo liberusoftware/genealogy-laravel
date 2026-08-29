@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Capture created, updated, and deleted genealogy model changes with tenant and request context.
+
 ## 1.2.2 - 2026-08-06
 
 - Split CI into the three workflows `CONFORMANCE.md` §3.9 asks for, rather than one calling all

@@ -1,6 +1,39 @@
 openapi: 3.1.0
 info: { title: Genealogy Media API, version: 1.0.0 }
 paths:
+  /api/v1/genealogy/media/{record}/analyze-faces:
+    post:
+      operationId: genealogy.media.analyze-faces
+      security: [{ sanctum: [] }]
+      responses: { '200': { description: Face analysis result } }
+  /api/v1/genealogy/media/{record}/transcribe:
+    post:
+      operationId: genealogy.media.transcribe
+      security: [{ sanctum: [] }]
+      responses: { '200': { description: Transcription result } }
+  /api/v1/genealogy/media/{record}/transcription-corrections:
+    post:
+      operationId: genealogy.media.transcription-corrections
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [text], properties: { text: { type: string, maxLength: 2000000 } } } } } }
+      responses: { '201': { description: Transcription correction } }
+  /api/v1/genealogy/media/{record}/face-tags:
+    get:
+      operationId: genealogy.media.face-tags
+      security: [{ sanctum: [] }]
+      responses: { '200': { description: Reviewable face tags } }
+  /api/v1/genealogy/media/face-tags/{tag}:
+    patch:
+      operationId: genealogy.media.face-tags.review
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [confirmed, rejected] }, person_id: { type: string, format: uuid, nullable: true } } } } } }
+      responses: { '200': { description: Reviewed face tag } }
+  /api/v1/genealogy/media/upload:
+    post:
+      operationId: genealogy.media.upload
+      security: [{ sanctum: [] }]
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, required: [file], properties: { file: { type: string, format: binary }, name: { type: string }, kind: { type: string, enum: [document, photograph, audio, video] }, storage_disk: { type: string }, storage_directory: { type: string }, captured_at: { type: string, format: date-time }, captured_place_id: { type: string, format: uuid }, rights_holder: { type: string }, rights_status: { type: string, enum: [unknown, owned, licensed, public_domain, restricted, orphaned] }, is_public: { type: boolean }, preservation_metadata: { type: object }, metadata: { type: object } } } } } }
+      responses: { '201': { $ref: '#/components/responses/Resource' } }
   /api/v1/genealogy/media:
     get:
       operationId: genealogy.media.list

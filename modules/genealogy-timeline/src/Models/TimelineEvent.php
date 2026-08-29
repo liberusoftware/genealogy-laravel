@@ -15,6 +15,8 @@ final class TimelineEvent extends Model
 
     public const DATE_PRECISIONS = ['exact', 'month', 'year', 'circa', 'before', 'after', 'range'];
 
+    public const STATUSES = ['draft', 'active', 'completed'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;

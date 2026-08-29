@@ -9,13 +9,13 @@ use Livewire\Component;
 
 final class RelationshipList extends Component
 {
-    public string $status = '';
+    public string $type = '';
 
     public function render(): mixed
     {
         return view('genealogy-relationships-livewire::list', [
             'records' => Relationship::query()
-                ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))
+                ->when($this->type !== '', fn ($query) => $query->where('type', $this->type))
                 ->latest()
                 ->limit(25)
                 ->get(),

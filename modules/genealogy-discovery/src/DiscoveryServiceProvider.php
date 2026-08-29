@@ -18,7 +18,7 @@ final class DiscoveryServiceProvider extends ServiceProvider
         $this->app->singleton(Capability::class, fn (): Capability => new Capability(
             'genealogy-discovery',
             'Genealogy Discovery',
-            ['genealogy.discovery', 'genealogy.discovery.lifecycle'],
+            ['genealogy.discovery', 'genealogy.discovery.search', 'genealogy.discovery.hints', 'genealogy.discovery.duplicates', 'genealogy.discovery.relationship-paths', 'genealogy.discovery.privacy-indexes', 'genealogy.discovery.lifecycle'],
         ));
     }
 }

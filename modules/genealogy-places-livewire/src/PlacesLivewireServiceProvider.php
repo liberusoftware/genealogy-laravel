@@ -14,6 +14,8 @@ final class PlacesLivewireServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-places-livewire');
         Livewire::component('genealogy-places-list', PlaceList::class);
         Livewire::component('genealogy-places-editor', PlaceEditor::class);
+        Livewire::component('module-genealogy-places::place-list', PlaceList::class);
+        Livewire::component('module-genealogy-places::place-editor', PlaceEditor::class);
     }
 }
 

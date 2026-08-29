@@ -1,19 +1,33 @@
 openapi: 3.1.0
 info: { title: Genealogy Places API, version: 1.0.0 }
 paths:
+  /api/v1/genealogy/places/hierarchy:
+    get: { operationId: genealogy.places.hierarchy, security: [{ sanctum: [] }], responses: { '200': { description: Nested place hierarchy } } }
   /api/v1/genealogy/places:
-    get: { operationId: genealogy.places.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    get: { operationId: genealogy.places.list, security: [{ sanctum: [] }], parameters: [{ name: status, in: query, schema: { type: string, enum: [draft, active, completed] } }, { name: jurisdiction, in: query, schema: { type: string } }, { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
     post: { operationId: genealogy.places.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '201': { $ref: '#/components/responses/Resource' } } }
   /api/v1/genealogy/places/{id}:
     parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
     get: { operationId: genealogy.places.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
     patch: { operationId: genealogy.places.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
     delete: { operationId: genealogy.places.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+  /api/v1/genealogy/places/{id}/names:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+    get: { operationId: genealogy.places.names.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Names' } } }
+    post: { operationId: genealogy.places.names.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/NameInput' } } } }, responses: { '201': { $ref: '#/components/responses/Name' } } }
+  /api/v1/genealogy/places/{id}/names/{name}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }, { name: name, in: path, required: true, schema: { type: string, format: uuid } }]
+    patch: { operationId: genealogy.places.names.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/NameInput' } } } }, responses: { '200': { $ref: '#/components/responses/Name' } } }
+    delete: { operationId: genealogy.places.names.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   schemas:
     Input: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, parent_id: { type: string, format: uuid, nullable: true }, historical_names: { type: array, items: { type: string } }, latitude: { type: number, minimum: -90, maximum: 90 }, longitude: { type: number, minimum: -180, maximum: 180 }, jurisdiction: { type: string, nullable: true }, is_current: { type: boolean }, status: { type: string }, metadata: { type: object, nullable: true } } }
     Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-place }, attributes: { $ref: '#/components/schemas/Input' } } }
+    NameInput: { type: object, properties: { name: { type: string, maxLength: 255 }, type: { type: string, maxLength: 64 }, locale: { type: string, maxLength: 12, nullable: true }, valid_from: { type: string, format: date, nullable: true }, valid_to: { type: string, format: date, nullable: true }, metadata: { type: object, nullable: true } } }
+    NameResource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-place-name }, attributes: { $ref: '#/components/schemas/NameInput' } } }
   responses:
     Resource: { description: Place resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
     Collection: { description: Paginated places, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }
+    Name: { description: Place name resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/NameResource' } } } } } }
+    Names: { description: Place name resources, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/NameResource' } } } } } } }

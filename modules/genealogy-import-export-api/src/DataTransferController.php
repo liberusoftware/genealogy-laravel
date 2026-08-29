@@ -8,30 +8,34 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
-use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
+use Liberu\Genealogy\ImportExport\Actions\DeleteDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\ExportGenealogyData;
+use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\UpdateDataTransfer;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
-use Liberu\Genealogy\People\Models\Person;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DataTransferController
 {
     public function index(): JsonResponse
     {
-        return response()->json(['data' => DataTransfer::query()->latest()->paginate()]);
+        $transfers = DataTransfer::query()->latest()->paginate(25);
+
+        return response()->json(['data' => $transfers->getCollection()->map(fn (DataTransfer $transfer): array => $this->resource($transfer))->values()->all(), 'meta' => ['current_page' => $transfers->currentPage(), 'per_page' => $transfers->perPage(), 'total' => $transfers->total()]]);
     }
 
     public function store(Request $request, CreateDataTransfer $create): JsonResponse
     {
         $record = $create->execute($request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
-            'format' => ['required', 'in:gedcom,gramps-xml'],
-            'direction' => ['required', 'in:import,export'],
+            'status' => ['sometimes', 'in:'.implode(',', DataTransfer::STATUSES)],
+            'format' => ['required', 'in:'.implode(',', DataTransfer::FORMATS)],
+            'direction' => ['required', 'in:'.implode(',', DataTransfer::DIRECTIONS)],
             'metadata' => ['nullable', 'array'],
         ]));
 
-        return response()->json(['data' => $record], 201);
+        return response()->json(['data' => $this->resource($record)], 201);
     }
 
     public function preview(Request $request, GenealogyImportService $service): JsonResponse
@@ -39,7 +43,7 @@ final class DataTransferController
         return response()->json(['data' => $service->preview($this->content($request))]);
     }
 
-    public function import(Request $request, GenealogyImportService $service, CreateDataTransfer $create): JsonResponse
+    public function import(Request $request, GenealogyImportService $service, CreateDataTransfer $create, UpdateDataTransfer $update): JsonResponse
     {
         $content = $this->content($request);
         $preview = $service->preview($content);
@@ -51,37 +55,56 @@ final class DataTransferController
             'status' => 'active',
         ]);
 
-        return response()->json(['data' => $service->import($content, false, $transfer)], 201);
+        try {
+            $result = $service->import($content, false, $transfer);
+        } catch (\Throwable $exception) {
+            $update->execute($transfer, ['status' => 'failed', 'metadata' => ['error' => 'Import failed.']]);
+            throw $exception;
+        }
+
+        return response()->json(['data' => $result, 'transfer' => $this->resource($transfer->refresh())], 201);
     }
 
-    public function export(GedcomExporter $exporter): StreamedResponse
+    public function export(Request $request, ExportGenealogyData $export): StreamedResponse
     {
-        return response()->streamDownload(function () use ($exporter): void {
-            echo $exporter->export(Person::query()->latest()->get());
-        }, 'genealogy.ged', ['Content-Type' => 'text/plain; charset=UTF-8']);
+        $format = $request->validate(['format' => ['sometimes', 'in:gedcom,gramps-xml']])['format'] ?? 'gedcom';
+        $result = $export->execute($format, (string) $request->input('name', 'Genealogy export'));
+
+        return response()->streamDownload(static function () use ($result): void {
+            echo $result->content;
+        }, $result->filename, [
+            'Content-Type' => $result->contentType,
+            'X-Data-Transfer-ID' => (string) $result->transfer->getKey(),
+            'X-Data-Transfer-Status' => $result->transfer->status,
+        ]);
+    }
+
+    public function undo(DataTransfer $record, UndoDataTransfer $undo): JsonResponse
+    {
+        return response()->json(['data' => $this->resource($undo->execute($record))]);
     }
 
     public function show(DataTransfer $record): JsonResponse
     {
-        return response()->json(['data' => $record]);
+        return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, DataTransfer $record): JsonResponse
+    public function update(Request $request, DataTransfer $record, UpdateDataTransfer $update): JsonResponse
     {
-        $record->update($request->validate([
+        $record = $update->execute($record, $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
-            'format' => ['sometimes', 'in:gedcom,gramps-xml'],
-            'direction' => ['sometimes', 'in:import,export'],
+            'status' => ['sometimes', 'in:'.implode(',', DataTransfer::STATUSES)],
+            'format' => ['sometimes', 'in:'.implode(',', DataTransfer::FORMATS)],
+            'direction' => ['sometimes', 'in:'.implode(',', DataTransfer::DIRECTIONS)],
             'metadata' => ['nullable', 'array'],
         ]));
 
-        return response()->json(['data' => $record->refresh()]);
+        return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function destroy(DataTransfer $record): JsonResponse
+    public function destroy(DataTransfer $record, DeleteDataTransfer $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
     }
@@ -95,5 +118,15 @@ final class DataTransferController
         $file = $request->file('file');
 
         return $file instanceof UploadedFile ? (string) $file->get() : (string) $request->input('content');
+    }
+
+    /** @return array<string, mixed> */
+    private function resource(DataTransfer $transfer): array
+    {
+        return ['id' => $transfer->getKey(), 'type' => 'genealogy-data-transfer', 'attributes' => [
+            'name' => $transfer->name, 'format' => $transfer->format, 'direction' => $transfer->direction,
+            'records_count' => $transfer->records_count, 'status' => $transfer->status, 'metadata' => $transfer->metadata,
+            'created_at' => $transfer->created_at?->toISOString(), 'updated_at' => $transfer->updated_at?->toISOString(),
+        ]];
     }
 }

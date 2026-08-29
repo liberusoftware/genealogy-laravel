@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Discovery\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -13,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Liberu\Genealogy\Discovery\Actions\DeleteDiscoveryMatch;
+use Liberu\Genealogy\Discovery\Actions\ReviewDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Filament\Resources\DiscoveryMatchResource\Pages\CreateDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Filament\Resources\DiscoveryMatchResource\Pages\EditDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Filament\Resources\DiscoveryMatchResource\Pages\ListDiscoveryMatchs;
@@ -51,8 +54,9 @@ final class DiscoveryMatchResource extends Resource
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
+            Action::make('review')->visible(fn (DiscoveryMatch $record): bool => in_array($record->status, ['draft', 'active'], true))->form([Select::make('status')->options(['active' => 'Active', 'completed' => 'Completed', 'dismissed' => 'Dismissed'])->required()])->action(fn (DiscoveryMatch $record, array $data): DiscoveryMatch => app(ReviewDiscoveryMatch::class)->execute($record, $data['status'])),
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (DiscoveryMatch $record): mixed => app(DeleteDiscoveryMatch::class)->execute($record)),
         ]);
     }
 

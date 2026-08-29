@@ -6,7 +6,9 @@
   "license": "MIT",
   "require": {
     "php": "^8.5",
+    "liberusoftware/api-access": "^1.0",
     "liberusoftware/module-genealogy-import-export": "^1.0",
+    "liberusoftware/module-genealogy-relationships": "^1.0",
     "liberusoftware/module-genealogy-core": "^1.0",
     "liberusoftware/module-genealogy-people": "^1.0",
     "illuminate/http": "^13.0",

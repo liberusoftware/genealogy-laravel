@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\Places\Actions\DeletePlace;
 use Liberu\Genealogy\Places\Filament\Resources\PlaceResource\Pages\CreatePlace;
 use Liberu\Genealogy\Places\Filament\Resources\PlaceResource\Pages\EditPlace;
 use Liberu\Genealogy\Places\Filament\Resources\PlaceResource\Pages\ListPlaces;
@@ -36,11 +38,10 @@ final class PlaceResource extends Resource
             TextInput::make('latitude')->numeric()->minValue(-90)->maxValue(90),
             TextInput::make('longitude')->numeric()->minValue(-180)->maxValue(180),
             TextInput::make('jurisdiction')->maxLength(255),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            Select::make('status')->options(array_combine(Place::STATUSES, array_map(
+                static fn (string $status): string => ucfirst($status),
+                Place::STATUSES,
+            )))->required(),
         ]);
     }
 
@@ -52,7 +53,7 @@ final class PlaceResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Model $record): mixed => app(DeletePlace::class)->execute($record)),
         ]);
     }
 

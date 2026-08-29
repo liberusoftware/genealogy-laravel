@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\ImportExport\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -13,6 +14,9 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\ImportExport\Actions\DeleteDataTransfer;
+use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
 use Liberu\Genealogy\ImportExport\Filament\Resources\DataTransferResource\Pages\CreateDataTransfer;
 use Liberu\Genealogy\ImportExport\Filament\Resources\DataTransferResource\Pages\EditDataTransfer;
 use Liberu\Genealogy\ImportExport\Filament\Resources\DataTransferResource\Pages\ListDataTransfers;
@@ -41,7 +45,8 @@ final class DataTransferResource extends Resource
             Select::make('status')->options([
                 'draft' => 'Draft',
                 'active' => 'Active',
-                'completed' => 'Completed',
+            'completed' => 'Completed',
+            'rolled_back' => 'Rolled back',
             ])->required(),
         ]);
     }
@@ -53,8 +58,13 @@ final class DataTransferResource extends Resource
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
+            Action::make('undo')
+                ->label('Undo import')
+                ->requiresConfirmation()
+                ->visible(fn (DataTransfer $record): bool => $record->status === 'completed' && $record->direction === 'import')
+                ->action(fn (DataTransfer $record): DataTransfer => app(UndoDataTransfer::class)->execute($record)),
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Model $record): mixed => app(DeleteDataTransfer::class)->execute($record)),
         ]);
     }
 

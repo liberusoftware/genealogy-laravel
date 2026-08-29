@@ -16,8 +16,14 @@ paths:
     get:
       operationId: genealogy.timeline.chronological
       security: [{ sanctum: [] }]
-      parameters: [{ name: subject_person_id, in: query, schema: { type: string, format: uuid } }, { name: family_key, in: query, schema: { type: string } }, { name: from, in: query, schema: { type: string, format: date } }, { name: to, in: query, schema: { type: string, format: date } }]
+      parameters: [{ name: subject_person_id, in: query, schema: { type: string, format: uuid } }, { name: family_key, in: query, schema: { type: string } }, { name: from, in: query, schema: { type: string, format: date } }, { name: to, in: query, schema: { type: string, format: date } }, { name: include_private, in: query, schema: { type: boolean } }]
       responses: { '200': { description: Chronologically ordered timeline events } }
+  /api/v1/genealogy/timeline/conflicts:
+    get:
+      operationId: genealogy.timeline.conflicts
+      security: [{ sanctum: [] }]
+      parameters: [{ name: subject_person_id, in: query, schema: { type: string, format: uuid } }, { name: include_private, in: query, schema: { type: boolean } }]
+      responses: { '200': { description: Groups of conflicting timeline assertions } }
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   parameters: { PageSize: { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } } }

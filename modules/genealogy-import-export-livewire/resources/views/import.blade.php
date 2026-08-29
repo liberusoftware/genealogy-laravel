@@ -5,6 +5,9 @@
     <div wire:loading wire:target="file,preview,import" role="status">Processing…</div>
     <button type="button" wire:click="preview" wire:loading.attr="disabled" wire:target="preview">Preview</button>
     <button type="button" wire:click="import" wire:loading.attr="disabled" wire:target="import">Import</button>
+    @if ($transferId)
+        <button type="button" wire:click="undo" wire:loading.attr="disabled" wire:target="undo">Undo import</button>
+    @endif
     @if ($report)
         <dl>
             <dt>Format</dt><dd>{{ $report['format'] }}</dd>

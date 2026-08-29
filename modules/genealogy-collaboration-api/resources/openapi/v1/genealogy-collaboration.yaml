@@ -3,6 +3,38 @@ info:
   title: Genealogy Collaboration API
   version: 1.0.0
 paths:
+  /api/v1/genealogy/collaboration/proposals:
+    get: { operationId: genealogy.collaboration.proposals.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }, { name: status, in: query, schema: { type: string } }, { name: pending_review, in: query, schema: { type: boolean } }], responses: { '200': { $ref: '#/components/responses/ProposalCollection' } } }
+    post: { operationId: genealogy.collaboration.proposals.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProposalInput' } } } }, responses: { '201': { $ref: '#/components/responses/ProposalResource' } } }
+  /api/v1/genealogy/collaboration/proposals/{record}:
+    get: { operationId: genealogy.collaboration.proposals.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/ProposalResource' } } }
+    patch: { operationId: genealogy.collaboration.proposals.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ProposalInput' } } } }, responses: { '200': { $ref: '#/components/responses/ProposalResource' } } }
+    delete: { operationId: genealogy.collaboration.proposals.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+  /api/v1/genealogy/collaboration/proposals/{record}/review:
+    post: { operationId: genealogy.collaboration.proposals.review, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [in_review, approved, rejected] } } } } } }, responses: { '200': { $ref: '#/components/responses/ProposalResource' } } }
+  /api/v1/genealogy/collaboration/invitations:
+    get: { operationId: genealogy.collaboration.invitations.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }, { name: status, in: query, schema: { type: string, enum: [pending, accepted, revoked, expired] } }], responses: { '200': { $ref: '#/components/responses/InvitationCollection' } } }
+    post: { operationId: genealogy.collaboration.invitations.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/InvitationInput' } } } }, responses: { '201': { $ref: '#/components/responses/InvitationResource' } } }
+  /api/v1/genealogy/collaboration/invitations/{record}/accept:
+    post: { operationId: genealogy.collaboration.invitations.accept, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/MembershipResource' } } }
+  /api/v1/genealogy/collaboration/invitations/{record}/revoke:
+    post: { operationId: genealogy.collaboration.invitations.revoke, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/InvitationResource' } } }
+  /api/v1/genealogy/collaboration/memberships:
+    get: { operationId: genealogy.collaboration.memberships.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }, { name: space_id, in: query, schema: { type: string, format: uuid } }], responses: { '200': { $ref: '#/components/responses/MembershipCollection' } } }
+  /api/v1/genealogy/collaboration/memberships/{record}:
+    patch: { operationId: genealogy.collaboration.memberships.update, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [role], properties: { role: { type: string, enum: [viewer, contributor, reviewer, editor, owner] } } } } } }, responses: { '200': { $ref: '#/components/responses/MembershipResource' } } }
+  /api/v1/genealogy/collaboration/discussions:
+    get: { operationId: genealogy.collaboration.discussions.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }, { name: proposal_id, in: query, schema: { type: string, format: uuid } }], responses: { '200': { $ref: '#/components/responses/DiscussionCollection' } } }
+    post: { operationId: genealogy.collaboration.discussions.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DiscussionInput' } } } }, responses: { '201': { $ref: '#/components/responses/DiscussionResource' } } }
+  /api/v1/genealogy/collaboration/discussions/{record}:
+    patch: { operationId: genealogy.collaboration.discussions.update, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DiscussionInput' } } } }, responses: { '200': { $ref: '#/components/responses/DiscussionResource' } } }
+    delete: { operationId: genealogy.collaboration.discussions.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+  /api/v1/genealogy/collaboration/watches:
+    get: { operationId: genealogy.collaboration.watches.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/WatchCollection' } } }
+  /api/v1/genealogy/collaboration/watches/toggle:
+    post: { operationId: genealogy.collaboration.watches.toggle, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [watchable_type, watchable_id], properties: { watchable_type: { type: string }, watchable_id: { type: string } } } } } }, responses: { '200': { $ref: '#/components/responses/WatchResource' } } }
+  /api/v1/genealogy/collaboration/attributions:
+    get: { operationId: genealogy.collaboration.attributions.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }], responses: { '200': { $ref: '#/components/responses/AttributionCollection' } } }
   /api/v1/genealogy/collaboration:
     get:
       operationId: genealogy.collaboration.list
@@ -25,8 +57,28 @@ paths:
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   schemas:
+    ProposalInput: { type: object, required: [title], properties: { title: { type: string, maxLength: 255 }, description: { type: [string, 'null'] }, metadata: { type: [object, 'null'] } } }
+    InvitationInput: { type: object, required: [email], properties: { email: { type: string, format: email }, space_id: { type: [string, 'null'], format: uuid }, role: { type: string, enum: [viewer, contributor, reviewer, editor, owner] }, expires_at: { type: [string, 'null'], format: date-time } } }
+    DiscussionInput: { type: object, required: [body], properties: { space_id: { type: [string, 'null'], format: uuid }, proposal_id: { type: [string, 'null'], format: uuid }, body: { type: string, maxLength: 50000 }, status: { type: string, enum: [open, resolved, archived] }, metadata: { type: [object, 'null'] } } }
+    InvitationResource: { type: object, required: [id, type, attributes], properties: { id: { type: string, format: uuid }, type: { type: string, const: genealogy-collaboration-invitation }, attributes: { $ref: '#/components/schemas/InvitationInput' } } }
+    MembershipResource: { type: object, required: [id, type, attributes], properties: { id: { type: string, format: uuid }, type: { type: string, const: genealogy-collaboration-membership }, attributes: { type: object } } }
+    DiscussionResource: { type: object, required: [id, type, attributes], properties: { id: { type: string, format: uuid }, type: { type: string, const: genealogy-collaboration-discussion }, attributes: { $ref: '#/components/schemas/DiscussionInput' } } }
+    WatchResource: { type: object, required: [id, type, attributes], properties: { id: { type: string, format: uuid }, type: { type: string, const: genealogy-collaboration-watch }, attributes: { type: object } } }
+    AttributionResource: { type: object, required: [id, type, attributes], properties: { id: { type: string, format: uuid }, type: { type: string, const: genealogy-collaboration-attribution }, attributes: { type: object } } }
     Input: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, status: { type: string, maxLength: 50 }, metadata: { type: object, nullable: true } } }
     Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-collaboration-space }, attributes: { $ref: '#/components/schemas/Input' } } }
+    ProposalResource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-collaboration-proposal }, attributes: { $ref: '#/components/schemas/ProposalInput' } } }
   responses:
     Resource: { description: Collaboration space, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
     Collection: { description: Paginated collaboration spaces, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }
+    ProposalResource: { description: Collaboration proposal resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/ProposalResource' } } } } } }
+    ProposalCollection: { description: Paginated collaboration proposals, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/ProposalResource' } }, meta: { type: object } } } } } }
+    InvitationResource: { description: Collaboration invitation, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/InvitationResource' } } } } } }
+    InvitationCollection: { description: Collaboration invitations, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/InvitationResource' } }, meta: { type: object } } } } } }
+    MembershipResource: { description: Collaboration membership, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/MembershipResource' } } } } } }
+    MembershipCollection: { description: Collaboration memberships, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/MembershipResource' } }, meta: { type: object } } } } } }
+    DiscussionResource: { description: Collaboration discussion, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/DiscussionResource' } } } } } }
+    DiscussionCollection: { description: Collaboration discussions, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/DiscussionResource' } }, meta: { type: object } } } } } }
+    WatchResource: { description: Collaboration watch, content: { application/json: { schema: { type: object, properties: { data: { type: [object, 'null'] } } } } } }
+    WatchCollection: { description: Collaboration watches, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/WatchResource' } } } } } } }
+    AttributionCollection: { description: Collaboration attribution history, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/AttributionResource' } }, meta: { type: object } } } } } }

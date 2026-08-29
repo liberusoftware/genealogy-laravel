@@ -12,10 +12,20 @@
   },
   "capabilities": [
     "genealogy.places",
+    "genealogy.places.hierarchy",
+    "genealogy.places.names",
+    "genealogy.places.coordinates",
+    "genealogy.places.jurisdictions",
+    "genealogy.places.maps",
     "genealogy.places.lifecycle"
   ],
   "features": [
     "genealogy places",
+    "genealogy places hierarchy",
+    "genealogy places names",
+    "genealogy places coordinates",
+    "genealogy places jurisdictions",
+    "genealogy places maps",
     "genealogy places lifecycle"
   ],
   "default_enabled": true

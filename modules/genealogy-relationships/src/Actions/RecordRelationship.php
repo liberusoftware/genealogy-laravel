@@ -6,7 +6,9 @@ namespace Liberu\Genealogy\Relationships\Actions;
 
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Models\Person;
+use Liberu\Genealogy\Relationships\Events\RelationshipCreated;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
 
@@ -33,8 +35,25 @@ final class RecordRelationship
             throw new InvalidArgumentException('Both people must belong to the active team.');
         }
 
-        return Relationship::query()->create(Arr::only($attributes, [
+        $values = Arr::only($attributes, [
             'person_id', 'related_person_id', 'type', 'confidence', 'metadata',
-        ]));
+        ]);
+        if (Relationship::query()->getModel()->getConnection()->getSchemaBuilder()->hasColumn('genealogy_relationships', 'team_id')) {
+            $values['team_id'] = app(TeamContext::class)->require();
+        }
+
+        $connection = Relationship::query()->getModel()->getConnection();
+
+        $relationship = $connection->transaction(function () use ($values): Relationship {
+            $relationship = Relationship::query()->create($values);
+
+            return $relationship;
+        });
+
+        if (app()->bound('events')) {
+            event(new RelationshipCreated($relationship));
+        }
+
+        return $relationship;
     }
 }

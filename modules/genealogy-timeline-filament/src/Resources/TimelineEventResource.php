@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Genealogy\Timeline\Actions\DeleteTimelineEvent;
 use Liberu\Genealogy\Timeline\Filament\Resources\TimelineEventResource\Pages\CreateTimelineEvent;
 use Liberu\Genealogy\Timeline\Filament\Resources\TimelineEventResource\Pages\EditTimelineEvent;
 use Liberu\Genealogy\Timeline\Filament\Resources\TimelineEventResource\Pages\ListTimelineEvents;
@@ -31,11 +33,10 @@ final class TimelineEventResource extends Resource
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
             Select::make('kind')->options(array_combine(TimelineEvent::KINDS, TimelineEvent::KINDS))->required(),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            Select::make('status')->options(array_combine(TimelineEvent::STATUSES, array_map(
+                static fn (string $status): string => ucfirst($status),
+                TimelineEvent::STATUSES,
+            )))->required(),
             TextInput::make('subject_person_id')->uuid()->nullable(),
             TextInput::make('family_key')->maxLength(255)->nullable(),
             Filament\Forms\Components\DatePicker::make('event_date')->nullable(),
@@ -62,7 +63,7 @@ final class TimelineEventResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Model $record): mixed => app(DeleteTimelineEvent::class)->execute($record)),
         ]);
     }
 

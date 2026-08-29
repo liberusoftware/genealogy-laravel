@@ -2,7 +2,7 @@ openapi: 3.1.0
 info: {title: Genealogy Research API, version: 1.0.0}
 paths:
   /api/v1/genealogy/research:
-    get: {operationId: genealogy.research.projects.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    get: {operationId: genealogy.research.projects.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100}}, {name: status, in: query, schema: {type: string, enum: [draft, active, completed, archived]}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.research.projects.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProjectInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/research/{research}:
     parameters: [{name: research, in: path, required: true, schema: {type: string, format: uuid}}]
@@ -11,7 +11,7 @@ paths:
     delete: {operationId: genealogy.research.projects.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/research/{project}/entries:
     parameters: [{name: project, in: path, required: true, schema: {type: string, format: uuid}}]
-    get: {operationId: genealogy.research.entries.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
+    get: {operationId: genealogy.research.entries.list, security: [{sanctum: []}], parameters: [{name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100}}, {name: kind, in: query, schema: {type: string, enum: [question, plan, task, log, correspondence, negative_search, finding]}}, {name: status, in: query, schema: {type: string, enum: [open, in_progress, completed, cancelled]}}, {name: overdue, in: query, schema: {type: boolean}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.research.entries.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EntryInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
   /api/v1/genealogy/research/{project}/entries/{entry}:
     parameters: [{name: project, in: path, required: true, schema: {type: string, format: uuid}}, {name: entry, in: path, required: true, schema: {type: string, format: uuid}}]
@@ -21,8 +21,8 @@ paths:
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   schemas:
-    ProjectInput: {type: object, required: [name], properties: {name: {type: string, maxLength: 255}, status: {type: string}, metadata: {type: object}}}
-    EntryInput: {type: object, required: [kind, title], properties: {kind: {type: string, enum: [question, plan, task, log, correspondence, negative_search, finding]}, title: {type: string, maxLength: 255}, body: {type: string, maxLength: 50000, nullable: true}, status: {type: string}, due_date: {type: string, format: date, nullable: true}, completed_at: {type: string, format: date-time, nullable: true}, metadata: {type: object}}}
+    ProjectInput: {type: object, required: [name], properties: {name: {type: string, maxLength: 255}, status: {type: string, enum: [draft, active, completed, archived]}, metadata: {type: object}}}
+    EntryInput: {type: object, required: [kind, title], properties: {kind: {type: string, enum: [question, plan, task, log, correspondence, negative_search, finding]}, title: {type: string, maxLength: 255}, body: {type: string, maxLength: 50000, nullable: true}, status: {type: string, enum: [open, in_progress, completed, cancelled]}, due_date: {type: string, format: date, nullable: true}, completed_at: {type: string, format: date-time, nullable: true}, metadata: {type: object}}}
   responses:
     Resource: {description: Research resource, content: {application/json: {schema: {type: object, properties: {data: {type: object}}}}}}
     Collection: {description: Paginated research resources, content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {type: object}}, meta: {type: object}}}}}}

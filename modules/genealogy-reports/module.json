@@ -12,10 +12,24 @@
   },
   "capabilities": [
     "genealogy.reports",
+    "genealogy.reports.family-groups",
+    "genealogy.reports.pedigrees",
+    "genealogy.reports.descendants",
+    "genealogy.reports.timelines",
+    "genealogy.reports.research",
+    "genealogy.reports.sources",
+    "genealogy.reports.charts",
     "genealogy.reports.lifecycle"
   ],
   "features": [
     "genealogy reports",
+    "genealogy reports family-groups",
+    "genealogy reports pedigrees",
+    "genealogy reports descendants",
+    "genealogy reports timelines",
+    "genealogy reports research",
+    "genealogy reports sources",
+    "genealogy reports charts",
     "genealogy reports lifecycle"
   ],
   "default_enabled": true

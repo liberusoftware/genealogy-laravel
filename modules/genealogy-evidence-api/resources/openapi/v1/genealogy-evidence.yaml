@@ -1,8 +1,25 @@
 openapi: 3.1.0
 info: { title: Genealogy Evidence API, version: 1.0.0 }
 paths:
+  /api/v1/genealogy/evidence/citations/{citation}/people:
+    parameters: [{ name: citation, in: path, required: true, schema: { type: string, format: uuid } }]
+    get: { operationId: genealogy.evidence.citation-links.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    post: { operationId: genealogy.evidence.citation-links.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CitationLinkInput' } } } }, responses: { '201': { $ref: '#/components/responses/EntityResource' } } }
+  /api/v1/genealogy/evidence/citations/{citation}/people/{link}:
+    parameters: [{ name: citation, in: path, required: true, schema: { type: string, format: uuid } }, { name: link, in: path, required: true, schema: { type: string, format: uuid } }]
+    patch: { operationId: genealogy.evidence.citation-links.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/CitationLinkInput' } } } }, responses: { '200': { $ref: '#/components/responses/EntityResource' } } }
+    delete: { operationId: genealogy.evidence.citation-links.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+  /api/v1/genealogy/evidence/{entity}:
+    parameters: [{ name: entity, in: path, required: true, schema: { type: string, enum: [sources, repositories, citations, extracts, assertions, proof-conclusions] } }]
+    get: { operationId: genealogy.evidence.entity.list, security: [{ sanctum: [] }], parameters: [{ name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }, { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    post: { operationId: genealogy.evidence.entity.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/EntityInput' } } } }, responses: { '201': { $ref: '#/components/responses/EntityResource' } } }
+  /api/v1/genealogy/evidence/{entity}/{record}:
+    parameters: [{ name: entity, in: path, required: true, schema: { type: string, enum: [sources, repositories, citations, extracts, assertions, proof-conclusions] } }, { name: record, in: path, required: true, schema: { type: string, format: uuid } }]
+    get: { operationId: genealogy.evidence.entity.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/EntityResource' } } }
+    patch: { operationId: genealogy.evidence.entity.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/EntityInput' } } } }, responses: { '200': { $ref: '#/components/responses/EntityResource' } } }
+    delete: { operationId: genealogy.evidence.entity.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
   /api/v1/genealogy/evidence:
-    get: { operationId: genealogy.evidence.list, security: [{ sanctum: [] }], parameters: [{ name: kind, in: query, schema: { type: string, enum: [source, repository, citation, extract, assertion, proof_conclusion] } }, { name: status, in: query, schema: { type: string } }, { name: min_confidence, in: query, schema: { type: integer, minimum: 0, maximum: 100 } }, { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    get: { operationId: genealogy.evidence.list, security: [{ sanctum: [] }], parameters: [{ name: kind, in: query, schema: { type: string, enum: [source, repository, citation, extract, assertion, proof_conclusion] } }, { name: status, in: query, schema: { type: string, enum: [draft, active, completed, archived] } }, { name: min_confidence, in: query, schema: { type: integer, minimum: 0, maximum: 100 } }, { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
     post:
       operationId: genealogy.evidence.create
       security: [{ sanctum: [] }]
@@ -13,6 +30,10 @@ paths:
     get: { operationId: genealogy.evidence.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
     patch: { operationId: genealogy.evidence.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
     delete: { operationId: genealogy.evidence.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+  /api/v1/genealogy/evidence/{record}/review:
+    post: { operationId: genealogy.evidence.review, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
+  /api/v1/genealogy/evidence/{record}/archive:
+    post: { operationId: genealogy.evidence.archive, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   schemas:
@@ -32,9 +53,27 @@ components:
         event_date: { type: string, format: date, nullable: true }
         subject_person_id: { type: string, format: uuid, nullable: true }
         reviewed_at: { type: string, format: date-time, nullable: true }
-        status: { type: string }
+        status: { type: string, enum: [draft, active, completed, archived] }
         metadata: { type: object, nullable: true }
     Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-evidence }, attributes: { $ref: '#/components/schemas/Input' } } }
+    EntityInput:
+      type: object
+      properties:
+        name: { type: string, maxLength: 255 }
+        description: { type: string, nullable: true }
+        source_id: { type: string, format: uuid, nullable: true }
+        repository_id: { type: string, format: uuid, nullable: true }
+        citation_id: { type: string, format: uuid, nullable: true }
+        extract_id: { type: string, format: uuid, nullable: true }
+        assertion_id: { type: string, format: uuid, nullable: true }
+        title: { type: string, nullable: true }
+        content: { type: string, nullable: true }
+        statement: { type: string, nullable: true }
+        conclusion: { type: string, nullable: true }
+        confidence: { type: integer, minimum: 0, maximum: 100 }
+        metadata: { type: object, nullable: true }
+    EntityResource: { type: object, required: [id, type, attributes], properties: { id: { type: string, format: uuid }, type: { type: string }, attributes: { $ref: '#/components/schemas/EntityInput' } } }
+    CitationLinkInput: { type: object, required: [subject_person_id], properties: { subject_person_id: { type: string, format: uuid }, group: { type: string, enum: [indi, indi_name, indi_even, indi_asso, indi_lds], default: indi }, page: { type: string, nullable: true }, quality: { type: string, nullable: true }, text: { type: string, nullable: true }, metadata: { type: object, nullable: true } } }
   responses:
     Resource: { description: Evidence resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
     Collection: { description: Paginated evidence resources, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }

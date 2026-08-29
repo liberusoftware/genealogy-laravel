@@ -18,6 +18,8 @@ final class ResearchEntry extends Model
 
     public const KINDS = ['question', 'plan', 'task', 'log', 'correspondence', 'negative_search', 'finding'];
 
+    public const STATUSES = ['open', 'in_progress', 'completed', 'cancelled'];
+
     protected $table = 'research_entries';
 
     protected $fillable = ['team_id', 'research_project_id', 'kind', 'title', 'body', 'status', 'due_date', 'completed_at', 'metadata'];

@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Media\Actions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
+use Liberu\Genealogy\Media\Events\MediaAssetCreated;
 use Liberu\Genealogy\Media\Models\MediaAsset;
 
 final class CreateMediaAsset
@@ -13,6 +14,24 @@ final class CreateMediaAsset
     public function execute(array $attributes): MediaAsset
     {
         $values = Arr::only($attributes, ['kind', 'name', 'storage_disk', 'storage_path', 'mime_type', 'byte_size', 'checksum', 'captured_at', 'captured_place_id', 'transcription', 'transcription_status', 'transcription_language', 'rights_holder', 'rights_status', 'license_url', 'rights_expires_at', 'is_public', 'preservation_metadata', 'status', 'metadata']);
+        $this->validate($values);
+
+        $asset = MediaAsset::query()->getConnection()->transaction(function () use ($values): MediaAsset {
+            $asset = MediaAsset::query()->create($values);
+
+            return $asset;
+        });
+
+        if (app()->bound('events')) {
+            event(new MediaAssetCreated($asset));
+        }
+
+        return $asset;
+    }
+
+    /** @param array<string, mixed> $values */
+    public function validate(array $values): void
+    {
         if (isset($values['kind']) && ! in_array($values['kind'], MediaAsset::KINDS, true)) {
             throw ValidationException::withMessages(['kind' => 'The selected media kind is invalid.']);
         }
@@ -25,7 +44,5 @@ final class CreateMediaAsset
         if (isset($values['byte_size']) && $values['byte_size'] < 0) {
             throw ValidationException::withMessages(['byte_size' => 'The byte size cannot be negative.']);
         }
-
-        return MediaAsset::query()->create($values);
     }
 }

@@ -7,6 +7,7 @@
   "require": {
     "php": "^8.5",
     "liberusoftware/module-genealogy-collaboration": "^1.0",
+    "liberusoftware/module-genealogy-core": "^1.0",
     "livewire/livewire": "^4.0"
   },
   "autoload": {

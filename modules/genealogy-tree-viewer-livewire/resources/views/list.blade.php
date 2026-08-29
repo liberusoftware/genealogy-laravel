@@ -1,4 +1,6 @@
 <div>
+    <label for="genealogy-tree-viewer-list-search">Search</label>
+    <input id="genealogy-tree-viewer-list-search" type="search" wire:model.live.debounce.300ms="search">
     <label for="genealogy-tree-viewer-list-status">Status</label>
     <select id="genealogy-tree-viewer-list-status" wire:model.live="status">
         <option value="">All</option>

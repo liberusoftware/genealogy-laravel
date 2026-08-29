@@ -2,18 +2,21 @@ openapi: 3.1.0
 info: { title: Genealogy Reports API, version: 1.0.0 }
 paths:
   /api/v1/genealogy/reports:
-    get: { operationId: genealogy.reports.list, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
+    get: { operationId: genealogy.reports.list, security: [{ sanctum: [] }], parameters: [{ name: type, in: query, schema: { type: string, enum: [family_group, pedigree, descendants, timeline, research, sources, chart] } }, { name: 'page[size]', in: query, schema: { type: integer, minimum: 1, maximum: 100 } }], responses: { '200': { $ref: '#/components/responses/Collection' } } }
     post: { operationId: genealogy.reports.create, security: [{ sanctum: [] }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '201': { $ref: '#/components/responses/Resource' } } }
   /api/v1/genealogy/reports/{id}:
     parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
     get: { operationId: genealogy.reports.get, security: [{ sanctum: [] }], responses: { '200': { $ref: '#/components/responses/Resource' } } }
     patch: { operationId: genealogy.reports.update, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Input' } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
     delete: { operationId: genealogy.reports.delete, security: [{ sanctum: [] }], responses: { '204': { description: Deleted } } }
+  /api/v1/genealogy/reports/{id}/generate:
+    post: { operationId: genealogy.reports.generate, security: [{ sanctum: [] }], requestBody: { content: { application/json: { schema: { type: object, properties: { format: { type: string, enum: [json, csv, gedcom, svg] }, parameters: { type: object } } } } } }, responses: { '200': { $ref: '#/components/responses/Resource' } } }
 components:
   securitySchemes: { sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum } }
   schemas:
-    Input: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, status: { type: string }, metadata: { type: object, nullable: true } } }
-    Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-report }, attributes: { $ref: '#/components/schemas/Input' } } }
+    Input: { type: object, required: [name], properties: { name: { type: string, maxLength: 255 }, type: { type: string, enum: [family_group, pedigree, descendants, timeline, research, sources, chart], nullable: true }, status: { type: string, enum: [draft, active, queued, running, completed, failed, archived] }, metadata: { type: object, nullable: true } } }
+    Resource: { type: object, required: [id, type, attributes], properties: { id: { type: string }, type: { type: string, const: genealogy-report }, attributes: { allOf: [{ $ref: '#/components/schemas/Input' }, { type: object, properties: { status: { type: string }, metadata: { type: object, nullable: true }, generated_output: { $ref: '#/components/schemas/GeneratedOutput' }, generated_at: { type: string, format: date-time, nullable: true }, created_at: { type: string, format: date-time, nullable: true }, updated_at: { type: string, format: date-time, nullable: true } } }] } } }
+    GeneratedOutput: { type: object, required: [format, content, rows], properties: { format: { type: string, enum: [json, csv, gedcom, svg] }, content: { oneOf: [{ type: object }, { type: string }] }, rows: { type: integer, minimum: 0 } } }
   responses:
     Resource: { description: Report resource, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Resource' } } } } } }
     Collection: { description: Paginated reports, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Resource' } }, meta: { type: object } } } } } }

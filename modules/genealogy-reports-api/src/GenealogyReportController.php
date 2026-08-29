@@ -7,46 +7,74 @@ namespace Liberu\Genealogy\Reports\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Reports\Actions\CreateGenealogyReport;
+use Liberu\Genealogy\Reports\Actions\DeleteGenealogyReport;
+use Liberu\Genealogy\Reports\Actions\GenerateGenealogyReport;
+use Liberu\Genealogy\Reports\Actions\UpdateGenealogyReport;
 use Liberu\Genealogy\Reports\Models\GenealogyReport;
 
 final class GenealogyReportController
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => GenealogyReport::query()->latest()->paginate()]);
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $reports = GenealogyReport::query()->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))->latest()->paginate($values['page']['size'] ?? 25);
+
+        return response()->json(['data' => $reports->getCollection()->map(fn (GenealogyReport $report): array => $this->resource($report))->values()->all(), 'meta' => ['current_page' => $reports->currentPage(), 'per_page' => $reports->perPage(), 'total' => $reports->total()]]);
     }
 
     public function store(Request $request, CreateGenealogyReport $create): JsonResponse
     {
         $record = $create->execute($request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'type' => ['sometimes', 'in:'.implode(',', GenealogyReport::TYPES)],
+            'status' => ['sometimes', 'in:'.implode(',', GenealogyReport::STATUSES)],
             'metadata' => ['nullable', 'array'],
         ]));
 
-        return response()->json(['data' => $record], 201);
+        return response()->json(['data' => $this->resource($record)], 201);
     }
 
     public function show(GenealogyReport $record): JsonResponse
     {
-        return response()->json(['data' => $record]);
+        return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, GenealogyReport $record): JsonResponse
+    public function update(Request $request, GenealogyReport $record, UpdateGenealogyReport $update): JsonResponse
     {
-        $record->update($request->validate([
+        $record = $update->execute($record, $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'type' => ['sometimes', 'in:'.implode(',', GenealogyReport::TYPES)],
+            'status' => ['sometimes', 'in:'.implode(',', GenealogyReport::STATUSES)],
             'metadata' => ['nullable', 'array'],
         ]));
 
-        return response()->json(['data' => $record->refresh()]);
+        return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function destroy(GenealogyReport $record): JsonResponse
+    public function destroy(GenealogyReport $record, DeleteGenealogyReport $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
+    }
+
+    public function generate(Request $request, GenealogyReport $record, GenerateGenealogyReport $generate): JsonResponse
+    {
+        $values = $request->validate(['format' => ['sometimes', 'in:json,csv,gedcom,svg'], 'parameters' => ['nullable', 'array']]);
+
+        return response()->json(['data' => $this->resource($generate->execute($record, ($values['parameters'] ?? []) + ['format' => $values['format'] ?? 'json']))]);
+    }
+
+    /** @return array<string, mixed> */
+    private function resource(GenealogyReport $report): array
+    {
+        return ['id' => $report->getKey(), 'type' => 'genealogy-report', 'attributes' => [
+            'name' => $report->name, 'type' => $report->type, 'status' => $report->status,
+            'metadata' => $report->metadata, 'created_at' => $report->created_at?->toISOString(), 'updated_at' => $report->updated_at?->toISOString(),
+            'generated_output' => $report->generated_output, 'generated_at' => $report->generated_at?->toISOString(),
+        ]];
     }
 }

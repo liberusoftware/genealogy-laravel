@@ -24,7 +24,14 @@ trait BelongsToTeam
             $context = app(TeamContext::class)->current();
 
             if ($context === null) {
-                $query->whereRaw('1 = 0');
+                // Guests may only see explicitly public records. This keeps
+                // private tenant data concealed while allowing public trees
+                // to be shared without inventing a tenant context.
+                if ($model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), 'is_public')) {
+                    $query->where($model->qualifyColumn('is_public'), true);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
 
                 return;
             }
@@ -49,7 +56,7 @@ trait BelongsToTeam
 
     public function team(): BelongsTo
     {
-        $teamModel = (string) config('genealogy.team_model', 'App\\Models\\Team');
+        $teamModel = (string) config('genealogy.team_model', 'Liberu\\Foundation\\Organizations\\Models\\Team');
 
         return $this->belongsTo($teamModel, 'team_id');
     }

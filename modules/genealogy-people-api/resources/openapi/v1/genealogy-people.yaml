@@ -1,6 +1,30 @@
 openapi: 3.1.0
 info: {title: Genealogy People API, version: 1.0.0}
 paths:
+  /api/v1/genealogy/people/{person}/attributes:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch: {operationId: genealogy.people.attributes.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AttributesInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/people/{person}/attributes/{attribute}:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}, {name: attribute, in: path, required: true, schema: {type: string, maxLength: 100}}]
+    delete: {operationId: genealogy.people.attributes.delete, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/people/{person}/life-status:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch: {operationId: genealogy.people.life-status.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {type: object, required: [status], properties: {status: {type: string, enum: [living, deceased]}, death_date: {type: string, format: date, nullable: true}}}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
+  /api/v1/genealogy/people/{person}/associations:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}]
+    post: {operationId: genealogy.people.associations.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AssociationInput'}}}}, responses: {'201': {$ref: '#/components/responses/AssociationResource'}}}
+  /api/v1/genealogy/people/{person}/associations/{association}:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}, {name: association, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch: {operationId: genealogy.people.associations.update, security: [{sanctum: []}], requestBody: {content: {application/json: {schema: {$ref: '#/components/schemas/AssociationInput'}}}}, responses: {'200': {$ref: '#/components/responses/AssociationResource'}}}
+    delete: {operationId: genealogy.people.associations.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+  /api/v1/genealogy/people/{person}/{supporting}:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}, {name: supporting, in: path, required: true, schema: {type: string, enum: [names, identities, life-events, merge-candidates]}}]
+    get: {operationId: genealogy.people.supporting.list, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/SupportingCollection'}}}
+    post: {operationId: genealogy.people.supporting.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SupportingInput'}}}}, responses: {'201': {$ref: '#/components/responses/SupportingResource'}}}
+  /api/v1/genealogy/people/{person}/{supporting}/{record}:
+    parameters: [{name: person, in: path, required: true, schema: {type: string, format: uuid}}, {name: supporting, in: path, required: true, schema: {type: string, enum: [names, identities, life-events, merge-candidates]}}, {name: record, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch: {operationId: genealogy.people.supporting.update, security: [{sanctum: []}], requestBody: {content: {application/json: {schema: {$ref: '#/components/schemas/SupportingInput'}}}}, responses: {'200': {$ref: '#/components/responses/SupportingResource'}}}
+    delete: {operationId: genealogy.people.supporting.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
   /api/v1/genealogy/people:
     get: {operationId: genealogy.people.list, security: [{sanctum: []}], parameters: [{name: search, in: query, schema: {type: string, maxLength: 200}}, {name: public_only, in: query, schema: {type: boolean, default: false}}, {name: include_living, in: query, schema: {type: boolean, default: true}}, {name: 'page[size]', in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}], responses: {'200': {$ref: '#/components/responses/Collection'}}}
     post: {operationId: genealogy.people.create, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PersonInput'}}}}, responses: {'201': {$ref: '#/components/responses/Resource'}}}
@@ -9,11 +33,23 @@ paths:
     get: {operationId: genealogy.people.get, security: [{sanctum: []}], responses: {'200': {$ref: '#/components/responses/Resource'}}}
     patch: {operationId: genealogy.people.update, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PersonInput'}}}}, responses: {'200': {$ref: '#/components/responses/Resource'}}}
     delete: {operationId: genealogy.people.delete, security: [{sanctum: []}], responses: {'204': {description: Deleted}}}
+  /api/v1/genealogy/people/{person}/merge-candidates/{candidate}/review:
+    post:
+      operationId: genealogy.people.merge-candidates.review
+      security: [{sanctum: []}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [status], properties: {status: {type: string, enum: [accepted, rejected]}, reason: {type: string, nullable: true, maxLength: 10000}}}}}}
+      responses: {'200': {$ref: '#/components/responses/Resource'}}
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   schemas:
-    PersonInput: {type: object, required: [given_name], properties: {given_name: {type: string, maxLength: 255}, family_name: {type: string, nullable: true}, display_name: {type: string, nullable: true}, sex: {type: string, enum: [M, F, U, X], nullable: true}, aliases: {type: array, items: {type: string}}, attributes: {type: object}, birth_date: {type: string, format: date, nullable: true}, death_date: {type: string, format: date, nullable: true}, is_public: {type: boolean}}}
+    PersonInput: {type: object, required: [given_name], properties: {given_name: {type: string, maxLength: 255}, family_name: {type: string, nullable: true}, display_name: {type: string, nullable: true}, sex: {type: string, enum: [M, F, U, X], nullable: true}, aliases: {type: array, items: {type: string}}, attributes: {type: object}, birth_date: {type: string, format: date, nullable: true}, death_date: {type: string, format: date, nullable: true}, birth_place: {type: string, nullable: true}, death_place: {type: string, nullable: true}, is_public: {type: boolean, default: false}, metadata: {type: object, nullable: true}}}
+    AttributesInput: {type: object, required: [attributes], properties: {attributes: {type: object, additionalProperties: true}, replace: {type: boolean, default: false}}}
+    AssociationInput: {type: object, properties: {associated_person_id: {type: string, format: uuid, nullable: true}, associated_external_id: {type: string, maxLength: 255, nullable: true}, relationship: {type: string, maxLength: 255}, description: {type: string, nullable: true}, metadata: {type: object, nullable: true}}}
+    SupportingInput: {type: object, properties: {type: {type: string}, given_name: {type: string, nullable: true}, family_name: {type: string, nullable: true}, prefix: {type: string, nullable: true}, suffix: {type: string, nullable: true}, value: {type: string, nullable: true}, label: {type: string, nullable: true}, date: {type: string, format: date, nullable: true}, place: {type: string, nullable: true}, description: {type: string, nullable: true}, candidate_person_id: {type: string, format: uuid, nullable: true}, score: {type: number, minimum: 0, maximum: 1, nullable: true}, status: {type: string, nullable: true}, reason: {type: string, nullable: true}, metadata: {type: object, nullable: true}}}
     Resource: {type: object, required: [id, type, attributes], properties: {id: {type: string}, type: {type: string, const: genealogy-people}, attributes: {$ref: '#/components/schemas/PersonInput'}}}
   responses:
     Resource: {description: Authorized person, content: {application/json: {schema: {type: object, properties: {data: {$ref: '#/components/schemas/Resource'}}}}}}
     Collection: {description: Paginated authorized people, content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {$ref: '#/components/schemas/Resource'}}, meta: {type: object}}}}}}
+    SupportingResource: {description: Supporting person resource, content: {application/json: {schema: {type: object, properties: {data: {type: object, required: [id, type, attributes], properties: {id: {type: string, format: uuid}, type: {type: string}, attributes: {$ref: '#/components/schemas/SupportingInput'}}}}}}}}
+    SupportingCollection: {description: Paginated supporting person resources, content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {type: object}}, meta: {type: object}}}}}}
+    AssociationResource: {description: Person association resource, content: {application/json: {schema: {type: object, properties: {data: {type: object, required: [id, type, attributes], properties: {id: {type: string, format: uuid}, type: {type: string, const: genealogy-person-association}, attributes: {$ref: '#/components/schemas/AssociationInput'}, resolved: {type: boolean}}}}}}}}

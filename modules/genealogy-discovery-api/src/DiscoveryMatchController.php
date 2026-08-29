@@ -7,19 +7,28 @@ namespace Liberu\Genealogy\Discovery\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Liberu\Genealogy\Discovery\Actions\CreateDiscoveryMatch;
+use Liberu\Genealogy\Discovery\Actions\DeleteDiscoveryMatch;
+use Liberu\Genealogy\Discovery\Actions\ReviewDiscoveryMatch;
+use Liberu\Genealogy\Discovery\Actions\ScanDuplicateCandidates;
+use Liberu\Genealogy\Discovery\Actions\UpdateDiscoveryMatch;
 use Liberu\Genealogy\Discovery\Models\DiscoveryMatch;
 use Liberu\Genealogy\Discovery\Queries\DiscoverySearch;
 use Liberu\Genealogy\Discovery\Queries\DuplicateCandidates;
 use Liberu\Genealogy\Discovery\Queries\RelationshipPath;
+use Liberu\Genealogy\Discovery\Services\ExternalRecordMatcher;
 
 final class DiscoveryMatchController
 {
     public function index(Request $request): JsonResponse
     {
-        $perPage = min(max($request->integer('page[size]', 25), 1), 100);
+        $values = $request->validate([
+            'page' => ['sometimes', 'array'],
+            'page.size' => ['sometimes', 'integer', 'between:1,100'],
+        ]);
+        $perPage = $values['page']['size'] ?? 25;
         $records = DiscoveryMatch::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))->latest()->paginate($perPage);
 
-        return response()->json(['data' => $records->through(fn (DiscoveryMatch $record): array => $this->resource($record)), 'meta' => ['current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total()]]);
+        return response()->json(['data' => $records->getCollection()->map(fn (DiscoveryMatch $record): array => $this->resource($record))->values()->all(), 'meta' => ['current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total()]]);
     }
 
     public function store(Request $request, CreateDiscoveryMatch $create): JsonResponse
@@ -44,25 +53,32 @@ final class DiscoveryMatchController
         return response()->json(['data' => $this->resource($record)]);
     }
 
-    public function update(Request $request, DiscoveryMatch $record): JsonResponse
+    public function update(Request $request, DiscoveryMatch $record, UpdateDiscoveryMatch $update): JsonResponse
     {
-        $record->update($request->validate([
+        $values = $request->validate([
             'kind' => ['sometimes', 'in:'.implode(',', DiscoveryMatch::KINDS)],
             'name' => ['sometimes', 'string', 'max:255'],
             'status' => ['sometimes', 'in:'.implode(',', DiscoveryMatch::STATUSES)],
             'confidence' => ['nullable', 'integer', 'between:0,100'],
             'rationale' => ['nullable', 'string', 'max:10000'],
             'metadata' => ['nullable', 'array'],
-        ]));
+        ]);
 
-        return response()->json(['data' => $this->resource($record->refresh())]);
+        return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }
 
-    public function destroy(DiscoveryMatch $record): JsonResponse
+    public function destroy(DiscoveryMatch $record, DeleteDiscoveryMatch $delete): JsonResponse
     {
-        $record->delete();
+        $delete->execute($record);
 
         return response()->json(status: 204);
+    }
+
+    public function review(Request $request, DiscoveryMatch $record, ReviewDiscoveryMatch $review): JsonResponse
+    {
+        $values = $request->validate(['status' => ['required', 'in:active,completed,dismissed']]);
+
+        return response()->json(['data' => $this->resource($review->execute($record, $values['status']))]);
     }
 
     public function search(Request $request, DiscoverySearch $search): JsonResponse
@@ -72,11 +88,33 @@ final class DiscoveryMatchController
         return response()->json(['data' => $search->execute($values['q'], $values)]);
     }
 
+    public function externalSearch(Request $request, ExternalRecordMatcher $matcher): JsonResponse
+    {
+        $values = $request->validate([
+            'person' => ['required', 'array'],
+            'person.first_name' => ['nullable', 'string', 'max:255'], 'person.last_name' => ['nullable', 'string', 'max:255'],
+            'person.birth_year' => ['nullable', 'integer', 'between:1,3000'], 'person.birth_place' => ['nullable', 'string', 'max:255'],
+            'weights' => ['sometimes', 'array'],
+        ]);
+
+        return response()->json(['data' => $matcher->execute($values['person'], $values['weights'] ?? [])]);
+    }
+
     public function duplicates(Request $request, DuplicateCandidates $duplicates): JsonResponse
     {
         $values = $request->validate(['limit' => ['sometimes', 'integer', 'between:1,100']]);
 
         return response()->json(['data' => $duplicates->execute($values['limit'] ?? 100)]);
+    }
+
+    public function scanDuplicates(Request $request, ScanDuplicateCandidates $scan): JsonResponse
+    {
+        $values = $request->validate([
+            'threshold' => ['sometimes', 'numeric', 'between:0,1'],
+            'limit' => ['sometimes', 'integer', 'between:1,1000'],
+        ]);
+
+        return response()->json(['data' => $scan->execute((float) ($values['threshold'] ?? 0.7), $values['limit'] ?? 100)], 201);
     }
 
     public function path(Request $request, string $from, string $to, RelationshipPath $path): JsonResponse

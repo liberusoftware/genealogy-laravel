@@ -12,6 +12,11 @@ use Liberu\Genealogy\TreeViewer\Filament\Resources\TreeViewResource;
 final class TreeViewerFilamentServiceProvider extends ServiceProvider
 {
     public function register(): void {}
+
+    public function boot(): void
+    {
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'genealogy-tree-viewer-filament');
+    }
 }
 
 final class TreeViewerFilamentPlugin implements Plugin
