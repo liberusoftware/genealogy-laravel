@@ -32,7 +32,8 @@ final class TreeGraph
         $ancestors = $view === 'descendants' ? [] : $this->walk($root, $generations, ancestors: true, includeLiving: $includeLiving, maxNodes: $maxNodes);
         $descendants = $view === 'pedigree' ? [] : $this->walk($root, $generations, ancestors: false, includeLiving: $includeLiving, maxNodes: $maxNodes);
         $siblings = $includeSiblings ? $this->siblings($root, $includeLiving, $maxNodes) : [];
-        $nodes = $this->nodes($root, $ancestors, $descendants, $includeLiving);
+        $partners = $this->partners($root, $includeLiving, $maxNodes);
+        $nodes = $this->nodes($root, $ancestors, $descendants, $partners, $includeLiving);
         $nodes = collect([...$nodes, ...$siblings])
             ->keyBy('id')
             ->take($maxNodes)
@@ -45,17 +46,66 @@ final class TreeGraph
             'ancestors' => $ancestors,
             'descendants' => $descendants,
             'siblings' => $siblings,
+            'partners' => $partners,
             'nodes' => $nodes,
-            'edges' => $this->edges($ancestors, $descendants),
+            'edges' => $this->edges($ancestors, $descendants, $partners),
             'navigation' => [
                 'root_person_id' => (string) $root->getKey(),
                 'generations' => $generations,
                 'available_views' => ['pedigree', 'descendants', 'fan', 'chart'],
                 'can_expand' => $generations < 12,
                 'max_nodes' => $maxNodes,
-                'truncated' => count($ancestors) >= $maxNodes || count($descendants) >= $maxNodes,
+                'truncated' => count($ancestors) >= $maxNodes
+                    || count($descendants) >= $maxNodes
+                    || count($siblings) >= $maxNodes
+                    || count($partners) >= $maxNodes,
             ],
         ];
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function partners(Person $root, bool $includeLiving, int $maxNodes): array
+    {
+        $relationships = Relationship::query()
+            ->where('type', 'partner')
+            ->where(fn ($query) => $query
+                ->where('person_id', $root->getKey())
+                ->orWhere('related_person_id', $root->getKey()))
+            ->limit($maxNodes)
+            ->get();
+
+        $candidateIds = $relationships->map(fn (Relationship $relationship): string => (string) (
+            (string) $relationship->person_id === (string) $root->getKey()
+                ? $relationship->related_person_id
+                : $relationship->person_id
+        ))->unique()->values();
+
+        $people = Person::query()
+            ->whereIn('id', $candidateIds)
+            ->get()
+            ->keyBy(fn (Person $person): string => (string) $person->getKey());
+
+        return $relationships
+            ->map(function (Relationship $relationship) use ($people, $root, $includeLiving): ?array {
+                $partnerId = (string) ((string) $relationship->person_id === (string) $root->getKey()
+                    ? $relationship->related_person_id
+                    : $relationship->person_id);
+                $partner = $people->get($partnerId);
+
+                if ($partner === null || (! $includeLiving && $partner->isLiving())) {
+                    return null;
+                }
+
+                return [
+                    'person' => $this->person($partner, $includeLiving),
+                    'relationship_id' => (string) $relationship->getKey(),
+                    'from_person_id' => (string) $relationship->person_id,
+                    'to_person_id' => (string) $relationship->related_person_id,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /** @return list<array<string, mixed>> */
@@ -148,11 +198,11 @@ final class TreeGraph
     }
 
     /** @param list<array<string, mixed>> $ancestors @param list<array<string, mixed>> $descendants */
-    private function nodes(Person $root, array $ancestors, array $descendants, bool $includeLiving): array
+    private function nodes(Person $root, array $ancestors, array $descendants, array $partners, bool $includeLiving): array
     {
         $nodes = [(string) $root->getKey() => $this->person($root, $includeLiving)];
 
-        foreach ([...$ancestors, ...$descendants] as $entry) {
+        foreach ([...$ancestors, ...$descendants, ...$partners] as $entry) {
             $person = $entry['person'];
             $nodes[$person['id']] = $person;
         }
@@ -161,7 +211,7 @@ final class TreeGraph
     }
 
     /** @param list<array<string, mixed>> $ancestors @param list<array<string, mixed>> $descendants */
-    private function edges(array $ancestors, array $descendants): array
+    private function edges(array $ancestors, array $descendants, array $partners): array
     {
         $edges = [];
         foreach ($ancestors as $entry) {
@@ -179,6 +229,15 @@ final class TreeGraph
                 'to' => $entry['to_person_id'],
                 'relationship_id' => $entry['relationship_id'],
                 'direction' => 'child',
+            ];
+        }
+
+        foreach ($partners as $entry) {
+            $edges[] = [
+                'from' => $entry['from_person_id'],
+                'to' => $entry['to_person_id'],
+                'relationship_id' => $entry['relationship_id'],
+                'direction' => 'partner',
             ];
         }
 

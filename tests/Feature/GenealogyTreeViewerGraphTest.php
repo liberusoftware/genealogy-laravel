@@ -71,3 +71,23 @@ it('keeps sibling expansion bounded and deduplicated', function (): void {
         ->and($graph['nodes'])->toHaveCount(100)
         ->and($nodeIds->unique())->toHaveCount(100);
 });
+
+it('includes bounded partner nodes in every graph view', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $root = Person::query()->create(['given_name' => 'Root', 'death_date' => '2000-01-01']);
+    $partner = Person::query()->create(['given_name' => 'Partner', 'death_date' => '2001-01-01']);
+
+    (new CreateRelationship())->execute([
+        'person_id' => $root->id,
+        'related_person_id' => $partner->id,
+        'type' => 'partner',
+    ]);
+
+    $graph = (new TreeGraph())->for($root, 0, true, 'chart');
+
+    expect($graph['partners'])->toHaveCount(1)
+        ->and($graph['partners'][0]['person']['name'])->toBe('Partner')
+        ->and($graph['edges'][0]['direction'])->toBe('partner')
+        ->and(collect($graph['nodes'])->pluck('id'))->toContain((string) $partner->id);
+});
