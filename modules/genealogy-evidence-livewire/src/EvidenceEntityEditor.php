@@ -39,6 +39,7 @@ final class EvidenceEntityEditor extends Component
 
     public function save(CreateEvidenceEntity $create): void
     {
+        abort_unless(auth()->check(), 403);
         $values = match ($this->entity) {
             'sources' => ['name' => $this->name],
             'repositories' => ['name' => $this->name],
@@ -56,6 +57,8 @@ final class EvidenceEntityEditor extends Component
 
     public function render(): View
     {
+        abort_unless(auth()->check(), 403);
+
         return view('genealogy-evidence-livewire::entity-editor');
     }
 

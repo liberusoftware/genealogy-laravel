@@ -36,6 +36,7 @@ final class EvidenceEditor extends Component
 
     public function save(CreateEvidenceRecord $create): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'kind' => ['required', 'in:'.implode(',', EvidenceRecord::KINDS)],
@@ -70,6 +71,8 @@ final class EvidenceEditor extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
+
         return view('genealogy-evidence-livewire::editor', ['kinds' => EvidenceRecord::KINDS]);
     }
 }

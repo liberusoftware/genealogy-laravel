@@ -23,6 +23,7 @@ final class EvidenceEntityList extends Component
 
     public function delete(string $id, DeleteEvidenceEntity $delete): void
     {
+        $this->guardAuthenticated();
         $this->modelClass()::query()->findOrFail($id)->tap(fn (Model $record): mixed => $delete->execute($record));
         $this->dispatch('evidence-entity-deleted', entity: $this->entity, id: $id);
     }
@@ -30,6 +31,8 @@ final class EvidenceEntityList extends Component
     /** @return array<int, array<string, mixed>> */
     public function records(): array
     {
+        $this->guardAuthenticated();
+
         return $this->modelClass()::query()
             ->when($this->search !== '', fn ($query) => $query->where('name', 'like', '%'.$this->search.'%'))
             ->latest()
@@ -41,7 +44,14 @@ final class EvidenceEntityList extends Component
 
     public function render(): View
     {
+        $this->guardAuthenticated();
+
         return view('genealogy-evidence-livewire::entities', ['records' => $this->records()]);
+    }
+
+    private function guardAuthenticated(): void
+    {
+        abort_unless(auth()->check(), 403);
     }
 
     /** @return class-string<Model> */
