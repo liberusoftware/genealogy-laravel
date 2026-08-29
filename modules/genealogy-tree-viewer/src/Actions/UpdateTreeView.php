@@ -21,6 +21,9 @@ final class UpdateTreeView
             throw new InvalidArgumentException('The tree must belong to the active team.');
         }
         $values = Arr::only($attributes, ['name', 'status', 'root_person_id', 'is_public', 'metadata']);
+        if (isset($values['status']) && ! in_array($values['status'], TreeView::STATUSES, true)) {
+            throw new InvalidArgumentException('The tree view status is invalid.');
+        }
         $rootId = array_key_exists('root_person_id', $values) ? $values['root_person_id'] : $tree->root_person_id;
         $isPublic = array_key_exists('is_public', $values) ? (bool) $values['is_public'] : (bool) $tree->is_public;
 

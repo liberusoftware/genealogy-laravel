@@ -16,6 +16,9 @@ final class CreateTreeView
     public function execute(array $attributes): TreeView
     {
         $attributes = Arr::only($attributes, ['name', 'status', 'root_person_id', 'is_public', 'metadata']);
+        if (isset($attributes['status']) && ! in_array($attributes['status'], TreeView::STATUSES, true)) {
+            throw new InvalidArgumentException('The tree view status is invalid.');
+        }
         $this->guardVisibility($attributes);
         $schema = TreeView::query()->getModel()->getConnection()->getSchemaBuilder();
         $attributes = Arr::only($attributes, $schema->getColumnListing('genealogy_trees'));

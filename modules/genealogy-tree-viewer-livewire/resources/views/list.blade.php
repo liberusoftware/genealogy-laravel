@@ -4,9 +4,9 @@
     <label for="genealogy-tree-viewer-list-status">Status</label>
     <select id="genealogy-tree-viewer-list-status" wire:model.live="status">
         <option value="">All</option>
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
+        @foreach (\Liberu\Genealogy\TreeViewer\Models\TreeView::STATUSES as $treeStatus)
+            <option value="{{ $treeStatus }}">{{ ucfirst($treeStatus) }}</option>
+        @endforeach
     </select>
     <ul>
         @foreach ($records as $record)

@@ -24,7 +24,7 @@ final class TreeViewController
     {
         $record = $create->execute($request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'status' => ['sometimes', 'in:draft,active,completed,archived'],
+            'status' => ['sometimes', 'in:'.implode(',', TreeView::STATUSES)],
             'root_person_id' => ['nullable', 'uuid'],
             'is_public' => ['sometimes', 'boolean'],
             'metadata' => ['nullable', 'array'],
@@ -57,7 +57,7 @@ final class TreeViewController
     {
         $updated = $update->execute($record, $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'status' => ['sometimes', 'in:draft,active,completed,archived'],
+            'status' => ['sometimes', 'in:'.implode(',', TreeView::STATUSES)],
             'root_person_id' => ['sometimes', 'nullable', 'uuid'],
             'is_public' => ['sometimes', 'boolean'],
             'metadata' => ['nullable', 'array'],

@@ -109,6 +109,27 @@ it('validates graph view changes at the Livewire boundary', function (): void {
         ->assertHasErrors(['view']);
 });
 
+it('validates tree viewer lifecycle status across domain and Livewire boundaries', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    $tree = (new CreateTreeView())->execute(['name' => 'Completed tree', 'status' => 'completed']);
+    expect($tree->status)->toBe('completed');
+
+    expect(fn () => (new UpdateTreeView())->execute($tree, ['status' => 'unsupported']))
+        ->toThrow(InvalidArgumentException::class);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-tree-viewer-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+});
+
+it('forbids guests from listing private tree viewer records through Livewire', function (): void {
+    Livewire::test('genealogy-tree-viewer-list')->assertForbidden();
+});
+
 it('masks living people for unauthenticated Livewire viewers', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);
