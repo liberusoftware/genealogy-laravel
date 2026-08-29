@@ -70,19 +70,25 @@ it('limits pedigree and descendant reports to their requested direction', functi
     $parent = app(CreatePerson::class)->execute(['given_name' => 'Parent']);
     $root = app(CreatePerson::class)->execute(['given_name' => 'Root']);
     $child = app(CreatePerson::class)->execute(['given_name' => 'Child']);
+    $partner = app(CreatePerson::class)->execute(['given_name' => 'Partner']);
     app(CreateRelationship::class)->execute(['person_id' => $parent->id, 'related_person_id' => $root->id, 'type' => 'parent']);
     app(CreateRelationship::class)->execute(['person_id' => $root->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+    app(CreateRelationship::class)->execute(['person_id' => $root->id, 'related_person_id' => $partner->id, 'type' => 'partner']);
 
     $pedigree = (new CreateGenealogyReport())->execute(['name' => 'Pedigree', 'type' => 'pedigree']);
     $descendants = (new CreateGenealogyReport())->execute(['name' => 'Descendants', 'type' => 'descendants']);
+    $family = (new CreateGenealogyReport())->execute(['name' => 'Family group', 'type' => 'family_group']);
     (new GenerateGenealogyReport())->execute($pedigree, ['root_person_id' => $root->id]);
     (new GenerateGenealogyReport())->execute($descendants, ['root_person_id' => $root->id]);
+    (new GenerateGenealogyReport())->execute($family, ['root_person_id' => $root->id]);
 
     $pedigreeIds = collect($pedigree->fresh()->generated_output['content']['people'])->pluck('id')->all();
     $descendantIds = collect($descendants->fresh()->generated_output['content']['people'])->pluck('id')->all();
+    $familyIds = collect($family->fresh()->generated_output['content']['people'])->pluck('id')->all();
 
     expect($pedigreeIds)->toContain($parent->id)->not->toContain($child->id)
-        ->and($descendantIds)->toContain($child->id)->not->toContain($parent->id);
+        ->and($descendantIds)->toContain($child->id)->not->toContain($parent->id)
+        ->and($familyIds)->toContain($partner->id);
 });
 
 it('validates report generation inputs through the Livewire presentation surface', function (): void {

@@ -86,6 +86,26 @@ final class BuildGenealogyReport
                 }
                 $frontier = $next;
             }
+            if ($type === 'family_group') {
+                $expanded = true;
+                while ($expanded) {
+                    $expanded = false;
+                    foreach ($relationships as $relationship) {
+                        if ($relationship['type'] !== 'partner') {
+                            continue;
+                        }
+                        $left = (string) $relationship['person_id'];
+                        $right = (string) $relationship['related_person_id'];
+                        if (isset($ids[$left]) && ! isset($ids[$right])) {
+                            $ids[$right] = true;
+                            $expanded = true;
+                        } elseif (isset($ids[$right]) && ! isset($ids[$left])) {
+                            $ids[$left] = true;
+                            $expanded = true;
+                        }
+                    }
+                }
+            }
             $people = array_values(array_filter($people, fn (array $person): bool => isset($ids[(string) $person['id']])));
             $relationships = array_values(array_filter($relationships, fn (array $relationship): bool => isset($ids[(string) $relationship['person_id']]) && isset($ids[(string) $relationship['related_person_id']])));
         }
