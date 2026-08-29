@@ -26,6 +26,34 @@ final class GrampsExporter
         }
 
         $xml[] = '  </people>';
+        $familyEvents = [];
+        foreach ($relationships as $relationship) {
+            if ($relationship->type !== 'partner') {
+                continue;
+            }
+            foreach ((array) ($relationship->metadata['family_events'] ?? []) as $event) {
+                $familyEvents[md5(serialize($event))] = $event;
+            }
+        }
+        $eventIds = [];
+        $xml[] = '  <events>';
+        $eventNumber = 1;
+        foreach ($familyEvents as $key => $event) {
+            $id = 'E'.$eventNumber++;
+            $eventIds[$key] = $id;
+            $xml[] = '    <event id="'.$id.'" type="'.$this->escape(ucfirst((string) ($event['type'] ?? 'event'))).'">';
+            if (($event['date'] ?? null) !== null) {
+                $xml[] = '      <dateval val="'.$this->escape((string) $event['date']).'" />';
+            }
+            if (($event['place'] ?? null) !== null) {
+                $xml[] = '      <placeobj><ptitle>'.$this->escape((string) $event['place']).'</ptitle></placeobj>';
+            }
+            if (($event['description'] ?? null) !== null) {
+                $xml[] = '      <description>'.$this->escape((string) $event['description']).'</description>';
+            }
+            $xml[] = '    </event>';
+        }
+        $xml[] = '  </events>';
         $xml[] = '  <families>';
         $family = 1;
         foreach ($relationships as $relationship) {
@@ -42,6 +70,12 @@ final class GrampsExporter
             } else {
                 $xml[] = '      <father ref="'.$this->escape($parent).'" />';
                 $xml[] = '      <mother ref="'.$this->escape($related).'" />';
+            }
+            foreach ((array) ($relationship->metadata['family_events'] ?? []) as $event) {
+                $key = md5(serialize($event));
+                if (isset($eventIds[$key])) {
+                    $xml[] = '      <eventref hlink="'.$this->escape($eventIds[$key]).'" />';
+                }
             }
             $xml[] = '    </family>';
         }

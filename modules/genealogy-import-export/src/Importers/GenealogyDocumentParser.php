@@ -78,7 +78,6 @@ final class GenealogyDocumentParser
 
         $people = [];
         $families = [];
-
         foreach ($records as $record) {
             if ($record['type'] === 'INDI') {
                 $people[] = $this->personFromGedcom($record);
@@ -212,8 +211,9 @@ final class GenealogyDocumentParser
             throw new InvalidArgumentException('The uploaded XML document is invalid.');
         }
 
+        $xml->registerXPathNamespace('gramps', 'http://gramps-project.org/xml/1.7.1/');
         $people = [];
-        foreach ($xml->xpath('//person') ?: [] as $person) {
+        foreach ($xml->xpath('//gramps:person') ?: [] as $person) {
             $name = $person->name;
             $people[] = [
                 'xref' => (string) ($person['id'] ?: $person['handle']),
@@ -225,16 +225,36 @@ final class GenealogyDocumentParser
             ];
         }
 
+        $eventsById = [];
+        foreach ($xml->xpath('//gramps:event') ?: [] as $event) {
+            $id = isset($event['id']) ? (string) $event['id'] : (string) $event['handle'];
+            if ($id === '') {
+                continue;
+            }
+
+            $type = strtolower((string) $event['type']);
+            $eventsById[$id] = [
+                'type' => $type !== '' ? $type : 'event',
+                'date' => $this->date((string) ($event->dateval['val'] ?? '')),
+                'place' => trim((string) ($event->placeobj->ptitle ?? $event->place ?? '')) ?: null,
+                'description' => trim((string) ($event->description ?? '')) ?: null,
+            ];
+        }
+
         $families = [];
-        foreach ($xml->xpath('//family') ?: [] as $family) {
+        foreach ($xml->xpath('//gramps:family') ?: [] as $family) {
             $families[] = [
                 'xref' => (string) ($family['id'] ?: $family['handle']),
                 'husband' => isset($family->father['ref']) ? (string) $family->father['ref'] : null,
                 'wife' => isset($family->mother['ref']) ? (string) $family->mother['ref'] : null,
                 'children' => array_values(array_map(
                     static fn ($child): string => (string) $child['ref'],
-                    iterator_to_array($family->childref ?? [])
+                    iterator_to_array($family->childref ?? [], false)
                 )),
+                'events' => array_values(array_filter(array_map(
+                    fn ($eventRef): ?array => $eventsById[(string) (isset($eventRef['hlink']) ? $eventRef['hlink'] : $eventRef['ref'])] ?? null,
+                    iterator_to_array($family->eventref ?? [], false)
+                ))),
             ];
         }
 

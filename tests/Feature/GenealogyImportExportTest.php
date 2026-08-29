@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Liberu\Foundation\Organizations\Models\Team;
@@ -9,11 +10,13 @@ use Liberu\Genealogy\ImportExport\Actions\CreateDataTransfer;
 use Liberu\Genealogy\ImportExport\Actions\ExportGenealogyData;
 use Liberu\Genealogy\ImportExport\Actions\UndoDataTransfer;
 use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
+use Liberu\Genealogy\ImportExport\Exporters\GrampsExporter;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyDocumentParser;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\People\Models\Person;
+use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Livewire\Livewire;
 
@@ -66,6 +69,47 @@ it('preserves GEDCOM family marriage and divorce events through import and expor
 
     expect($gedcom)->toContain("1 MARR\n2 DATE 1843-12-10\n2 PLAC London")
         ->toContain("1 DIV\n2 DATE 1850-01-01\n2 NOTE Civil record");
+});
+
+it('preserves GRAMPS family events through parsing', function (): void {
+    $content = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://gramps-project.org/xml/1.7.1/">
+  <events>
+    <event id="E1" type="Marriage"><dateval val="1843-12-10"/><placeobj><ptitle>London</ptitle></placeobj></event>
+    <event id="E2" type="Divorce"><dateval val="1850-01-01"/><description>Civil record</description></event>
+  </events>
+  <families>
+    <family id="F1"><father ref="I1"/><mother ref="I2"/><eventref hlink="E1"/><eventref hlink="E2"/></family>
+  </families>
+</database>
+XML;
+
+    $family = app(GenealogyDocumentParser::class)->parse($content)['families'][0];
+
+    expect($family['events'])->toBe([
+        ['type' => 'marriage', 'date' => '1843-12-10', 'place' => 'London', 'description' => null],
+        ['type' => 'divorce', 'date' => '1850-01-01', 'place' => null, 'description' => 'Civil record'],
+    ]);
+});
+
+it('exports partner family events in GRAMPS XML', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $first = (new CreatePerson())->execute(['given_name' => 'Ada']);
+    $second = (new CreatePerson())->execute(['given_name' => 'Charles']);
+    $relationship = (new CreateRelationship())->execute([
+        'person_id' => $first->getKey(),
+        'related_person_id' => $second->getKey(),
+        'type' => 'partner',
+        'metadata' => ['family_events' => [['type' => 'marriage', 'date' => '1843-12-10', 'place' => 'London', 'description' => null]]],
+    ]);
+
+    $gramps = app(GrampsExporter::class)
+        ->export(Person::query()->get(), new Collection([$relationship]));
+
+    expect($gramps)->toContain('<event id="E1" type="Marriage">')
+        ->toContain('<eventref hlink="E1" />');
 });
 
 it('maps alternate names and life events through the import boundary', function (): void {
