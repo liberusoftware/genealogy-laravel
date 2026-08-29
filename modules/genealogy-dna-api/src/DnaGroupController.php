@@ -30,7 +30,7 @@ final class DnaGroupController
 
     public function store(Request $request, CreateDnaGroup $create): JsonResponse
     {
-        $group = $create->execute($request->validate(['name' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['nullable', 'array']]));
+        $group = $create->execute($request->validate(['name' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'status' => ['sometimes', 'in:'.implode(',', DnaGroup::STATUSES)], 'metadata' => ['nullable', 'array']]));
 
         return response()->json(['data' => $this->resource($group)], 201);
     }
@@ -42,7 +42,7 @@ final class DnaGroupController
 
     public function update(Request $request, DnaGroup $record, UpdateDnaGroup $update): JsonResponse
     {
-        $values = $request->validate(['name' => ['sometimes', 'string', 'max:255'], 'description' => ['sometimes', 'nullable', 'string'], 'status' => ['sometimes', 'string', 'max:50'], 'metadata' => ['sometimes', 'nullable', 'array']]);
+        $values = $request->validate(['name' => ['sometimes', 'string', 'max:255'], 'description' => ['sometimes', 'nullable', 'string'], 'status' => ['sometimes', 'in:'.implode(',', DnaGroup::STATUSES)], 'metadata' => ['sometimes', 'nullable', 'array']]);
 
         return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }

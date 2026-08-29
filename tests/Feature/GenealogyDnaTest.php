@@ -343,6 +343,16 @@ it('keeps DNA group and match CRUD mutations behind domain actions', function ()
         ->and(DnaMatch::query()->find($match->getKey()))->toBeNull();
 });
 
+it('validates DNA group names and statuses through domain actions', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $group = app(CreateDnaGroup::class)->execute(['name' => 'Valid group']);
+
+    expect($group->status)->toBe('active')
+        ->and(fn () => app(UpdateDnaGroup::class)->execute($group, ['status' => 'invalid']))
+        ->toThrow(ValidationException::class);
+});
+
 it('exposes DNA notes and person relationship annotations through the API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);

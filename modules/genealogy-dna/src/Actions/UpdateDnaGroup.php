@@ -16,9 +16,7 @@ final class UpdateDnaGroup
     {
         $this->assertTeam($group);
         $values = Arr::only($attributes, ['name', 'description', 'status', 'metadata']);
-        if (array_key_exists('name', $values) && trim((string) $values['name']) === '') {
-            throw new InvalidArgumentException('A DNA group name is required.');
-        }
+        (new CreateDnaGroup())->validate(array_merge($group->toArray(), $values));
         DB::transaction(fn (): bool => $group->update($values));
 
         return $group->refresh();
