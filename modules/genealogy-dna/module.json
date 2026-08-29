@@ -15,10 +15,26 @@
   },
   "capabilities": [
     "genealogy.dna",
+    "genealogy.dna.kits",
+    "genealogy.dna.providers",
+    "genealogy.dna.consent",
+    "genealogy.dna.match-segments",
+    "genealogy.dna.relationships",
+    "genealogy.dna.groups",
+    "genealogy.dna.notes",
+    "genealogy.dna.revocation",
     "genealogy.dna.lifecycle"
   ],
   "features": [
     "genealogy dna",
+    "genealogy dna kits",
+    "genealogy dna providers",
+    "genealogy dna consent",
+    "genealogy dna match-segments",
+    "genealogy dna relationships",
+    "genealogy dna groups",
+    "genealogy dna notes",
+    "genealogy dna revocation",
     "genealogy dna lifecycle"
   ],
   "default_enabled": true

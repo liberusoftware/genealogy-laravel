@@ -15,10 +15,24 @@
   },
   "capabilities": [
     "genealogy.evidence",
+    "genealogy.evidence.sources",
+    "genealogy.evidence.repositories",
+    "genealogy.evidence.citations",
+    "genealogy.evidence.extracts",
+    "genealogy.evidence.assertions",
+    "genealogy.evidence.confidence",
+    "genealogy.evidence.proof-conclusions",
     "genealogy.evidence.lifecycle"
   ],
   "features": [
     "genealogy evidence",
+    "genealogy evidence sources",
+    "genealogy evidence repositories",
+    "genealogy evidence citations",
+    "genealogy evidence extracts",
+    "genealogy evidence assertions",
+    "genealogy evidence confidence",
+    "genealogy evidence proof-conclusions",
     "genealogy evidence lifecycle"
   ],
   "default_enabled": true

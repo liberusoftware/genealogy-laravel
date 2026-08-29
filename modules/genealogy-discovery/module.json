@@ -18,10 +18,20 @@
   },
   "capabilities": [
     "genealogy.discovery",
+    "genealogy.discovery.search",
+    "genealogy.discovery.hints",
+    "genealogy.discovery.duplicates",
+    "genealogy.discovery.relationship-paths",
+    "genealogy.discovery.privacy-indexes",
     "genealogy.discovery.lifecycle"
   ],
   "features": [
     "genealogy discovery",
+    "genealogy discovery search",
+    "genealogy discovery hints",
+    "genealogy discovery duplicates",
+    "genealogy discovery relationship-paths",
+    "genealogy discovery privacy-indexes",
     "genealogy discovery lifecycle"
   ],
   "default_enabled": true

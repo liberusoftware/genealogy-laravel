@@ -12,10 +12,22 @@
   },
   "capabilities": [
     "genealogy.people",
+    "genealogy.people.names",
+    "genealogy.people.identities",
+    "genealogy.people.attributes",
+    "genealogy.people.life-events",
+    "genealogy.people.living-status",
+    "genealogy.people.merge-candidates",
     "genealogy.people.lifecycle"
   ],
   "features": [
     "genealogy people",
+    "genealogy people names",
+    "genealogy people identities",
+    "genealogy people attributes",
+    "genealogy people life-events",
+    "genealogy people living-status",
+    "genealogy people merge-candidates",
     "genealogy people lifecycle"
   ],
   "default_enabled": true

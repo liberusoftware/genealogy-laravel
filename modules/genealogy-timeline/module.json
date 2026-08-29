@@ -12,10 +12,18 @@
   },
   "capabilities": [
     "genealogy.timeline",
+    "genealogy.timeline.personal-family",
+    "genealogy.timeline.historical-context",
+    "genealogy.timeline.conflicts",
+    "genealogy.timeline.chronological-navigation",
     "genealogy.timeline.lifecycle"
   ],
   "features": [
     "genealogy timeline",
+    "genealogy timeline personal-family",
+    "genealogy timeline historical-context",
+    "genealogy timeline conflicts",
+    "genealogy timeline chronological-navigation",
     "genealogy timeline lifecycle"
   ],
   "default_enabled": true

@@ -12,7 +12,11 @@ use Liberu\Genealogy\Discovery\Events\DiscoveryMatchDeleted;
 use Liberu\Genealogy\Discovery\Events\DiscoveryMatchReviewed;
 use Liberu\Genealogy\Discovery\Events\DiscoveryMatchUpdated;
 use Liberu\Genealogy\Discovery\Models\DiscoveryMatch;
+use Liberu\Genealogy\Discovery\Queries\DiscoverySearch;
 use Liberu\Genealogy\Discovery\Queries\RelationshipPath;
+use Liberu\Genealogy\Evidence\Actions\CreateCitation;
+use Liberu\Genealogy\Evidence\Actions\CreateEvidenceRecord;
+use Liberu\Genealogy\Evidence\Actions\CreateSource;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
@@ -100,4 +104,32 @@ it('does not traverse living or private intermediate people in public relationsh
     $path = app(RelationshipPath::class)->execute($from->id, $to->id, 6, true);
 
     expect($path['found'])->toBeFalse()->and($path['nodes'])->toBeEmpty();
+});
+
+it('searches normalized evidence sources while retaining legacy evidence records', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $source = app(CreateSource::class)->execute([
+        'name' => 'Lancashire Parish Registers',
+        'description' => 'Digitized parish records',
+        'record_type' => 'parish register',
+    ]);
+    app(CreateCitation::class)->execute([
+        'source_id' => $source->getKey(),
+        'title' => 'Baptisms 1815',
+        'text' => 'Lovelace family entry',
+    ]);
+    app(CreateEvidenceRecord::class)->execute([
+        'name' => 'Legacy census index',
+        'kind' => 'source',
+        'citation' => 'Census 1851',
+    ]);
+
+    $results = app(DiscoverySearch::class)->execute('Lovelace');
+    $sourceNames = collect($results['sources'])->pluck('name')->all();
+
+    expect($sourceNames)->toContain('Lancashire Parish Registers');
+
+    $legacyResults = app(DiscoverySearch::class)->execute('Census 1851');
+    expect(collect($legacyResults['sources'])->pluck('name')->all())->toContain('Legacy census index');
 });

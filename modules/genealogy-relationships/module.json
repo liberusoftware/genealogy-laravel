@@ -12,10 +12,24 @@
   },
   "capabilities": [
     "genealogy.relationships",
+    "genealogy.relationships.parent",
+    "genealogy.relationships.partner",
+    "genealogy.relationships.household",
+    "genealogy.relationships.adoption",
+    "genealogy.relationships.guardianship",
+    "genealogy.relationships.uncertain",
+    "genealogy.relationships.graph-validation",
     "genealogy.relationships.lifecycle"
   ],
   "features": [
     "genealogy relationships",
+    "genealogy relationships parent",
+    "genealogy relationships partner",
+    "genealogy relationships household",
+    "genealogy relationships adoption",
+    "genealogy relationships guardianship",
+    "genealogy relationships uncertain",
+    "genealogy relationships graph-validation",
     "genealogy relationships lifecycle"
   ],
   "default_enabled": true

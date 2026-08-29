@@ -12,10 +12,24 @@
   },
   "capabilities": [
     "genealogy.research",
+    "genealogy.research.questions",
+    "genealogy.research.plans",
+    "genealogy.research.tasks",
+    "genealogy.research.logs",
+    "genealogy.research.correspondence",
+    "genealogy.research.negative-searches",
+    "genealogy.research.findings",
     "genealogy.research.lifecycle"
   ],
   "features": [
     "genealogy research",
+    "genealogy research questions",
+    "genealogy research plans",
+    "genealogy research tasks",
+    "genealogy research logs",
+    "genealogy research correspondence",
+    "genealogy research negative-searches",
+    "genealogy research findings",
     "genealogy research lifecycle"
   ],
   "default_enabled": true

@@ -31,9 +31,13 @@ final class TreeGraph
         $view = in_array($view, ['pedigree', 'descendants', 'fan', 'chart'], true) ? $view : 'chart';
         $ancestors = $view === 'descendants' ? [] : $this->walk($root, $generations, ancestors: true, includeLiving: $includeLiving, maxNodes: $maxNodes);
         $descendants = $view === 'pedigree' ? [] : $this->walk($root, $generations, ancestors: false, includeLiving: $includeLiving, maxNodes: $maxNodes);
-        $siblings = $includeSiblings ? $this->siblings($root, $includeLiving) : [];
+        $siblings = $includeSiblings ? $this->siblings($root, $includeLiving, $maxNodes) : [];
         $nodes = $this->nodes($root, $ancestors, $descendants, $includeLiving);
-        $nodes = [...$nodes, ...$siblings];
+        $nodes = collect([...$nodes, ...$siblings])
+            ->keyBy('id')
+            ->take($maxNodes)
+            ->values()
+            ->all();
 
         return [
             'view' => $view,
@@ -55,7 +59,7 @@ final class TreeGraph
     }
 
     /** @return list<array<string, mixed>> */
-    private function siblings(Person $root, bool $includeLiving): array
+    private function siblings(Person $root, bool $includeLiving, int $maxNodes): array
     {
         $parentIds = Relationship::query()
             ->where('type', 'parent')
@@ -76,6 +80,7 @@ final class TreeGraph
 
         return Person::query()
             ->whereIn('id', $siblingIds)
+            ->limit($maxNodes)
             ->get()
             ->map(fn (Person $person): array => $this->person($person, $includeLiving))
             ->values()
@@ -101,6 +106,16 @@ final class TreeGraph
                 ? $query->whereIn('related_person_id', $ids)->get()
                 : $query->whereIn('person_id', $ids)->get();
 
+            $candidateIds = [];
+
+            foreach ($edges as $edge) {
+                $candidateIds[] = (string) ($ancestors ? $edge->person_id : $edge->related_person_id);
+            }
+
+            $people = Person::query()
+                ->whereIn('id', array_unique($candidateIds))
+                ->get()
+                ->keyBy(fn (Person $person): string => (string) $person->getKey());
             $next = collect();
 
             foreach ($edges as $edge) {
@@ -108,7 +123,7 @@ final class TreeGraph
                     break;
                 }
                 $personId = $ancestors ? $edge->person_id : $edge->related_person_id;
-                $person = Person::query()->find($personId);
+                $person = $people->get((string) $personId);
 
                 if (! $person || (! $includeLiving && $person->isLiving()) || isset($visited[(string) $person->getKey()])) {
                     continue;

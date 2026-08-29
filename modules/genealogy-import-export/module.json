@@ -17,10 +17,24 @@
   },
   "capabilities": [
     "genealogy.import-export",
+    "genealogy.import-export.gedcom",
+    "genealogy.import-export.gramps",
+    "genealogy.import-export.validation",
+    "genealogy.import-export.dry-run",
+    "genealogy.import-export.duplicates",
+    "genealogy.import-export.reports",
+    "genealogy.import-export.round-trip",
     "genealogy.import-export.lifecycle"
   ],
   "features": [
     "genealogy import export",
+    "genealogy import export gedcom",
+    "genealogy import export gramps",
+    "genealogy import export validation",
+    "genealogy import export dry-run",
+    "genealogy import export duplicates",
+    "genealogy import export reports",
+    "genealogy import export round-trip",
     "genealogy import export lifecycle"
   ],
   "default_enabled": true

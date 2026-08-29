@@ -12,10 +12,24 @@
   },
   "capabilities": [
     "genealogy.media",
+    "genealogy.media.documents",
+    "genealogy.media.photographs",
+    "genealogy.media.audio-video",
+    "genealogy.media.transcription",
+    "genealogy.media.rights",
+    "genealogy.media.links",
+    "genealogy.media.preservation",
     "genealogy.media.lifecycle"
   ],
   "features": [
     "genealogy media",
+    "genealogy media documents",
+    "genealogy media photographs",
+    "genealogy media audio-video",
+    "genealogy media transcription",
+    "genealogy media rights",
+    "genealogy media links",
+    "genealogy media preservation",
     "genealogy media lifecycle"
   ],
   "default_enabled": true

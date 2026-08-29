@@ -50,3 +50,24 @@ it('reports when a large graph reaches its explicit node limit', function (): vo
         ->and($graph['navigation']['truncated'])->toBeTrue()
         ->and($graph['descendants'])->toHaveCount(100);
 });
+
+it('keeps sibling expansion bounded and deduplicated', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $parent = Person::query()->create(['given_name' => 'Parent', 'death_date' => '1980-01-01']);
+    $root = Person::query()->create(['given_name' => 'Root', 'death_date' => '2000-01-01']);
+    $create = new CreateRelationship();
+    $create->execute(['person_id' => $parent->id, 'related_person_id' => $root->id, 'type' => 'parent']);
+
+    for ($index = 0; $index < 105; $index++) {
+        $sibling = Person::query()->create(['given_name' => 'Sibling '.$index, 'death_date' => '2000-01-01']);
+        $create->execute(['person_id' => $parent->id, 'related_person_id' => $sibling->id, 'type' => 'parent']);
+    }
+
+    $graph = (new TreeGraph())->for($root, 1, true, 'pedigree', true, 100);
+    $nodeIds = collect($graph['nodes'])->pluck('id');
+
+    expect($graph['siblings'])->toHaveCount(100)
+        ->and($graph['nodes'])->toHaveCount(100)
+        ->and($nodeIds->unique())->toHaveCount(100);
+});

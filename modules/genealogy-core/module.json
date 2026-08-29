@@ -14,10 +14,22 @@
   },
   "capabilities": [
     "genealogy.genealogy-core",
+    "genealogy.genealogy-core.trees",
+    "genealogy.genealogy-core.ownership",
+    "genealogy.genealogy-core.identifiers",
+    "genealogy.genealogy-core.privacy",
+    "genealogy.genealogy-core.terminology",
+    "genealogy.genealogy-core.events",
     "genealogy.genealogy-core.lifecycle"
   ],
   "features": [
     "genealogy genealogy core",
+    "genealogy genealogy core trees",
+    "genealogy genealogy core ownership",
+    "genealogy genealogy core identifiers",
+    "genealogy genealogy core privacy",
+    "genealogy genealogy core terminology",
+    "genealogy genealogy core events",
     "genealogy genealogy core lifecycle"
   ],
   "default_enabled": true
