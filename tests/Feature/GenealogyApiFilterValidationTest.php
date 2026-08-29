@@ -17,6 +17,8 @@ it('rejects unsupported enum values on genealogy collection filters', function (
         ->assertUnprocessable()->assertJsonValidationErrors(['kind']);
     $this->actingAs($user)->getJson('/api/v1/genealogy/media?kind=unsupported')
         ->assertUnprocessable()->assertJsonValidationErrors(['kind']);
+    $this->actingAs($user)->postJson('/api/v1/genealogy/media', ['name' => 'Invalid status', 'status' => 'unsupported'])
+        ->assertUnprocessable()->assertJsonValidationErrors(['status']);
     $this->actingAs($user)->getJson('/api/v1/genealogy/reports?type=unsupported')
         ->assertUnprocessable()->assertJsonValidationErrors(['type']);
     $this->actingAs($user)->getJson('/api/v1/genealogy/timeline?kind=unsupported')

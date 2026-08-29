@@ -41,7 +41,7 @@ final class MediaAssetController
         $record = $create->execute($request->validate([
             ...$this->rules(),
             'name' => ['required', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', 'in:'.implode(',', MediaAsset::STATUSES)],
             'metadata' => ['nullable', 'array'],
         ]));
 
@@ -145,6 +145,7 @@ final class MediaAssetController
 
         return [
             'kind' => [$prefix, 'in:'.implode(',', MediaAsset::KINDS)], 'storage_disk' => ['nullable', 'string', 'max:100'], 'storage_path' => ['nullable', 'string', 'max:2000'],
+            'status' => [$prefix, 'in:'.implode(',', MediaAsset::STATUSES)],
             'mime_type' => ['nullable', 'string', 'max:255'], 'byte_size' => ['nullable', 'integer', 'min:0'], 'checksum' => ['nullable', 'string', 'max:128'],
             'captured_at' => ['nullable', 'date'], 'captured_place_id' => ['nullable', 'uuid'], 'transcription' => ['nullable', 'string'],
             'transcription_status' => ['sometimes', 'in:'.implode(',', MediaAsset::TRANSCRIPTION_STATUSES)], 'transcription_language' => ['nullable', 'string', 'max:16'],
