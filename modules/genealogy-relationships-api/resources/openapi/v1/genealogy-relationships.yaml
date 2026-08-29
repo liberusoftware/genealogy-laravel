@@ -1,6 +1,8 @@
 openapi: 3.1.0
 info: {title: Genealogy Relationships API, version: 1.0.0}
 paths:
+  /api/v1/genealogy/relationships/calculate:
+    post: {operationId: genealogy.relationships.calculate, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RelationshipCalculationInput'}}}}, responses: {'200': {description: Relationship calculation}}}
   /api/v1/genealogy/relationships/validate:
     post: {operationId: genealogy.relationships.validate, security: [{sanctum: []}], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RelationshipInput'}}}}, responses: {'200': {description: Graph validation result}}}
   /api/v1/genealogy/relationships:
@@ -14,6 +16,7 @@ paths:
 components:
   securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
   schemas:
+    RelationshipCalculationInput: {type: object, required: [first_person_id, second_person_id], properties: {first_person_id: {type: string, format: uuid}, second_person_id: {type: string, format: uuid}}}
     RelationshipInput: {type: object, required: [person_id, related_person_id, type], properties: {person_id: {type: string, format: uuid}, related_person_id: {type: string, format: uuid}, type: {type: string, enum: [parent, partner, household, adoption, guardianship, uncertain]}, confidence: {type: integer, minimum: 0, maximum: 100}, metadata: {type: object}}}
     Resource: {type: object, required: [id, type, attributes], properties: {id: {type: string}, type: {type: string, const: genealogy-relationship}, attributes: {$ref: '#/components/schemas/RelationshipInput'}}}
   responses:

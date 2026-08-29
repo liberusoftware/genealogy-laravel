@@ -12,6 +12,8 @@ use Liberu\Genealogy\Relationships\Actions\UpdateRelationship;
 use Liberu\Genealogy\Relationships\Events\RelationshipCreated;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
+use Liberu\Genealogy\Relationships\Queries\RelationshipCalculator;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -118,4 +120,50 @@ it('filters relationship edges by person, type, and confidence through the API',
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.attributes.type', 'uncertain');
+});
+
+it('calculates direct, sibling, cousin, and unrelated relationships through the modular query', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $grandparent = (new CreatePerson())->execute(['given_name' => 'Grandparent']);
+    $parentA = (new CreatePerson())->execute(['given_name' => 'Parent A']);
+    $parentB = (new CreatePerson())->execute(['given_name' => 'Parent B']);
+    $childA = (new CreatePerson())->execute(['given_name' => 'Child A']);
+    $childB = (new CreatePerson())->execute(['given_name' => 'Child B']);
+    $unrelated = (new CreatePerson())->execute(['given_name' => 'Unrelated']);
+    $create = new CreateRelationship();
+
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $parentA->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $parentB->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $parentA->id, 'related_person_id' => $childA->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $parentB->id, 'related_person_id' => $childB->id, 'type' => 'parent']);
+
+    $calculator = new RelationshipCalculator();
+
+    expect($calculator->between($grandparent->id, $childA->id)['relationship'])->toBe('grandparent')
+        ->and($calculator->between($childA->id, $childB->id)['relationship'])->toBe('1st cousin')
+        ->and($calculator->between($parentA->id, $parentB->id)['relationship'])->toBe('sibling')
+        ->and($calculator->between($childA->id, $unrelated->id)['relationship'])->toBe('no traceable relationship');
+});
+
+it('exposes the relationship calculator through the API and Livewire adapter', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $parent = (new CreatePerson())->execute(['given_name' => 'Parent']);
+    $child = (new CreatePerson())->execute(['given_name' => 'Child']);
+    (new CreateRelationship())->execute(['person_id' => $parent->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+
+    $this->actingAs($user)->postJson('/api/v1/genealogy/relationships/calculate', [
+        'first_person_id' => $parent->id,
+        'second_person_id' => $child->id,
+    ])->assertOk()->assertJsonPath('data.relationship', 'parent');
+
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::test(Liberu\Genealogy\Relationships\Livewire\RelationshipCalculator::class)
+        ->set('firstPersonId', $parent->id)
+        ->set('secondPersonId', $child->id)
+        ->call('calculate')
+        ->assertSet('result.relationship', 'parent');
 });

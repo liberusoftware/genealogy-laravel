@@ -13,6 +13,7 @@ use Liberu\Genealogy\Relationships\Actions\DeleteRelationship;
 use Liberu\Genealogy\Relationships\Actions\UpdateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\Relationships\Queries\GraphValidator;
+use Liberu\Genealogy\Relationships\Queries\RelationshipCalculator;
 
 final class RelationshipController
 {
@@ -51,6 +52,16 @@ final class RelationshipController
             $values['related_person_id'],
             $values['type'],
         )]);
+    }
+
+    public function calculate(Request $request, RelationshipCalculator $calculator): JsonResponse
+    {
+        $values = $request->validate([
+            'first_person_id' => ['required', 'uuid', $this->personRule()],
+            'second_person_id' => ['required', 'uuid', $this->personRule(), Rule::notIn([$request->input('first_person_id')])],
+        ]);
+
+        return response()->json(['data' => $calculator->between($values['first_person_id'], $values['second_person_id'])]);
     }
 
     public function store(Request $request, CreateRelationship $create): JsonResponse

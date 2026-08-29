@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Relationships\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Liberu\Genealogy\Relationships\Filament\Pages\RelationshipCalculator;
 use Liberu\Genealogy\Relationships\Filament\Resources\RelationshipResource;
 
 final class RelationshipsFilamentServiceProvider extends ServiceProvider
@@ -29,6 +30,7 @@ final class RelationshipsFilamentPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel->resources([RelationshipResource::class]);
+        $panel->pages([RelationshipCalculator::class]);
     }
 
     public function boot(Panel $panel): void {}

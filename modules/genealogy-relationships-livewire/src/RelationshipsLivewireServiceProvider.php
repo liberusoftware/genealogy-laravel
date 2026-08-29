@@ -16,6 +16,8 @@ final class RelationshipsLivewireServiceProvider extends ServiceProvider
         Livewire::component('genealogy-relationships-editor', RelationshipEditor::class);
         Livewire::component('module-genealogy-relationships::relationship-list', RelationshipList::class);
         Livewire::component('module-genealogy-relationships::relationship-editor', RelationshipEditor::class);
+        Livewire::component('genealogy-relationships-calculator', RelationshipCalculator::class);
+        Livewire::component('module-genealogy-relationships::relationship-calculator', RelationshipCalculator::class);
     }
 }
 
