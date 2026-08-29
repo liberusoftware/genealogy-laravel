@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Dna\Actions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
+use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 
@@ -15,6 +16,9 @@ final class CreateDnaMatch
     {
         $teamId = app(TeamContext::class)->require();
         $values = Arr::only($attributes, ['kit_id', 'external_id', 'display_name', 'predicted_relationship', 'confidence', 'total_cm', 'shared_segments', 'status', 'is_private', 'notes', 'metadata']);
+        if (! DnaKit::query()->whereKey($values['kit_id'] ?? null)->where('team_id', $teamId)->exists()) {
+            throw ValidationException::withMessages(['kit_id' => 'The selected DNA kit is not available in the active team.']);
+        }
         if (isset($values['confidence']) && ($values['confidence'] < 0 || $values['confidence'] > 100)) {
             throw ValidationException::withMessages(['confidence' => 'Confidence must be between 0 and 100.']);
         }

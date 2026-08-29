@@ -260,6 +260,22 @@ it('rejects provider references owned by another team', function (): void {
         ->toThrow(ValidationException::class);
 });
 
+it('protects DNA kit and match references at the tenant boundary', function (): void {
+    $firstUser = User::factory()->create();
+    $firstTeam = Team::factory()->create(['user_id' => $firstUser->id]);
+    app(TeamContext::class)->set($firstTeam->getKey());
+    $person = app(CreatePerson::class)->execute(['given_name' => 'Private DNA subject']);
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Private kit', 'person_id' => $person->getKey()]);
+
+    $secondTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($secondTeam->getKey());
+
+    expect(fn () => app(CreateDnaKit::class)->execute(['name' => 'Cross-team person', 'person_id' => $person->getKey()]))
+        ->toThrow(ValidationException::class, 'selected DNA person');
+    expect(fn () => app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'cross-team']))
+        ->toThrow(ValidationException::class, 'selected DNA kit');
+});
+
 it('rejects an oversized nested page size on DNA kit collections', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
