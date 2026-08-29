@@ -26,13 +26,21 @@ use Liberu\Genealogy\People\Events\PersonAttributesUpdated;
 use Liberu\Genealogy\People\Events\PersonDeleted;
 use Liberu\Genealogy\People\Events\PersonMerged;
 use Liberu\Genealogy\People\Events\PersonUpdated;
+use Liberu\Genealogy\People\Livewire\PersonDetails;
 use Liberu\Genealogy\People\Models\MergeCandidate;
 use Liberu\Genealogy\People\Models\PersonAssociation;
 use Liberu\Genealogy\People\Models\PersonIdentity;
 use Liberu\Genealogy\People\Models\PersonLifeEvent;
 use Liberu\Genealogy\People\Models\PersonName;
+use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
+
+it('requires authentication for People Livewire surfaces', function (): void {
+    Livewire::test('genealogy-people-search')->assertForbidden();
+    expect(fn () => (new PersonDetails())->mount())->toThrow(HttpException::class);
+});
 
 it('owns names, identities, life events, and merge candidates inside the active team', function (): void {
     Event::fake();

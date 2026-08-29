@@ -13,6 +13,11 @@ final class PersonSearch extends Component
 
     public bool $includeDeceased = true;
 
+    public function mount(): void
+    {
+        abort_unless(auth()->check(), 403);
+    }
+
     public function render(): mixed
     {
         return view('genealogy-people-livewire::person-search', [

@@ -50,6 +50,11 @@ final class PersonDetails extends Component
 
     public string $associationDescription = '';
 
+    public function mount(): void
+    {
+        abort_unless(auth()->check(), 403);
+    }
+
     public function addAssociation(CreatePersonAssociation $create): void
     {
         $this->validate([
