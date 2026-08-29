@@ -3,12 +3,14 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Research\Actions\CreateResearchEntry;
 use Liberu\Genealogy\Research\Actions\CreateResearchProject;
 use Liberu\Genealogy\Research\Actions\DeleteResearchEntry;
 use Liberu\Genealogy\Research\Actions\UpdateResearchEntry;
+use Liberu\Genealogy\Research\Actions\UpdateResearchProject;
 use Liberu\Genealogy\Research\Events\ResearchEntryCreated;
 use Liberu\Genealogy\Research\Events\ResearchEntryDeleted;
 use Liberu\Genealogy\Research\Events\ResearchEntryUpdated;
@@ -39,6 +41,17 @@ it('keeps research entries inside their active project tenant and supports lifec
 it('rejects unsupported research entry kinds', function (): void {
     expect(fn () => (new CreateResearchEntry())->execute(['research_project_id' => 'missing', 'kind' => 'unknown', 'title' => 'Invalid']))
         ->toThrow(InvalidArgumentException::class);
+});
+
+it('validates research project updates through the domain boundary', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $project = (new CreateResearchProject())->execute(['name' => 'Valid project', 'status' => 'active']);
+
+    expect(fn () => (new UpdateResearchProject())->execute($project, ['name' => ' ', 'status' => 'invalid']))
+        ->toThrow(ValidationException::class);
+    expect($project->fresh()->name)->toBe('Valid project')
+        ->and($project->fresh()->status)->toBe('active');
 });
 
 it('filters research queues by kind, status, and overdue work through the API', function (): void {

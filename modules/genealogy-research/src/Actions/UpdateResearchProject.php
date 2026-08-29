@@ -20,6 +20,7 @@ final class UpdateResearchProject
             throw new InvalidArgumentException('The research project must belong to the active team.');
         }
         $values = Arr::only($attributes, ['name', 'status', 'metadata']);
+        (new CreateResearchProject())->validate(array_merge($project->toArray(), $values));
         DB::transaction(function () use ($project, $values): void {
             $project->update($values);
         });
