@@ -13,12 +13,16 @@ use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
 use Liberu\Genealogy\ImportExport\Exporters\GrampsExporter;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyDocumentParser;
 use Liberu\Genealogy\ImportExport\Importers\GenealogyImportService;
+use Liberu\Genealogy\ImportExport\Livewire\DataTransferExport;
+use Liberu\Genealogy\ImportExport\Livewire\DataTransferImport;
+use Liberu\Genealogy\ImportExport\Livewire\DataTransferList;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
@@ -293,4 +297,20 @@ it('exposes audited export downloads through API and Livewire adapters', functio
         ->assertDispatched('genealogy-export-completed');
 
     expect(DataTransfer::query()->where('direction', 'export')->count())->toBe(2);
+});
+
+it('protects and validates import-export Livewire boundaries', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test(DataTransferList::class)
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    auth()->logout();
+    expect(fn () => (new DataTransferList())->render())->toThrow(HttpException::class)
+        ->and(fn () => (new DataTransferImport())->render())->toThrow(HttpException::class)
+        ->and(fn () => (new DataTransferExport())->render())->toThrow(HttpException::class);
 });

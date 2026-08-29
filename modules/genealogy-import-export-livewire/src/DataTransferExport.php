@@ -15,6 +15,7 @@ final class DataTransferExport extends Component
 
     public function export(ExportGenealogyData $action): mixed
     {
+        abort_unless(auth()->check(), 403);
         $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'format' => ['required', 'in:gedcom,gramps-xml'],
@@ -30,6 +31,8 @@ final class DataTransferExport extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
+
         return view('genealogy-import-export-livewire::export');
     }
 }

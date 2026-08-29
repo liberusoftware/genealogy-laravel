@@ -25,12 +25,14 @@ final class DataTransferImport extends Component
 
     public function preview(GenealogyImportService $service): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate(['file' => ['required', 'file', 'max:10240', 'mimes:ged,gedcom,xml,txt']]);
         $this->report = $service->preview((string) $this->file->get());
     }
 
     public function import(GenealogyImportService $service, CreateDataTransfer $create, UpdateDataTransfer $update): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate(['file' => ['required', 'file', 'max:10240', 'mimes:ged,gedcom,xml,txt']]);
         $content = (string) $this->file->get();
         $preview = $service->preview($content);
@@ -48,6 +50,7 @@ final class DataTransferImport extends Component
 
     public function undo(UndoDataTransfer $undo): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate(['transferId' => ['required', 'uuid']]);
         $transfer = DataTransfer::query()->findOrFail($this->transferId);
         $this->report = ['undone' => true, 'transfer' => $undo->execute($transfer)->getKey()];
@@ -56,6 +59,8 @@ final class DataTransferImport extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
+
         return view('genealogy-import-export-livewire::import');
     }
 }
