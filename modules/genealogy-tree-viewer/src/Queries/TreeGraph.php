@@ -32,7 +32,16 @@ final class TreeGraph
         $ancestors = $view === 'descendants' ? [] : $this->walk($root, $generations, ancestors: true, includeLiving: $includeLiving, maxNodes: $maxNodes);
         $descendants = $view === 'pedigree' ? [] : $this->walk($root, $generations, ancestors: false, includeLiving: $includeLiving, maxNodes: $maxNodes);
         $siblings = $includeSiblings ? $this->siblings($root, $includeLiving, $maxNodes) : [];
-        $partners = $this->partners($root, $includeLiving, $maxNodes);
+        $partnerPersonIds = collect([
+            (string) $root->getKey(),
+            ...array_map(static fn (array $entry): string => (string) $entry['person']['id'], $ancestors),
+            ...array_map(static fn (array $entry): string => (string) $entry['person']['id'], $descendants),
+        ])
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+        $partners = $this->partners($partnerPersonIds, $includeLiving, $maxNodes);
         $nodes = $this->nodes($root, $ancestors, $descendants, $partners, $includeLiving);
         $nodes = collect([...$nodes, ...$siblings])
             ->keyBy('id')
@@ -64,18 +73,19 @@ final class TreeGraph
     }
 
     /** @return list<array<string, mixed>> */
-    private function partners(Person $root, bool $includeLiving, int $maxNodes): array
+    /** @param list<string> $personIds */
+    private function partners(array $personIds, bool $includeLiving, int $maxNodes): array
     {
         $relationships = Relationship::query()
             ->where('type', 'partner')
             ->where(fn ($query) => $query
-                ->where('person_id', $root->getKey())
-                ->orWhere('related_person_id', $root->getKey()))
+                ->whereIn('person_id', $personIds)
+                ->orWhereIn('related_person_id', $personIds))
             ->limit($maxNodes)
             ->get();
 
         $candidateIds = $relationships->map(fn (Relationship $relationship): string => (string) (
-            (string) $relationship->person_id === (string) $root->getKey()
+            in_array((string) $relationship->person_id, $personIds, true)
                 ? $relationship->related_person_id
                 : $relationship->person_id
         ))->unique()->values();
@@ -86,8 +96,11 @@ final class TreeGraph
             ->keyBy(fn (Person $person): string => (string) $person->getKey());
 
         return $relationships
-            ->map(function (Relationship $relationship) use ($people, $root, $includeLiving): ?array {
-                $partnerId = (string) ((string) $relationship->person_id === (string) $root->getKey()
+            ->map(function (Relationship $relationship) use ($people, $personIds, $includeLiving): ?array {
+                $forPersonId = in_array((string) $relationship->person_id, $personIds, true)
+                    ? (string) $relationship->person_id
+                    : (string) $relationship->related_person_id;
+                $partnerId = (string) ((string) $relationship->person_id === $forPersonId
                     ? $relationship->related_person_id
                     : $relationship->person_id);
                 $partner = $people->get($partnerId);
@@ -97,6 +110,7 @@ final class TreeGraph
                 }
 
                 return [
+                    'for_person_id' => $forPersonId,
                     'person' => $this->person($partner, $includeLiving),
                     'relationship_id' => (string) $relationship->getKey(),
                     'from_person_id' => (string) $relationship->person_id,

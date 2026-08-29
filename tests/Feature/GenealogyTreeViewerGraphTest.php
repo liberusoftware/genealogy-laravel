@@ -5,6 +5,7 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Actions\CreateRelationship;
+use Liberu\Genealogy\Relationships\Models\Relationship;
 use Liberu\Genealogy\TreeViewer\Queries\TreeGraph;
 
 uses(RefreshDatabase::class);
@@ -90,6 +91,23 @@ it('includes bounded partner nodes in every graph view', function (): void {
         ->and($graph['partners'][0]['person']['name'])->toBe('Partner')
         ->and($graph['edges'][0]['direction'])->toBe('partner')
         ->and(collect($graph['nodes'])->pluck('id'))->toContain((string) $partner->id);
+});
+
+it('includes partners attached to traversed descendants', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $root = Person::query()->create(['given_name' => 'Root', 'death_date' => '1950-01-01']);
+    $child = Person::query()->create(['given_name' => 'Child', 'death_date' => '1980-01-01']);
+    $childPartner = Person::query()->create(['given_name' => 'Child partner', 'death_date' => '1982-01-01']);
+    Relationship::query()->create(['person_id' => $root->id, 'related_person_id' => $child->id, 'type' => 'parent']);
+    Relationship::query()->create(['person_id' => $child->id, 'related_person_id' => $childPartner->id, 'type' => 'partner']);
+
+    $graph = (new TreeGraph())->for($root, 1, true, 'descendants');
+
+    expect($graph['partners'])->toHaveCount(1)
+        ->and($graph['partners'][0]['for_person_id'])->toBe((string) $child->id)
+        ->and($graph['partners'][0]['person']['name'])->toBe('Child partner')
+        ->and(collect($graph['nodes'])->pluck('id'))->toContain((string) $childPartner->id);
 });
 
 it('retains legacy person details in graph nodes without exposing masked living details', function (): void {
