@@ -107,13 +107,10 @@ final class TreeViewApiController
 
     private function tree(Request $request, string $id): TreeView
     {
-        $query = TreeView::query();
-
-        if ($request->user() === null) {
-            $query->withoutGlobalScope('team');
-        }
-
-        return $query->findOrFail($id);
+        // The core team scope intentionally limits guests to public records.
+        // Removing it here would make a guest request able to retrieve a
+        // private tree by identifier once the public routes are reachable.
+        return TreeView::query()->findOrFail($id);
     }
 
     private function authorizeView(Request $request, TreeView $tree): void

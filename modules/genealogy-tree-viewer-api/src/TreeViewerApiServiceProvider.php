@@ -13,7 +13,7 @@ final class TreeViewerApiServiceProvider extends ServiceProvider
 {
     public function boot(Router $router): void
     {
-        $router->middleware(['api', 'auth:sanctum', EstablishTeamContext::class, ApiContract::class, 'throttle:60,1'])->group(function () use ($router): void {
+        $router->middleware(['api', EstablishTeamContext::class, ApiContract::class, 'throttle:60,1'])->group(function () use ($router): void {
             $router->get('api/v1/genealogy/tree-viewer/{record}/graph', [TreeViewApiController::class, 'graph']);
             $router->get('api/v1/genealogy/tree-viewer', [TreeViewApiController::class, 'index']);
             $router->get('api/v1/genealogy/tree-viewer/{record}', [TreeViewApiController::class, 'show']);
