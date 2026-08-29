@@ -34,11 +34,7 @@ final class DiscoveryMatchResource extends Resource
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
             Select::make('kind')->options(array_combine(DiscoveryMatch::KINDS, DiscoveryMatch::KINDS))->required(),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            Select::make('status')->options(self::statusOptions())->required(),
             TextInput::make('subject_id')->uuid()->nullable(),
             TextInput::make('related_id')->uuid()->nullable(),
             TextInput::make('confidence')->numeric()->minValue(0)->maxValue(100)->nullable(),
@@ -54,7 +50,7 @@ final class DiscoveryMatchResource extends Resource
             TextColumn::make('status')->badge()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
-            Action::make('review')->visible(fn (DiscoveryMatch $record): bool => in_array($record->status, ['draft', 'active'], true))->form([Select::make('status')->options(['active' => 'Active', 'completed' => 'Completed', 'dismissed' => 'Dismissed'])->required()])->action(fn (DiscoveryMatch $record, array $data): DiscoveryMatch => app(ReviewDiscoveryMatch::class)->execute($record, $data['status'])),
+            Action::make('review')->visible(fn (DiscoveryMatch $record): bool => in_array($record->status, ['draft', 'active'], true))->form([Select::make('status')->options(self::reviewStatusOptions())->required()])->action(fn (DiscoveryMatch $record, array $data): DiscoveryMatch => app(ReviewDiscoveryMatch::class)->execute($record, $data['status'])),
             EditAction::make(),
             DeleteAction::make()->action(fn (DiscoveryMatch $record): mixed => app(DeleteDiscoveryMatch::class)->execute($record)),
         ]);
@@ -68,5 +64,23 @@ final class DiscoveryMatchResource extends Resource
             'create' => CreateDiscoveryMatch::route('/create'),
             'edit' => EditDiscoveryMatch::route('/{record}/edit'),
         ];
+    }
+
+    /** @return array<string, string> */
+    private static function statusOptions(): array
+    {
+        return self::options(DiscoveryMatch::STATUSES);
+    }
+
+    /** @return array<string, string> */
+    private static function reviewStatusOptions(): array
+    {
+        return self::options(['active', 'completed', 'dismissed']);
+    }
+
+    /** @param array<int, string> $statuses */
+    private static function options(array $statuses): array
+    {
+        return array_combine($statuses, array_map(static fn (string $status): string => ucfirst($status), $statuses));
     }
 }
