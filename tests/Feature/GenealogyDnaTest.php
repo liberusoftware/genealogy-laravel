@@ -23,6 +23,7 @@ use Liberu\Genealogy\Dna\Actions\DeleteDnaSegment;
 use Liberu\Genealogy\Dna\Actions\GrantDnaConsent;
 use Liberu\Genealogy\Dna\Actions\ImportDnaKit;
 use Liberu\Genealogy\Dna\Actions\PersistDnaComparison;
+use Liberu\Genealogy\Dna\Actions\RevokeDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaGroup;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaKit;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaMatch;
@@ -30,6 +31,7 @@ use Liberu\Genealogy\Dna\Actions\UpdateDnaProvider;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaSegment;
 use Liberu\Genealogy\Dna\Events\DnaMatchesPersisted;
 use Liberu\Genealogy\Dna\Filament\Resources\DnaProviderResource;
+use Liberu\Genealogy\Dna\Models\DnaConsent;
 use Liberu\Genealogy\Dna\Models\DnaGroup;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\Dna\Models\DnaMatch;
@@ -431,4 +433,21 @@ it('exposes tenant-safe segment lifecycle and consent history across presentatio
 
     expect(DnaSegment::query()->find($segment->getKey()))->toBeNull()
         ->and($consent->fresh()->granted)->toBeTrue();
+});
+
+it('rejects DNA consent mutations for kits outside the active team', function (): void {
+    $owner = User::factory()->create();
+    $kitTeam = Team::factory()->create(['user_id' => $owner->id]);
+    app(TeamContext::class)->set($kitTeam->getKey());
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Private consent kit']);
+
+    $otherTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($otherTeam->getKey());
+
+    expect(fn () => app(GrantDnaConsent::class)->execute($kit, 'matching'))
+        ->toThrow(InvalidArgumentException::class)
+        ->and(fn () => app(RevokeDnaKit::class)->execute($kit, 'No longer participating'))
+        ->toThrow(InvalidArgumentException::class)
+        ->and(DnaConsent::withoutGlobalScopes()->where('kit_id', $kit->getKey())->count())->toBe(0)
+        ->and($kit->refresh()->consent_status)->toBe('pending');
 });
