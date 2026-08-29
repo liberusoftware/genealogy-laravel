@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Genealogy\Relationships\Queries;
 
 use Liberu\Genealogy\GenealogyCore\TeamContext;
+use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Models\Relationship;
 
 /**
@@ -32,6 +33,7 @@ final class RelationshipCalculator
             return $this->result('self', $firstPersonId, 0, 0);
         }
 
+        $firstSex = Person::query()->whereKey($firstPersonId)->value('sex');
         $firstAncestors = $this->ancestorDistances($firstPersonId, $teamId);
         $secondAncestors = $this->ancestorDistances($secondPersonId, $teamId);
         $common = array_intersect_key($firstAncestors, $secondAncestors);
@@ -56,7 +58,7 @@ final class RelationshipCalculator
         }
 
         return $this->result(
-            $this->label($firstDistance, $secondDistance),
+            $this->label($firstDistance, $secondDistance, is_string($firstSex) ? $firstSex : null),
             $commonAncestorId,
             $firstDistance,
             $secondDistance,
@@ -94,7 +96,7 @@ final class RelationshipCalculator
         return $distances;
     }
 
-    private function label(int $firstDistance, int $secondDistance): string
+    private function label(int $firstDistance, int $secondDistance, ?string $firstSex): string
     {
         $minimum = min($firstDistance, $secondDistance);
         $difference = abs($firstDistance - $secondDistance);
@@ -114,7 +116,11 @@ final class RelationshipCalculator
                 return 'sibling';
             }
 
-            return $firstDistance < $secondDistance ? 'aunt/uncle' : 'niece/nephew';
+            $generations = max($firstDistance, $secondDistance);
+
+            return $firstDistance < $secondDistance
+                ? $this->collateralLabel($firstSex, $generations, true)
+                : $this->collateralLabel($firstSex, $generations, false);
         }
 
         $label = $this->ordinal($minimum - 1).' cousin';
@@ -142,6 +148,23 @@ final class RelationshipCalculator
         };
 
         return $number.$suffix;
+    }
+
+    private function collateralLabel(?string $sex, int $generations, bool $elder): string
+    {
+        $base = $elder
+            ? match ($sex) {
+                Person::GENDER_MALE => 'uncle',
+                Person::GENDER_FEMALE => 'aunt',
+                default => 'aunt/uncle',
+            }
+        : match ($sex) {
+            Person::GENDER_MALE => 'nephew',
+            Person::GENDER_FEMALE => 'niece',
+            default => 'niece/nephew',
+        };
+
+        return $generations === 2 ? $base : str_repeat('great-', $generations - 3).'grand-'.$base;
     }
 
     private function removed(int $generations): string

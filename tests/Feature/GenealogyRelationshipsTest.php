@@ -178,6 +178,24 @@ it('calculates direct, sibling, cousin, and unrelated relationships through the 
         ->and($calculator->between($childA->id, $unrelated->id)['relationship'])->toBe('no traceable relationship');
 });
 
+it('preserves gendered collateral relationship labels from the legacy tree service', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $grandparent = (new CreatePerson())->execute(['given_name' => 'Grandparent']);
+    $uncle = (new CreatePerson())->execute(['given_name' => 'Uncle', 'sex' => 'M']);
+    $parent = (new CreatePerson())->execute(['given_name' => 'Parent']);
+    $cousin = (new CreatePerson())->execute(['given_name' => 'Cousin', 'sex' => 'F']);
+    $create = new CreateRelationship();
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $uncle->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $grandparent->id, 'related_person_id' => $parent->id, 'type' => 'parent']);
+    $create->execute(['person_id' => $parent->id, 'related_person_id' => $cousin->id, 'type' => 'parent']);
+
+    $calculator = new RelationshipCalculator();
+
+    expect($calculator->between($uncle->id, $cousin->id)['relationship'])->toBe('uncle')
+        ->and($calculator->between($cousin->id, $uncle->id)['relationship'])->toBe('niece');
+});
+
 it('exposes the relationship calculator through the API and Livewire adapter', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
