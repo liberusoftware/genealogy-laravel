@@ -20,6 +20,7 @@ use Liberu\Genealogy\People\Actions\SetPersonLifeStatus;
 use Liberu\Genealogy\People\Actions\UpdatePerson;
 use Liberu\Genealogy\People\Actions\UpdatePersonAssociation;
 use Liberu\Genealogy\People\Actions\UpdatePersonAttributes;
+use Liberu\Genealogy\People\Actions\UpdatePersonSupportingRecord;
 use Liberu\Genealogy\People\Events\MergeCandidateReviewed;
 use Liberu\Genealogy\People\Events\PersonAttributesUpdated;
 use Liberu\Genealogy\People\Events\PersonDeleted;
@@ -50,6 +51,29 @@ it('owns names, identities, life events, and merge candidates inside the active 
         ->and($person->identities)->toHaveCount(1)
         ->and($person->lifeEvents)->toHaveCount(1)
         ->and(MergeCandidate::query()->where('person_id', $person->id)->exists())->toBeTrue();
+});
+
+it('protects supporting-record ownership and validates life-event updates', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $person = app(CreatePerson::class)->execute(['given_name' => 'Ada']);
+    $otherPerson = app(CreatePerson::class)->execute(['given_name' => 'Grace']);
+    $lifeEvent = app(CreatePersonLifeEvent::class)->execute([
+        'person_id' => $person->id, 'type' => '  birth  ',
+    ]);
+
+    expect($lifeEvent->type)->toBe('birth');
+    expect(fn () => app(UpdatePersonSupportingRecord::class)->execute($lifeEvent, [
+        'type' => '   ', 'person_id' => $otherPerson->id, 'team_id' => 'forbidden',
+    ]))->toThrow(InvalidArgumentException::class, 'type');
+
+    $updated = app(UpdatePersonSupportingRecord::class)->execute($lifeEvent, [
+        'type' => '  baptism  ', 'person_id' => $otherPerson->id, 'team_id' => 'forbidden',
+    ]);
+    expect($updated->type)->toBe('baptism')
+        ->and((string) $updated->person_id)->toBe((string) $person->id)
+        ->and((string) $updated->team_id)->toBe((string) $team->id);
 });
 
 it('does not allow a person to be created without a team context', function (): void {
