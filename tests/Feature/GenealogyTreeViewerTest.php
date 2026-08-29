@@ -79,6 +79,19 @@ it('navigates between graph nodes through the Livewire tree viewer', function ()
         ->assertSee('Child');
 });
 
+it('masks living people for unauthenticated Livewire viewers', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $living = (new CreatePerson())->execute(['given_name' => 'Private living', 'is_public' => true]);
+
+    Livewire::test('genealogy-tree-viewer-graph')
+        ->set('personId', (string) $living->id)
+        ->set('includeLiving', true)
+        ->call('loadGraph')
+        ->assertSet('data.root.name', 'Living person')
+        ->assertDontSee('Private living');
+});
+
 it('restores optional sibling expansion from the legacy tree builder', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
