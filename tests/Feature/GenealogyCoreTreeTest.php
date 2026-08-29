@@ -113,6 +113,16 @@ it('rejects invalid lifecycle values before persistence', function (): void {
         ->toThrow(InvalidArgumentException::class);
 });
 
+it('rejects an explicit tree owner outside the active team', function (): void {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $owner->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => (new CreateTree())->execute(['name' => 'Unsafe owner', 'user_id' => $otherUser->id]))
+        ->toThrow(InvalidArgumentException::class, 'active member');
+});
+
 it('rejects empty identifiers during tree updates', function (): void {
     $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
     app(TeamContext::class)->set($team->id);

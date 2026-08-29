@@ -38,6 +38,9 @@ final class CreateTree
         if (isset($values['root_person_id']) && ! $this->personBelongsToTeam($values['root_person_id'], $values['team_id'])) {
             throw new InvalidArgumentException('The tree root person must belong to the active team.');
         }
+        if (isset($values['user_id']) && ! $this->userBelongsToTeam($values['user_id'], $values['team_id'])) {
+            throw new InvalidArgumentException('The tree owner must be an active member of the team.');
+        }
 
         $tree = DB::transaction(function () use ($values): Tree {
             $tree = Tree::query()->create($values);
@@ -56,5 +59,18 @@ final class CreateTree
         }
 
         return $this->personReference->existsForTeam($personId, $teamId);
+    }
+
+    private function userBelongsToTeam(string|int $userId, string $teamId): bool
+    {
+        return DB::table('teams')
+            ->where('id', $teamId)
+            ->where('user_id', $userId)
+            ->exists()
+            || DB::table('team_user')
+                ->where('team_id', $teamId)
+                ->where('user_id', $userId)
+                ->where('status', 'active')
+                ->exists();
     }
 }
