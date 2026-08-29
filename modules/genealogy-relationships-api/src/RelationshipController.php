@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Relationships\Api;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -34,7 +35,7 @@ final class RelationshipController
             ->paginate($values['page']['size'] ?? 25);
 
         return response()->json([
-            'data' => $relationships->getCollection()->map(fn (Relationship $relationship): array => $this->resource($relationship))->values()->all(),
+            'data' => $relationships->getCollection()->map(fn (Model $relationship): array => $this->resource($relationship))->values()->all(),
             'meta' => ['current_page' => $relationships->currentPage(), 'per_page' => $relationships->perPage(), 'total' => $relationships->total()],
         ]);
     }
@@ -77,13 +78,14 @@ final class RelationshipController
         return response()->json(['data' => $this->resource($record)], 201);
     }
 
-    public function show(Relationship $record): JsonResponse
+    public function show(string $record): JsonResponse
     {
-        return response()->json(['data' => $this->resource($record)]);
+        return response()->json(['data' => $this->resource($this->record($record))]);
     }
 
-    public function update(Request $request, Relationship $record, UpdateRelationship $update): JsonResponse
+    public function update(Request $request, string $record, UpdateRelationship $update): JsonResponse
     {
+        $record = $this->record($record);
         $values = $request->validate([
             'person_id' => ['sometimes', 'uuid', $this->personRule(), Rule::notIn([$request->input('related_person_id', $record->related_person_id)])],
             'related_person_id' => ['sometimes', 'uuid', $this->personRule()],
@@ -95,9 +97,9 @@ final class RelationshipController
         return response()->json(['data' => $this->resource($update->execute($record, $values))]);
     }
 
-    public function destroy(Relationship $record, DeleteRelationship $delete): JsonResponse
+    public function destroy(string $record, DeleteRelationship $delete): JsonResponse
     {
-        $delete->execute($record);
+        $delete->execute($this->record($record));
 
         return response()->json(status: 204);
     }
@@ -109,7 +111,13 @@ final class RelationshipController
     }
 
     /** @return array<string, mixed> */
-    private function resource(Relationship $relationship): array
+    private function record(string $id): Model
+    {
+        return Relationship::query()->findOrFail($id);
+    }
+
+    /** @return array<string, mixed> */
+    private function resource(Model $relationship): array
     {
         return ['id' => $relationship->getKey(), 'type' => 'genealogy-relationship', 'attributes' => [
             'person_id' => $relationship->person_id,
