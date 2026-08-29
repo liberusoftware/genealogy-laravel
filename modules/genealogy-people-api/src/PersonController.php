@@ -6,6 +6,8 @@ namespace Liberu\Genealogy\People\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Liberu\Genealogy\People\Actions\CreatePersonAssociation;
 use Liberu\Genealogy\People\Actions\DeletePerson;
@@ -104,7 +106,7 @@ final class PersonController
 
     public function storeAssociation(Request $request, Person $person, CreatePersonAssociation $create): JsonResponse
     {
-        $values = $request->validate(['associated_person_id' => ['nullable', 'uuid'], 'associated_external_id' => ['nullable', 'string', 'max:255'], 'relationship' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
+        $values = $request->validate(['associated_person_id' => ['nullable', 'uuid', Rule::exists('genealogy_people', 'id')->where('team_id', app(TeamContext::class)->require())], 'associated_external_id' => ['nullable', 'string', 'max:255'], 'relationship' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
         $association = $create->execute(['person_id' => $person->getKey(), ...$values]);
 
         return response()->json(['data' => $this->associationResource($association)], 201);
@@ -113,7 +115,7 @@ final class PersonController
     public function updateAssociation(Request $request, Person $person, PersonAssociation $association, UpdatePersonAssociation $update): JsonResponse
     {
         abort_unless((string) $association->person_id === (string) $person->getKey(), 404);
-        $values = $request->validate(['associated_person_id' => ['nullable', 'uuid'], 'associated_external_id' => ['nullable', 'string', 'max:255'], 'relationship' => ['sometimes', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
+        $values = $request->validate(['associated_person_id' => ['nullable', 'uuid', Rule::exists('genealogy_people', 'id')->where('team_id', app(TeamContext::class)->require())], 'associated_external_id' => ['nullable', 'string', 'max:255'], 'relationship' => ['sometimes', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'metadata' => ['nullable', 'array']]);
 
         return response()->json(['data' => $this->associationResource($update->execute($association, $values))]);
     }
