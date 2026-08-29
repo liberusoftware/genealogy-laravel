@@ -91,3 +91,25 @@ it('includes bounded partner nodes in every graph view', function (): void {
         ->and($graph['edges'][0]['direction'])->toBe('partner')
         ->and(collect($graph['nodes'])->pluck('id'))->toContain((string) $partner->id);
 });
+
+it('retains legacy person details in graph nodes without exposing masked living details', function (): void {
+    $team = Team::factory()->create();
+    app(TeamContext::class)->set($team->id);
+    $deceased = Person::query()->create([
+        'given_name' => 'Ada',
+        'family_name' => 'Example',
+        'sex' => 'F',
+        'birth_date' => '1815-12-10',
+        'death_date' => '1852-11-27',
+    ]);
+    $living = Person::query()->create(['given_name' => 'Living', 'sex' => 'M']);
+
+    $deceasedNode = (new TreeGraph())->for($deceased, 0, false)['root'];
+    $livingNode = (new TreeGraph())->for($living, 0, false)['root'];
+
+    expect($deceasedNode)->toMatchArray([
+        'sex' => 'F', 'birth_year' => 1815, 'death_year' => 1852, 'age' => 36, 'lifespan' => '(1815-1852)',
+    ])->and($livingNode)->toMatchArray([
+        'name' => 'Living person', 'sex' => null, 'age' => null, 'lifespan' => '(?-?)',
+    ]);
+});

@@ -255,9 +255,19 @@ final class TreeGraph
                 'family_name' => null,
                 'birth_date' => null,
                 'death_date' => null,
+                'birth_year' => null,
+                'death_year' => null,
+                'sex' => null,
+                'age' => null,
+                'lifespan' => '(?-?)',
                 'is_living' => true,
             ];
         }
+
+        $birthYear = $person->birth_date?->year;
+        $deathYear = $person->death_date?->year;
+        $endDate = $person->death_date ?? now();
+        $age = $person->birth_date !== null ? (int) $person->birth_date->diffInYears($endDate) : null;
 
         return [
             'id' => (string) $person->getKey(),
@@ -266,6 +276,11 @@ final class TreeGraph
             'family_name' => $person->family_name,
             'birth_date' => $person->birth_date?->toDateString(),
             'death_date' => $person->death_date?->toDateString(),
+            'birth_year' => $birthYear,
+            'death_year' => $deathYear,
+            'sex' => $person->getSex(),
+            'age' => $age,
+            'lifespan' => '('.($birthYear ?? '?').'-'.($deathYear ?? ($birthYear !== null ? 'living' : '?')).')',
             'is_living' => $person->isLiving(),
         ];
     }
