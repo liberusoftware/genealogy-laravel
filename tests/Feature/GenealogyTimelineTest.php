@@ -33,6 +33,18 @@ it('rejects invalid timeline date ranges', function (): void {
         ->toThrow(ValidationException::class);
 });
 
+it('includes partial and open-ended dates in bounded timeline ranges', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    $startOnly = (new CreateTimelineEvent())->execute(['name' => 'Starts in range', 'date_start' => '1950-01-01']);
+    $endOnly = (new CreateTimelineEvent())->execute(['name' => 'Ends in range', 'date_end' => '1951-01-01']);
+
+    $events = (new ChronologicalTimeline())->execute(from: '1949-01-01', to: '1952-01-01');
+    $eventIds = array_column($events, 'id');
+
+    expect($eventIds)->toContain($startOnly->id)->toContain($endOnly->id);
+});
+
 it('groups conflicting evidence and exposes the conflict view through the API', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
