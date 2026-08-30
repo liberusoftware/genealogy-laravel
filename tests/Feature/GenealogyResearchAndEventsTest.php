@@ -125,6 +125,45 @@ it('provides opt-in social family discovery with privacy and connection lifecycl
         ->and($connection->fresh()->status)->toBe('accepted');
 });
 
+it('finds potential social family connections from shared team surnames and honors privacy', function (): void {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $otherTeam = Team::factory()->create(['user_id' => $otherUser->id]);
+    app(TeamContext::class)->set($team->getKey());
+
+    Person::query()->create(['team_id' => $team->getKey(), 'given_name' => 'Ada', 'family_name' => 'Lovelace']);
+    app(TeamContext::class)->set($otherTeam->getKey());
+    Person::query()->create(['team_id' => $otherTeam->getKey(), 'given_name' => 'Charles', 'family_name' => 'Lovelace']);
+    app(TeamContext::class)->set($team->getKey());
+
+    $account = $user->connectedAccounts()->create([
+        'provider' => 'github',
+        'provider_id' => 'local-1',
+        'enable_family_matching' => true,
+        'token' => 'token',
+    ]);
+    $otherUser->connectedAccounts()->create([
+        'provider' => 'github',
+        'provider_id' => 'relative-1',
+        'name' => 'Family Researcher',
+        'enable_family_matching' => true,
+        'token' => 'token',
+    ]);
+
+    $service = app(SocialFamilyDiscovery::class);
+    $matches = $service->findPotentialConnections($user);
+
+    expect($matches)->toHaveCount(1)
+        ->and($matches->first()['common_surnames'])->toContain('lovelace')
+        ->and($service->processMatches($user))->toBe(1)
+        ->and(SocialFamilyConnection::query()->where('connected_account_id', $account->getKey())->exists())->toBeTrue();
+
+    $service->updatePrivacy($otherUser->getKey(), ['allow_family_discovery' => false]);
+
+    expect($service->findPotentialConnections($user))->toBeEmpty();
+});
+
 it('scores configured smart-matching providers and persists their candidates', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
