@@ -22,7 +22,7 @@ final class CollaborationServiceProvider extends ServiceProvider
         $this->app->singleton(Capability::class, fn (): Capability => new Capability(
             'genealogy-collaboration',
             'Genealogy Collaboration',
-            ['genealogy.collaboration', 'genealogy.collaboration.invitations', 'genealogy.collaboration.events', 'genealogy.collaboration.rsvp', 'genealogy.collaboration.lifecycle'],
+            ['genealogy.collaboration', 'genealogy.collaboration.invitations', 'genealogy.collaboration.events', 'genealogy.collaboration.rsvp', 'genealogy.collaboration.video-conferencing', 'genealogy.collaboration.lifecycle'],
         ));
     }
 }

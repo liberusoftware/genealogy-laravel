@@ -25,6 +25,7 @@
     "genealogy.discovery.relationship-paths",
     "genealogy.discovery.privacy-indexes",
     "genealogy.discovery.social-family",
+    "genealogy.discovery.smart-matching",
     "genealogy.discovery.lifecycle"
   ],
   "features": [
@@ -35,6 +36,7 @@
     "genealogy discovery relationship-paths",
     "genealogy discovery privacy-indexes",
     "genealogy discovery social-family",
+    "genealogy discovery smart-matching",
     "genealogy discovery lifecycle"
   ],
   "default_enabled": true
