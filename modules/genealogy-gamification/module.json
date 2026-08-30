@@ -1,0 +1,24 @@
+{
+  "name": "genealogy-gamification",
+  "display_name": "Genealogy Gamification",
+  "description": "Tenant-scoped genealogy achievements, points, and progress.",
+  "version": "1.0.0",
+  "category": "capability",
+  "provider": "Liberu\\Genealogy\\Gamification\\GamificationServiceProvider",
+  "requires": {"php": "^8.5", "laravel": "^13.0", "packages": {"liberusoftware/module-genealogy-core": "^1.0"}},
+  "capabilities": [
+    "genealogy.gamification",
+    "genealogy.gamification.points",
+    "genealogy.gamification.achievements",
+    "genealogy.gamification.progress",
+    "genealogy.gamification.leaderboard",
+    "genealogy.gamification.lifecycle"
+  ],
+  "features": [
+    "genealogy gamification points",
+    "genealogy gamification achievements",
+    "genealogy gamification progress",
+    "genealogy gamification leaderboard"
+  ],
+  "default_enabled": true
+}
