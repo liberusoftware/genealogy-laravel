@@ -7,6 +7,7 @@ namespace Liberu\Genealogy\Gamification\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Achievement extends Model
 {
@@ -19,6 +20,11 @@ final class Achievement extends Model
     protected function casts(): array
     {
         return ['points' => 'integer', 'requirements' => 'array', 'is_active' => 'boolean', 'sort_order' => 'integer'];
+    }
+
+    public function userProgress(): HasMany
+    {
+        return $this->hasMany(UserProgress::class, 'achievement_id');
     }
 
     public function scopeActive(Builder $query): Builder

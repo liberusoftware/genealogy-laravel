@@ -10,6 +10,7 @@ use Liberu\Genealogy\Gamification\Actions\AwardPoints;
 use Liberu\Genealogy\Gamification\Models\Achievement;
 use Liberu\Genealogy\Gamification\Models\UserAchievement;
 use Liberu\Genealogy\Gamification\Models\UserPoint;
+use Liberu\Genealogy\Gamification\Models\UserProgress;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 
 final class GamificationService
@@ -63,9 +64,27 @@ final class GamificationService
             ['unlocked_at' => now(), 'progress_data' => $progressData],
         );
         if ($record->wasRecentlyCreated) {
+            UserProgress::query()->where('user_id', $user->getKey())->where('achievement_id', $achievement->getKey())->delete();
             event(new Events\AchievementUnlocked($record));
         }
 
         return $record;
+    }
+
+    public function updateProgress(Model $user, Achievement $achievement, int $currentProgress, int $targetProgress, array $progressData = []): UserProgress
+    {
+        $teamId = app(TeamContext::class)->require();
+        $progress = UserProgress::query()->firstOrNew([
+            'team_id' => $teamId,
+            'user_id' => $user->getKey(),
+            'achievement_id' => $achievement->getKey(),
+        ]);
+        $progress->target_progress = max(0, $targetProgress);
+        if ($progress->started_at === null) {
+            $progress->started_at = now();
+        }
+        $progress->setProgress($currentProgress, $progressData);
+
+        return $progress->fresh();
     }
 }

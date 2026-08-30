@@ -13,7 +13,8 @@
       "liberusoftware/module-genealogy-people": "^1.0",
       "liberusoftware/module-genealogy-places": "^1.0",
       "liberusoftware/module-genealogy-evidence": "^1.0",
-      "liberusoftware/module-genealogy-relationships": "^1.0"
+      "liberusoftware/module-genealogy-relationships": "^1.0",
+      "liberusoftware/identity-socialstream": "^1.4"
     }
   },
   "capabilities": [
@@ -23,6 +24,7 @@
     "genealogy.discovery.duplicates",
     "genealogy.discovery.relationship-paths",
     "genealogy.discovery.privacy-indexes",
+    "genealogy.discovery.social-family",
     "genealogy.discovery.lifecycle"
   ],
   "features": [
@@ -32,6 +34,7 @@
     "genealogy discovery duplicates",
     "genealogy discovery relationship-paths",
     "genealogy discovery privacy-indexes",
+    "genealogy discovery social-family",
     "genealogy discovery lifecycle"
   ],
   "default_enabled": true

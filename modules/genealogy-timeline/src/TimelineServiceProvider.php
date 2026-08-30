@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Liberu\Genealogy\GenealogyCore\Policies\TeamOwnedPolicy;
 use Liberu\Genealogy\Timeline\Models\TimelineEvent;
+use Liberu\Genealogy\Timeline\Services\HistoricalEventService;
 
 final class TimelineServiceProvider extends ServiceProvider
 {
@@ -15,6 +16,7 @@ final class TimelineServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Gate::policy(TimelineEvent::class, TeamOwnedPolicy::class);
+        $this->app->singleton(HistoricalEventService::class);
     }
 
     public function register(): void

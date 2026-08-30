@@ -47,10 +47,25 @@ return new class() extends Migration
             $table->unique(['team_id', 'user_id', 'achievement_id']);
             $table->index(['team_id', 'user_id']);
         });
+        Schema::create('genealogy_gamification_user_progress', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('achievement_id')->constrained('genealogy_gamification_achievements')->cascadeOnDelete();
+            $table->unsignedInteger('current_progress')->default(0);
+            $table->unsignedInteger('target_progress')->default(0);
+            $table->json('progress_data')->nullable();
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('last_updated_at')->nullable();
+            $table->timestamps();
+            $table->unique(['team_id', 'user_id', 'achievement_id']);
+            $table->index(['team_id', 'user_id', 'last_updated_at']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('genealogy_gamification_user_progress');
         Schema::dropIfExists('genealogy_gamification_user_achievements');
         Schema::dropIfExists('genealogy_gamification_points');
         Schema::dropIfExists('genealogy_gamification_achievements');

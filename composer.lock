@@ -6541,11 +6541,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-discovery",
-                "reference": "6f3fa887a1d42ab322e8c970da288f8387852480"
+                "reference": "0c33eb0255de2bec17e20fa5da9cf2c67cb7a4eb"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/identity-socialstream": "^1.4",
                 "liberusoftware/module-genealogy-core": "^1.0",
                 "liberusoftware/module-genealogy-evidence": "^1.0",
                 "liberusoftware/module-genealogy-people": "^1.0",

@@ -7,8 +7,10 @@ namespace Liberu\Genealogy\Research;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Liberu\Genealogy\GenealogyCore\Policies\TeamOwnedPolicy;
+use Liberu\Genealogy\Research\Models\ChecklistTemplate;
 use Liberu\Genealogy\Research\Models\ResearchEntry;
 use Liberu\Genealogy\Research\Models\ResearchProject;
+use Liberu\Genealogy\Research\Models\UserChecklist;
 
 final class ResearchServiceProvider extends ServiceProvider
 {
@@ -17,6 +19,8 @@ final class ResearchServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Gate::policy(ResearchProject::class, TeamOwnedPolicy::class);
         Gate::policy(ResearchEntry::class, TeamOwnedPolicy::class);
+        Gate::policy(ChecklistTemplate::class, TeamOwnedPolicy::class);
+        Gate::policy(UserChecklist::class, TeamOwnedPolicy::class);
     }
 
     public function register(): void
@@ -24,7 +28,7 @@ final class ResearchServiceProvider extends ServiceProvider
         $this->app->singleton(Capability::class, fn (): Capability => new Capability(
             'genealogy-research',
             'Genealogy Research',
-            ['genealogy.research', 'genealogy.research.questions', 'genealogy.research.plans', 'genealogy.research.tasks', 'genealogy.research.logs', 'genealogy.research.correspondence', 'genealogy.research.negative-searches', 'genealogy.research.findings', 'genealogy.research.lifecycle'],
+            ['genealogy.research', 'genealogy.research.questions', 'genealogy.research.plans', 'genealogy.research.tasks', 'genealogy.research.logs', 'genealogy.research.correspondence', 'genealogy.research.negative-searches', 'genealogy.research.findings', 'genealogy.research.checklists', 'genealogy.research.lifecycle'],
         ));
     }
 }
