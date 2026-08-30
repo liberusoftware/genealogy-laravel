@@ -47,6 +47,12 @@ php artisan serve
 
 Review `.env` before migrating. Use `php artisan migrate --seed` when example data is wanted. Queue and scheduled work can be run with the Laravel commands appropriate to the selected deployment.
 
+## Optional Premium billing
+
+The application is fully open by default. Set `PREMIUM_ENABLED=true` for a SaaS deployment. Premium then provides a seven-day trial with Stripe checkout, priced at £2.49 monthly or £24.99 yearly. Stripe Price IDs for those two plans are supplied through `PREMIUM_STRIPE_MONTHLY_PRICE_ID` and `PREMIUM_STRIPE_YEARLY_PRICE_ID`; each Stripe Price should use GBP and the matching amount in pence.
+
+Cards are required by default when Premium is enabled. Set `PREMIUM_REQUIRE_CARD=false` to offer an explicit no-card local trial instead. A cancelled trial remains available until the seven-day period ends; after expiry the account is suspended except for GEDCOM export, affiliate pages, and payment pages.
+
 ## Architecture
 
 Genealogy is assembled from focused Composer packages. Core domain modules remain independent from presentation concerns; API, Filament, and Livewire packages provide optional adapters for each capability.
