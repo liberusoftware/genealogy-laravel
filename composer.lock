@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd60398ead0844086d96dd721b0f90f2",
+    "content-hash": "faa5db1ecc30657ecd28e9a0792ae9d2",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -7123,6 +7123,55 @@
                 "MIT"
             ],
             "description": "Liberu genealogy-evidence-livewire module.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-genealogy-gamification",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/genealogy-gamification",
+                "reference": "bc7d0a879e82cb780349e4ae9e11928e511f2675"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-genealogy-core": "^1.0",
+                "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "genealogy-gamification",
+                    "provider": "Liberu\\Genealogy\\Gamification\\GamificationServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Gamification\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Genealogy\\Gamification\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Liberu genealogy gamification module.",
             "transport-options": {
                 "symlink": false,
                 "relative": true

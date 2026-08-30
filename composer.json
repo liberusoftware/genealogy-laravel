@@ -277,6 +277,7 @@
         "liberusoftware/module-genealogy-core-api": "^1.0",
         "liberusoftware/module-genealogy-core-filament": "^1.0",
         "liberusoftware/module-genealogy-core-livewire": "^1.0",
+        "liberusoftware/module-genealogy-gamification": "^1.0",
         "liberusoftware/module-genealogy-people": "^1.0",
         "liberusoftware/module-genealogy-people-api": "^1.0",
         "liberusoftware/module-genealogy-people-filament": "^1.0",

@@ -12,11 +12,18 @@ use Liberu\Genealogy\Relationships\Models\Relationship;
 final class GedcomExporter
 {
     /** @param Collection<int, Person> $people */
-    public function export(Collection $people, ?Collection $relationships = null): string
+    public function export(Collection $people, ?Collection $relationships = null, string $version = '5.5.1'): string
     {
+        if (! in_array($version, ['5.5.1', '7.0'], true)) {
+            throw new \InvalidArgumentException('The GEDCOM version is not supported.');
+        }
+
         $relationships ??= Relationship::query()->whereIn('type', ['parent', 'partner'])->get();
         $peopleById = $people->keyBy(fn (Person $person): string => (string) $person->getKey());
-        $lines = ['0 HEAD', '1 SOUR Genealogy', '1 GEDC', '2 VERS 5.5.1', '1 CHAR UTF-8'];
+        $lines = ['0 HEAD', '1 SOUR Genealogy', '1 GEDC', '2 VERS '.$version];
+        if ($version === '5.5.1') {
+            $lines[] = '1 CHAR UTF-8';
+        }
         $families = $this->families($peopleById, $relationships);
 
         foreach ($people as $person) {
@@ -26,8 +33,9 @@ final class GedcomExporter
             foreach ($person->names as $name) {
                 $lines[] = '1 NAME '.trim(($name->given_name ?? '').' /'.($name->family_name ?? '').'/');
             }
-            if ($person->sex) {
-                $lines[] = '1 SEX '.$person->sex;
+            $sex = $this->sex($person->sex, $version);
+            if ($sex !== '') {
+                $lines[] = '1 SEX '.$sex;
             }
             if ($person->birth_date) {
                 $lines[] = '1 BIRT';
@@ -168,5 +176,16 @@ final class GedcomExporter
         $xref = $person->metadata['gedcom_xref'] ?? null;
 
         return is_string($xref) && $xref !== '' ? $xref : '@I'.$person->getKey().'@';
+    }
+
+    private function sex(?string $sex, string $version): string
+    {
+        return match (strtoupper(trim((string) $sex))) {
+            'M' => 'M',
+            'F' => 'F',
+            'X' => $version === '7.0' ? 'X' : 'U',
+            'U' => 'U',
+            default => '',
+        };
     }
 }

@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\ImportExport\Data\ExportedGenealogyData;
 use Liberu\Genealogy\ImportExport\Exporters\GedcomExporter;
+use Liberu\Genealogy\ImportExport\Exporters\GedcomXExporter;
 use Liberu\Genealogy\ImportExport\Exporters\GrampsExporter;
 use Liberu\Genealogy\ImportExport\Models\DataTransfer;
 use Liberu\Genealogy\People\Models\Person;
@@ -19,6 +20,7 @@ final class ExportGenealogyData
         private readonly CreateDataTransfer $create,
         private readonly UpdateDataTransfer $update,
         private readonly GedcomExporter $gedcom,
+        private readonly GedcomXExporter $gedcomX,
         private readonly GrampsExporter $gramps,
     ) {}
 
@@ -41,9 +43,12 @@ final class ExportGenealogyData
         ]);
 
         try {
-            $content = $format === 'gramps-xml'
-                ? $this->gramps->export($people, $relationships)
-                : $this->gedcom->export($people, $relationships);
+            $content = match ($format) {
+                'gramps-xml' => $this->gramps->export($people, $relationships),
+                'gedcom-7' => $this->gedcom->export($people, $relationships, '7.0'),
+                'gedcom-x' => $this->gedcomX->export($people, $relationships),
+                default => $this->gedcom->export($people, $relationships),
+            };
 
             $transfer = $this->update->execute($transfer, [
                 'status' => 'completed',
@@ -73,8 +78,13 @@ final class ExportGenealogyData
             $transfer,
             $content,
             $format,
-            $format === 'gramps-xml' ? 'genealogy.gramps.xml' : 'genealogy.ged',
-            $format === 'gramps-xml' ? 'application/xml; charset=UTF-8' : 'text/plain; charset=UTF-8',
+            match ($format) {
+                'gramps-xml' => 'genealogy.gramps.xml',
+                'gedcom-x' => 'genealogy.gedcomx.json',
+                'gedcom-7' => 'genealogy.ged',
+                default => 'genealogy.ged',
+            },
+            $format === 'gramps-xml' ? 'application/xml; charset=UTF-8' : ($format === 'gedcom-x' ? 'application/json; charset=UTF-8' : 'text/plain; charset=UTF-8'),
         );
     }
 }

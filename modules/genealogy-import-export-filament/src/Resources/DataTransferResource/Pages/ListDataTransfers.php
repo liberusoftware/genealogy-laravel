@@ -24,7 +24,7 @@ final class ListDataTransfers extends ListRecords
                 ->label('Export genealogy')
                 ->form([
                     TextInput::make('name')->default('Genealogy export')->required()->maxLength(255),
-                    Select::make('format')->options(['gedcom' => 'GEDCOM 5.5.1', 'gramps-xml' => 'GRAMPS XML'])->default('gedcom')->required(),
+                    Select::make('format')->options(['gedcom' => 'GEDCOM 5.5.1', 'gedcom-7' => 'GEDCOM 7.0', 'gedcom-x' => 'GEDCOM X JSON', 'gramps-xml' => 'GRAMPS XML'])->default('gedcom')->required(),
                 ])
                 ->action(function (array $data): mixed {
                     $result = app(ExportGenealogyData::class)->execute($data['format'], $data['name']);
