@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Validation\ValidationException;
+use App\Http\Middleware\EnsurePremiumAccess;
 use Liberu\Foundation\ApiAccess\Http\Middleware\ApiContract;
 use Liberu\Foundation\ApplicationCore\Http\Middleware\SecurityHeaders;
 use Liberu\Foundation\Localization\Http\Middleware\SetLocale;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', [SetLocale::class, SecurityHeaders::class, EstablishTeamContext::class]);
+        $middleware->appendToGroup('api', [EnsurePremiumAccess::class]);
         $middleware->priority([
             Authenticate::class,
             EstablishTeamContext::class,

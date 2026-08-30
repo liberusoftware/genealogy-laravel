@@ -19,6 +19,7 @@ use JoelButcher\Socialstream\SetsProfilePhotoFromUrl;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
+use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Liberu\Foundation\Identity\Socialstream\Contracts\ConnectedAccountOwner;
 use Liberu\Foundation\Observability\Contracts\ObservabilityActor;
@@ -37,6 +38,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements ConnectedAccountOwner, FilamentUser, HasDefaultTenant, HasTenants, ObservabilityActor, OrganizationActor, PrivilegedActor
 {
+    use Billable;
     use HasApiTokens;
     use HasConnectedAccounts;
 
@@ -98,7 +100,52 @@ class User extends Authenticatable implements ConnectedAccountOwner, FilamentUse
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'trial_ends_at' => 'datetime',
+        'premium_started_at' => 'datetime',
+        'premium_cancelled_at' => 'datetime',
+        'is_premium' => 'boolean',
+        'dna_uploads_count' => 'integer',
     ];
+
+    public function isPremium(): bool
+    {
+        if (! (bool) config('premium.enabled', false)) {
+            return true;
+        }
+
+        if ($this->subscribed('premium')) {
+            return true;
+        }
+
+        return (bool) $this->is_premium
+            && $this->trial_ends_at !== null
+            && $this->trial_ends_at->isFuture();
+    }
+
+    public function hasExpiredPremiumTrial(): bool
+    {
+        return (bool) config('premium.enabled', false)
+            && $this->premium_started_at !== null
+            && ! $this->isPremium();
+    }
+
+    public function isPremiumSuspended(): bool
+    {
+        return $this->hasExpiredPremiumTrial();
+    }
+
+    public function onPremiumTrial(): bool
+    {
+        return (bool) config('premium.enabled', false)
+            && $this->trial_ends_at !== null
+            && $this->trial_ends_at->isFuture()
+            && $this->is_premium;
+    }
+
+    public function trialDaysRemaining(): int
+    {
+        return $this->onPremiumTrial() ? max(0, (int) now()->diffInDays($this->trial_ends_at)) : 0;
+    }
 
     /**
      * The accessors to append to the model's array form.
