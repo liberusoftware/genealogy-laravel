@@ -18,6 +18,8 @@
   "capabilities": [
     "genealogy.import-export",
     "genealogy.import-export.gedcom",
+    "genealogy.import-export.gedcom-7",
+    "genealogy.import-export.gedcom-x",
     "genealogy.import-export.gramps",
     "genealogy.import-export.validation",
     "genealogy.import-export.dry-run",
@@ -29,6 +31,8 @@
   "features": [
     "genealogy import export",
     "genealogy import export gedcom",
+    "genealogy GEDCOM 7 export",
+    "genealogy GEDCOM X export",
     "genealogy import export gramps",
     "genealogy import export validation",
     "genealogy import export dry-run",

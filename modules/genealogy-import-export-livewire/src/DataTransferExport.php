@@ -18,7 +18,7 @@ final class DataTransferExport extends Component
         abort_unless(auth()->check(), 403);
         $this->validate([
             'name' => ['required', 'string', 'max:255'],
-            'format' => ['required', 'in:gedcom,gramps-xml'],
+            'format' => ['required', 'in:gedcom,gedcom-7,gedcom-x,gramps-xml'],
         ]);
 
         $result = $action->execute($this->format, $this->name);

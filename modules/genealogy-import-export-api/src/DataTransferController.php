@@ -67,7 +67,7 @@ final class DataTransferController
 
     public function export(Request $request, ExportGenealogyData $export): StreamedResponse
     {
-        $format = $request->validate(['format' => ['sometimes', 'in:gedcom,gramps-xml']])['format'] ?? 'gedcom';
+        $format = $request->validate(['format' => ['sometimes', 'in:gedcom,gedcom-7,gedcom-x,gramps-xml']])['format'] ?? 'gedcom';
         $result = $export->execute($format, (string) $request->input('name', 'Genealogy export'));
 
         return response()->streamDownload(static function () use ($result): void {

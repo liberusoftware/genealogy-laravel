@@ -36,6 +36,8 @@ final class DataTransferResource extends Resource
             TextInput::make('name')->required()->maxLength(255),
             Select::make('format')->options([
                 'gedcom' => 'GEDCOM 5.5.1',
+                'gedcom-7' => 'GEDCOM 7.0',
+                'gedcom-x' => 'GEDCOM X JSON',
                 'gramps-xml' => 'GRAMPS XML',
             ])->required(),
             Select::make('direction')->options([

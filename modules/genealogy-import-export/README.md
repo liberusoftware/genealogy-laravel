@@ -14,8 +14,8 @@ that import. The transfer becomes `rolled_back`; expired or already undone trans
 
 ## Export lifecycle
 
-`ExportGenealogyData` is the authoritative export boundary for GEDCOM 5.5.1 and GRAMPS XML.
-It requires the active team context, serializes only that team's people and relationships, and
+`ExportGenealogyData` is the authoritative export boundary for GEDCOM 5.5.1, GEDCOM 7.0,
+GEDCOM X JSON, and GRAMPS XML. It requires the active team context, serializes only that team's people and relationships, and
 records an `export` transfer. Completed transfers include the record count, byte count, SHA-256
 checksum, and completion timestamp; serializer failures leave the transfer marked `failed` with
 an operator-safe error summary. API, Filament, and Livewire downloads all delegate to this action.

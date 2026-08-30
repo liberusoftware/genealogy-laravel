@@ -11,7 +11,7 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class DataTransfer extends Model
 {
-    public const FORMATS = ['gedcom', 'gramps-xml'];
+    public const FORMATS = ['gedcom', 'gedcom-7', 'gedcom-x', 'gramps-xml'];
 
     public const DIRECTIONS = ['import', 'export'];
 
