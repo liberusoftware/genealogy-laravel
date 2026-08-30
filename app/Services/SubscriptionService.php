@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Laravel\Cashier\Cashier;
 use RuntimeException;
 
 final class SubscriptionService
@@ -58,10 +61,7 @@ final class SubscriptionService
         }
 
         $interval = in_array($interval, self::INTERVALS, true) ? $interval : 'month';
-        $price = config('premium.stripe_prices.'.$interval);
-        if (! is_string($price) || trim($price) === '') {
-            throw new RuntimeException('Stripe price IDs are not configured for Premium.');
-        }
+        $price = $this->stripePriceId($interval);
 
         $builder = $user->newSubscription('premium', $price);
         if ($this->trialDays() > 0) {
@@ -72,6 +72,103 @@ final class SubscriptionService
             'success_url' => route('filament.app.pages.premium-dashboard'),
             'cancel_url' => route('filament.app.pages.subscription'),
         ]);
+    }
+
+    /**
+     * Return the configured Price ID or provision an application-specific Stripe Price.
+     *
+     * @throws \Throwable
+     */
+    public function stripePriceId(string $interval): string
+    {
+        $configured = config('premium.stripe_prices.'.$interval);
+        if (is_string($configured) && trim($configured) !== '') {
+            return trim($configured);
+        }
+
+        if (! in_array($interval, self::INTERVALS, true)) {
+            throw new RuntimeException('Unsupported Premium billing interval.');
+        }
+
+        $applicationKey = $this->stripeApplicationKey();
+        // Serialize both intervals together so simultaneous first requests share one Product.
+        $lock = Cache::lock('premium-stripe-prices:'.$applicationKey, 60);
+
+        return $lock->block(30, function () use ($applicationKey, $interval): string {
+            $existing = DB::table('premium_stripe_prices')
+                ->where('application_key', $applicationKey)
+                ->where('interval', $interval)
+                ->value('stripe_price_id');
+
+            if (is_string($existing) && $existing !== '') {
+                return $existing;
+            }
+
+            $amount = (int) config('premium.prices.'.$interval);
+            $currency = strtolower((string) config('premium.currency', 'gbp'));
+            if ($amount < 1 || strlen($currency) !== 3) {
+                throw new RuntimeException('Premium Stripe pricing configuration is invalid.');
+            }
+
+            $metadata = [
+                'liberu_application' => $applicationKey,
+                'liberu_feature' => 'premium',
+                'liberu_interval' => $interval,
+            ];
+            $stripe = Cashier::stripe();
+            $productId = DB::table('premium_stripe_prices')
+                ->where('application_key', $applicationKey)
+                ->value('stripe_product_id');
+            if (! is_string($productId) || $productId === '') {
+                $product = $stripe->products->create([
+                    'name' => $this->stripeProductName(),
+                    'metadata' => [
+                        'liberu_application' => $applicationKey,
+                        'liberu_feature' => 'premium',
+                    ],
+                ]);
+                $productId = $product->id;
+            }
+            $price = $stripe->prices->create([
+                'currency' => $currency,
+                'unit_amount' => $amount,
+                'recurring' => ['interval' => $interval],
+                'product' => $productId,
+                'metadata' => $metadata,
+            ]);
+
+            DB::table('premium_stripe_prices')->insert([
+                'application_key' => $applicationKey,
+                'interval' => $interval,
+                'stripe_product_id' => $productId,
+                'stripe_price_id' => $price->id,
+                'amount' => $amount,
+                'currency' => $currency,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return $price->id;
+        });
+    }
+
+    public function stripeApplicationKey(): string
+    {
+        $configured = config('premium.stripe_application_key');
+        if (is_string($configured) && trim($configured) !== '') {
+            return substr(trim($configured), 0, 128);
+        }
+
+        return substr(hash('sha256', config('app.name').'|'.config('app.url')), 0, 32);
+    }
+
+    private function stripeProductName(): string
+    {
+        $configured = config('premium.stripe_product_name');
+
+        return is_string($configured) && trim($configured) !== ''
+            ? trim($configured)
+            : (string) config('app.name', 'Application').' Premium';
     }
 
     public function cancel(User $user): void

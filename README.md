@@ -49,7 +49,7 @@ Review `.env` before migrating. Use `php artisan migrate --seed` when example da
 
 ## Optional Premium billing
 
-The application is fully open by default. Set `PREMIUM_ENABLED=true` for a SaaS deployment. Premium then provides a seven-day trial with Stripe checkout, priced at £2.49 monthly or £24.99 yearly. Stripe Price IDs for those two plans are supplied through `PREMIUM_STRIPE_MONTHLY_PRICE_ID` and `PREMIUM_STRIPE_YEARLY_PRICE_ID`; each Stripe Price should use GBP and the matching amount in pence.
+The application is fully open by default. Set `PREMIUM_ENABLED=true` for a SaaS deployment. Premium then provides a seven-day trial with Stripe checkout, priced at £2.49 monthly or £24.99 yearly. On the first checkout request, the application automatically creates one application-specific Stripe Product and the requested recurring Price, then stores the IDs locally for reuse. Set `PREMIUM_STRIPE_APPLICATION_KEY` to a stable unique identifier for the SaaS application; otherwise it is derived from the application name and URL. This keeps separate SaaS applications isolated even when they share one Stripe account. Existing Stripe Price IDs may still be supplied through `PREMIUM_STRIPE_MONTHLY_PRICE_ID` and `PREMIUM_STRIPE_YEARLY_PRICE_ID` as overrides.
 
 Cards are required by default when Premium is enabled. Set `PREMIUM_REQUIRE_CARD=false` to offer an explicit no-card local trial instead. A cancelled trial remains available until the seven-day period ends; after expiry the account is suspended except for GEDCOM export, affiliate pages, and payment pages.
 
