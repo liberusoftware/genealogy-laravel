@@ -47,7 +47,6 @@ return new class() extends Migration
             $table->unique(['team_id', 'user_id', 'achievement_id']);
             $table->index(['team_id', 'user_id']);
         });
-
         Schema::create('genealogy_gamification_user_progress', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
