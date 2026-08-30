@@ -19,6 +19,7 @@
     "genealogy.research.correspondence",
     "genealogy.research.negative-searches",
     "genealogy.research.findings",
+    "genealogy.research.checklists",
     "genealogy.research.lifecycle"
   ],
   "features": [
@@ -30,6 +31,7 @@
     "genealogy research correspondence",
     "genealogy research negative-searches",
     "genealogy research findings",
+    "genealogy research checklists",
     "genealogy research lifecycle"
   ],
   "default_enabled": true

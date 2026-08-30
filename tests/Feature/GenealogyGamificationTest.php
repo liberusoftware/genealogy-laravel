@@ -8,6 +8,7 @@ use Liberu\Genealogy\Gamification\Events\AchievementUnlocked;
 use Liberu\Genealogy\Gamification\GamificationService;
 use Liberu\Genealogy\Gamification\Models\Achievement;
 use Liberu\Genealogy\Gamification\Models\UserAchievement;
+use Liberu\Genealogy\Gamification\Models\UserProgress;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 
 uses(RefreshDatabase::class);
@@ -60,4 +61,23 @@ it('keeps the leaderboard isolated to the active team and unlocks achievements o
         ->and(UserAchievement::query()->count())->toBe(1);
 
     Event::assertDispatchedTimes(AchievementUnlocked::class, 1);
+});
+
+it('tracks achievement progress and removes it when the achievement unlocks', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->getKey());
+    $achievement = Achievement::query()->create(['key' => 'researcher', 'name' => 'Researcher', 'points' => 20]);
+    $service = app(GamificationService::class);
+
+    $progress = $service->updateProgress($user, $achievement, 3, 10, ['source' => 'records']);
+
+    expect($progress)->toBeInstanceOf(UserProgress::class)
+        ->and($progress->progressPercentage())->toBe(30.0)
+        ->and($progress->isComplete())->toBeFalse()
+        ->and(UserProgress::query()->count())->toBe(1);
+
+    $service->unlock($user, $achievement);
+
+    expect(UserProgress::query()->count())->toBe(0);
 });

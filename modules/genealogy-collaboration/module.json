@@ -18,6 +18,8 @@
     "genealogy.collaboration.review",
     "genealogy.collaboration.discussions",
     "genealogy.collaboration.watch-lists",
+    "genealogy.collaboration.events",
+    "genealogy.collaboration.rsvp",
     "genealogy.collaboration.attribution",
     "genealogy.collaboration.lifecycle"
   ],
@@ -29,6 +31,8 @@
     "genealogy collaboration review",
     "genealogy collaboration discussions",
     "genealogy collaboration watch-lists",
+    "genealogy collaboration virtual events",
+    "genealogy collaboration event RSVPs",
     "genealogy collaboration attribution",
     "genealogy collaboration lifecycle"
   ],
