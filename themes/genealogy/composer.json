@@ -1,0 +1,22 @@
+{
+    "name": "liberusoftware/theme-genealogy",
+    "description": "Public genealogy theme for Liberu Genealogy.",
+    "type": "liberu-theme",
+    "license": "MIT",
+    "require": {
+        "php": "^8.5",
+        "liberusoftware/theme-support": "^1.0",
+        "liberusoftware/theme-base": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Liberu\\Themes\\Genealogy\\": "src/"
+        }
+    },
+    "extra": {
+        "liberu": {
+            "name": "genealogy"
+        }
+    },
+    "version": "1.0.0"
+}

@@ -13,12 +13,12 @@ return [
     |
     */
 
-    'default' => env('THEME_DEFAULT', 'default'),
+    'default' => env('THEME_DEFAULT', 'genealogy'),
 
-    'fallback' => env('THEME_FALLBACK', 'default'),
+    'fallback' => env('THEME_FALLBACK', 'genealogy'),
 
     'surfaces' => [
-        'public' => env('THEME_PUBLIC', 'clear-signal'),
+        'public' => env('THEME_PUBLIC', 'genealogy'),
         'portal' => env('THEME_PORTAL', 'default'),
         'admin' => env('THEME_ADMIN', 'default'),
     ],

@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schemas.liberu.dev/theme/v1.json",
+    "name": "genealogy",
+    "display_name": "Liberu Genealogy",
+    "version": "1.0.0",
+    "provider": "Liberu\\Themes\\Genealogy\\GenealogyThemeServiceProvider",
+    "type": "public",
+    "parent": "base",
+    "optimized_for": [
+        "liberusoftware/genealogy-laravel:^4.0"
+    ],
+    "tested_with": [
+        "liberusoftware/genealogy-laravel:^4.0"
+    ],
+    "required_capabilities": [],
+    "optional_capabilities": [
+        "foundation.localization",
+        "foundation.theme-support"
+    ],
+    "supports": [
+        "application.shell",
+        "identity.auth",
+        "foundation.account"
+    ],
+    "assets": {
+        "css": [
+            "resources/css/app.css"
+        ],
+        "js": []
+    },
+    "colors": {
+        "primary": "teal",
+        "secondary": "amber"
+    },
+    "description": "A warm, evidence-led public theme for exploring and preserving family history."
+}
