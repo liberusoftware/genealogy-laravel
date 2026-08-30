@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
+:root {
+    --genealogy-ink: #243238;
+    --genealogy-muted: #607077;
+    --genealogy-paper: #fbfaf6;
+    --genealogy-card: #ffffff;
+    --genealogy-line: #dfe6e2;
+    --genealogy-teal: #176d72;
+    --genealogy-teal-dark: #0d4f56;
+    --genealogy-gold: #c58b3c;
+    --genealogy-gold-soft: #f5ead8;
+    --genealogy-radius: 1.25rem;
+    --genealogy-shadow: 0 1.5rem 4rem rgba(27, 58, 60, .12);
+}
+
+* { box-sizing: border-box; }
+body.genealogy-theme {
+    margin: 0;
+    color: var(--genealogy-ink);
+    background: var(--genealogy-paper);
+    font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+.genealogy-theme a { color: inherit; text-decoration: none; }
+.genealogy-theme a:focus-visible,
+.genealogy-theme button:focus-visible { outline: 3px solid var(--genealogy-gold); outline-offset: 4px; }
+.genealogy-wrap { width: min(72rem, calc(100% - 2.5rem)); margin: 0 auto; }
+.genealogy-nav { display: flex; align-items: center; justify-content: space-between; padding: 1.4rem 0; }
+.genealogy-mark { display: flex; align-items: center; gap: .75rem; font-weight: 700; letter-spacing: -.02em; }
+.genealogy-mark__icon { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; color: var(--genealogy-card); background: var(--genealogy-teal); border-radius: 50% 50% 50% .35rem; transform: rotate(-12deg); }
+.genealogy-mark__icon span { transform: rotate(12deg); font-family: 'Libre Baskerville', serif; font-size: 1.3rem; }
+.genealogy-nav__links { display: flex; align-items: center; gap: 1.25rem; color: var(--genealogy-muted); font-size: .9rem; }
+.genealogy-nav__links a:hover { color: var(--genealogy-teal); }
+.genealogy-button { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 999px; padding: .8rem 1.15rem; color: #fff !important; background: var(--genealogy-teal); font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 .5rem 1rem rgba(23, 109, 114, .16); }
+.genealogy-button:hover { background: var(--genealogy-teal-dark); }
+.genealogy-button--quiet { color: var(--genealogy-teal) !important; background: var(--genealogy-gold-soft); box-shadow: none; }
+.genealogy-hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2rem, 7vw, 6rem); align-items: center; padding: clamp(4rem, 10vw, 8rem) 0 6rem; }
+.genealogy-eyebrow { color: var(--genealogy-gold); font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.genealogy-hero h1, .genealogy-section h2 { margin: .75rem 0 1rem; font-family: 'Libre Baskerville', Georgia, serif; font-weight: 700; letter-spacing: -.045em; line-height: 1.12; }
+.genealogy-hero h1 { max-width: 12ch; font-size: clamp(2.7rem, 6vw, 5.2rem); }
+.genealogy-hero p { max-width: 54ch; color: var(--genealogy-muted); font-size: 1.08rem; line-height: 1.7; }
+.genealogy-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.7rem; }
+.genealogy-hero__art { position: relative; min-height: 24rem; }
+.genealogy-tree-card { position: absolute; inset: 1rem 0 0 1rem; padding: 1.5rem; border: 1px solid var(--genealogy-line); border-radius: 2rem; background: var(--genealogy-card); box-shadow: var(--genealogy-shadow); }
+.genealogy-tree-card::before, .genealogy-tree-card::after { position: absolute; content: ''; background: var(--genealogy-gold); opacity: .35; }
+.genealogy-tree-card::before { top: 3rem; bottom: 3rem; left: 50%; width: 1px; }
+.genealogy-tree-card::after { top: 50%; right: 2rem; left: 2rem; height: 1px; }
+.genealogy-node { position: absolute; z-index: 1; display: grid; place-items: center; width: 7rem; height: 4.5rem; border: 1px solid #e8d8bc; border-radius: 1rem; color: var(--genealogy-teal-dark); background: #fffaf0; text-align: center; font-size: .75rem; font-weight: 700; }
+.genealogy-node small { display: block; color: var(--genealogy-muted); font-size: .65rem; font-weight: 400; }
+.genealogy-node--a { top: 1.5rem; left: calc(50% - 3.5rem); }
+.genealogy-node--b { top: calc(50% - 2.25rem); left: 1.5rem; }
+.genealogy-node--c { top: calc(50% - 2.25rem); right: 1.5rem; }
+.genealogy-node--d { bottom: 1.5rem; left: calc(50% - 3.5rem); }
+.genealogy-section { padding: 5rem 0; }
+.genealogy-section--soft { background: #f2f6f2; border-block: 1px solid var(--genealogy-line); }
+.genealogy-section h2 { font-size: clamp(2rem, 4vw, 3rem); }
+.genealogy-section__intro { max-width: 48ch; color: var(--genealogy-muted); line-height: 1.7; }
+.genealogy-feature-grid, .genealogy-plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2.5rem; }
+.genealogy-feature, .genealogy-plan { padding: 1.5rem; border: 1px solid var(--genealogy-line); border-radius: var(--genealogy-radius); background: var(--genealogy-card); }
+.genealogy-feature__number { color: var(--genealogy-gold); font-family: 'Libre Baskerville', serif; font-size: 1.6rem; }
+.genealogy-feature h3, .genealogy-plan h3 { margin: 1.3rem 0 .5rem; font-size: 1.05rem; }
+.genealogy-feature p, .genealogy-plan p { margin: 0; color: var(--genealogy-muted); line-height: 1.6; }
+.genealogy-plan { box-shadow: var(--genealogy-shadow); }
+.genealogy-plan--featured { border: 2px solid var(--genealogy-teal); }
+.genealogy-plan__price { margin: 1.2rem 0; color: var(--genealogy-teal-dark); font-family: 'Libre Baskerville', serif; font-size: 2rem; }
+.genealogy-plan__price small { color: var(--genealogy-muted); font-family: 'DM Sans', sans-serif; font-size: .85rem; }
+.genealogy-badge { display: inline-block; border-radius: 999px; padding: .3rem .6rem; color: var(--genealogy-teal-dark); background: var(--genealogy-gold-soft); font-size: .72rem; font-weight: 700; }
+.genealogy-notice { margin-top: 2rem; padding: 1rem 1.2rem; border-left: 4px solid var(--genealogy-gold); border-radius: .5rem; color: var(--genealogy-muted); background: var(--genealogy-gold-soft); line-height: 1.55; }
+.genealogy-footer { padding: 2rem 0; border-top: 1px solid var(--genealogy-line); color: var(--genealogy-muted); font-size: .85rem; }
+.genealogy-footer__inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+@media (max-width: 760px) { .genealogy-hero { grid-template-columns: 1fr; padding-top: 3rem; } .genealogy-hero__art { min-height: 21rem; } .genealogy-feature-grid, .genealogy-plan-grid { grid-template-columns: 1fr; } .genealogy-nav__links a:not(.genealogy-button) { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
