@@ -5,8 +5,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Liberu\Foundation\Identity\Socialstream\Models\ConnectedAccount;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\Collaboration\Actions\RsvpToVirtualEvent;
+use Liberu\Genealogy\Collaboration\Contracts\VideoConferencingProvider;
 use Liberu\Genealogy\Collaboration\Models\VirtualEvent;
+use Liberu\Genealogy\Collaboration\Services\VideoConferencingService;
+use Liberu\Genealogy\Discovery\Contracts\ExternalRecordProvider;
+use Liberu\Genealogy\Discovery\Models\SmartMatch;
 use Liberu\Genealogy\Discovery\Models\SocialFamilyConnection;
+use Liberu\Genealogy\Discovery\Services\SmartMatchingService;
 use Liberu\Genealogy\Discovery\Services\SocialFamilyDiscovery;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Models\Person;
@@ -118,4 +123,96 @@ it('provides opt-in social family discovery with privacy and connection lifecycl
     expect($privacy->allow_family_discovery)->toBeFalse()
         ->and($connection->fresh()->isPending())->toBeFalse()
         ->and($connection->fresh()->status)->toBe('accepted');
+});
+
+it('scores configured smart-matching providers and persists their candidates', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->getKey());
+    $person = Person::query()->create(['given_name' => 'Ada', 'family_name' => 'Lovelace', 'birth_date' => '1815-12-10']);
+    $provider = new class() implements ExternalRecordProvider
+    {
+        public function key(): string
+        {
+            return 'archive';
+        }
+
+        public function isAvailable(): bool
+        {
+            return true;
+        }
+
+        public function search(array $person): array
+        {
+            return [['id' => 'record-1', 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'birth_date' => '1815-12-10']];
+        }
+    };
+
+    $service = app(SmartMatchingService::class);
+    $matches = $service->findMatches($person, [$provider]);
+    $persisted = $service->persist($user, $person, $matches);
+
+    expect($matches[0]['confidence_score'])->toBe(100)
+        ->and($persisted)->toHaveCount(1)
+        ->and(SmartMatch::query()->first()->match_source)->toBe('archive');
+});
+
+it('orchestrates meeting creation through the configured event platform provider', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->getKey());
+    $event = VirtualEvent::query()->create([
+        'created_by' => $user->getKey(),
+        'title' => 'Online family gathering',
+        'platform' => 'archive-meet',
+        'start_time' => now()->addWeek(),
+        'end_time' => now()->addWeek()->addHours(2),
+    ]);
+    $provider = new class() implements VideoConferencingProvider
+    {
+        public function key(): string
+        {
+            return 'archive-meet';
+        }
+
+        public function isAvailable(): bool
+        {
+            return true;
+        }
+
+        public function createMeeting(array $meetingData): array
+        {
+            return ['meeting_id' => 'meeting-1', 'join_url' => 'https://example.test/meeting-1'];
+        }
+
+        public function updateMeeting(array $meetingData): array
+        {
+            return [];
+        }
+
+        public function deleteMeeting(string $meetingId): bool
+        {
+            return true;
+        }
+
+        public function meetingDetails(string $meetingId): ?array
+        {
+            return null;
+        }
+
+        public function attendees(string $meetingId): array
+        {
+            return [];
+        }
+
+        public function sendInvitations(string $meetingId, array $emails): bool
+        {
+            return true;
+        }
+    };
+
+    $result = app(VideoConferencingService::class)->createMeeting($event, [$provider]);
+
+    expect($result['meeting_id'])->toBe('meeting-1')
+        ->and($event->fresh()->join_url)->toBe('https://example.test/meeting-1');
 });
