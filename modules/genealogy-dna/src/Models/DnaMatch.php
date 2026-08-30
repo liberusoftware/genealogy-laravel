@@ -14,6 +14,8 @@ use Liberu\Genealogy\GenealogyCore\Concerns\BelongsToTeam;
 
 final class DnaMatch extends Model
 {
+    public const STATUSES = ['draft', 'active', 'completed'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;

@@ -14,6 +14,7 @@ final class DnaSegmentList extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
         $teamId = app(TeamContext::class)->current() ?? auth()->user()?->currentTeam?->getKey();
         $records = $teamId === null
             ? collect()

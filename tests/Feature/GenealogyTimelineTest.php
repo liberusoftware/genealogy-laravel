@@ -10,6 +10,7 @@ use Liberu\Genealogy\Timeline\Actions\CreateTimelineEvent;
 use Liberu\Genealogy\Timeline\Actions\UpdateTimelineEvent;
 use Liberu\Genealogy\Timeline\Queries\ChronologicalTimeline;
 use Liberu\Genealogy\Timeline\Queries\ConflictingTimelineEvents;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -97,4 +98,30 @@ it('groups conflicting evidence and exposes the conflict view through the API', 
 
     $this->actingAs($user)->getJson('/api/v1/genealogy/timeline/conflicts')
         ->assertOk()->assertJsonCount(1, 'data');
+});
+
+it('does not allow anonymous Livewire viewers to reveal private timeline events', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+    (new CreateTimelineEvent())->execute(['name' => 'Private timeline event', 'event_date' => '1900-01-01', 'is_private' => true]);
+    (new CreateTimelineEvent())->execute(['name' => 'Public timeline event', 'event_date' => '1900-01-02']);
+
+    Livewire::test('genealogy-timeline-browser')
+        ->set('includePrivate', true)
+        ->assertDontSee('Private timeline event')
+        ->assertSee('Public timeline event');
+});
+
+it('validates and protects the timeline Livewire list boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-timeline-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    auth()->logout();
+    Livewire::test('genealogy-timeline-list')->assertForbidden();
 });

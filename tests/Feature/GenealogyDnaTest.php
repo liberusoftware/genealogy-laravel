@@ -336,12 +336,42 @@ it('filters DNA matches and groups through their Livewire presentation component
         ->assertSee('Maternal match');
 
     Livewire::actingAs($user)
+        ->test('genealogy-dna-match-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    Livewire::actingAs($user)
         ->test('genealogy-dna-group-list')
         ->set('status', 'active')
         ->assertSee('Maternal group');
 
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-group-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
     expect(DnaKit::query()->count())->toBe(1)
         ->and(DnaGroup::query()->count())->toBe(1);
+});
+
+it('requires authentication for DNA Livewire read surfaces', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-dna-provider-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    auth()->logout();
+
+    Livewire::test('genealogy-dna-list')->assertForbidden();
 });
 
 it('keeps DNA group and match CRUD mutations behind domain actions', function (): void {
@@ -369,6 +399,28 @@ it('validates DNA group names and statuses through domain actions', function ():
     expect($group->status)->toBe('active')
         ->and(fn () => app(UpdateDnaGroup::class)->execute($group, ['status' => 'invalid']))
         ->toThrow(ValidationException::class);
+});
+
+it('enforces DNA kit and match status contracts through domain actions', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(CreateDnaKit::class)->execute(['name' => 'Invalid kit', 'status' => 'invalid']))
+        ->toThrow(ValidationException::class);
+
+    $kit = app(CreateDnaKit::class)->execute(['name' => 'Status kit']);
+    expect(fn () => app(UpdateDnaKit::class)->execute($kit, ['status' => 'invalid']))
+        ->toThrow(ValidationException::class);
+
+    expect(fn () => app(CreateDnaMatch::class)->execute([
+        'kit_id' => $kit->getKey(),
+        'external_id' => 'invalid-status-match',
+        'status' => 'invalid',
+    ]))->toThrow(ValidationException::class);
+
+    $match = app(CreateDnaMatch::class)->execute(['kit_id' => $kit->getKey(), 'external_id' => 'status-match']);
+    expect(fn () => app(UpdateDnaMatch::class)->execute($match, ['status' => 'invalid']))
+        ->toThrow(InvalidArgumentException::class);
 });
 
 it('exposes DNA notes and person relationship annotations through the API', function (): void {

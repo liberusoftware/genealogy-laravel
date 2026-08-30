@@ -12,6 +12,7 @@ use Liberu\Genealogy\Places\Actions\UpdatePlace;
 use Liberu\Genealogy\Places\Actions\UpdatePlaceName;
 use Liberu\Genealogy\Places\Events\PlaceCreated;
 use Liberu\Genealogy\Places\Queries\PlaceHierarchy;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -74,6 +75,22 @@ it('rejects invalid place state and hierarchy cycles', function (): void {
     $place = (new CreatePlace())->execute(['name' => 'Place']);
     expect(fn () => (new UpdatePlace())->execute($place, ['parent_id' => $place->id]))
         ->toThrow(InvalidArgumentException::class, 'cycle');
+});
+
+it('protects and validates the Places Livewire boundary', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-places-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
+    auth()->logout();
+
+    Livewire::test('genealogy-places-list')->assertForbidden();
+    Livewire::test('genealogy-places-editor')->call('save')->assertForbidden();
 });
 
 it('uses the stable place resource type in the API', function (): void {

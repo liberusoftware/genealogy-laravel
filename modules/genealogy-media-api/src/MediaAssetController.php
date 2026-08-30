@@ -27,9 +27,11 @@ final class MediaAssetController
         $values = $request->validate([
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'kind' => ['sometimes', 'in:'.implode(',', MediaAsset::KINDS)],
+            'public_only' => ['sometimes', 'boolean'],
         ]);
         $perPage = $values['page']['size'] ?? 25;
-        $assets = MediaAsset::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when($request->boolean('public_only'), fn ($query) => $query->where('is_public', true))->latest()->paginate($perPage);
+        $assets = MediaAsset::query()->when(isset($values['kind']), fn ($query) => $query->where('kind', $values['kind']))->when(($values['public_only'] ?? false), fn ($query) => $query->where('is_public', true))->latest()->paginate($perPage);
 
         return response()->json(['data' => $assets->getCollection()->map(fn (MediaAsset $asset): array => $this->resource($asset))->values()->all(), 'meta' => ['current_page' => $assets->currentPage(), 'per_page' => $assets->perPage(), 'total' => $assets->total()]]);
     }
@@ -39,7 +41,7 @@ final class MediaAssetController
         $record = $create->execute($request->validate([
             ...$this->rules(),
             'name' => ['required', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'max:50'],
+            'status' => ['sometimes', 'in:'.implode(',', MediaAsset::STATUSES)],
             'metadata' => ['nullable', 'array'],
         ]));
 
@@ -143,6 +145,7 @@ final class MediaAssetController
 
         return [
             'kind' => [$prefix, 'in:'.implode(',', MediaAsset::KINDS)], 'storage_disk' => ['nullable', 'string', 'max:100'], 'storage_path' => ['nullable', 'string', 'max:2000'],
+            'status' => [$prefix, 'in:'.implode(',', MediaAsset::STATUSES)],
             'mime_type' => ['nullable', 'string', 'max:255'], 'byte_size' => ['nullable', 'integer', 'min:0'], 'checksum' => ['nullable', 'string', 'max:128'],
             'captured_at' => ['nullable', 'date'], 'captured_place_id' => ['nullable', 'uuid'], 'transcription' => ['nullable', 'string'],
             'transcription_status' => ['sometimes', 'in:'.implode(',', MediaAsset::TRANSCRIPTION_STATUSES)], 'transcription_language' => ['nullable', 'string', 'max:16'],

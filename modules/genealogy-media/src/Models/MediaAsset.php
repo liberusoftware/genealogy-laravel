@@ -14,6 +14,8 @@ final class MediaAsset extends Model
 {
     public const KINDS = ['document', 'photograph', 'audio', 'video'];
 
+    public const STATUSES = ['draft', 'active', 'completed'];
+
     public const TRANSCRIPTION_STATUSES = ['not_started', 'pending', 'in_progress', 'completed', 'failed'];
 
     public const RIGHTS_STATUSES = ['unknown', 'owned', 'licensed', 'public_domain', 'restricted', 'orphaned'];

@@ -19,8 +19,9 @@ final class GenealogyReportController
         $values = $request->validate([
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'type' => ['sometimes', 'in:'.implode(',', GenealogyReport::TYPES)],
         ]);
-        $reports = GenealogyReport::query()->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))->latest()->paginate($values['page']['size'] ?? 25);
+        $reports = GenealogyReport::query()->when(isset($values['type']), fn ($query) => $query->where('type', $values['type']))->latest()->paginate($values['page']['size'] ?? 25);
 
         return response()->json(['data' => $reports->getCollection()->map(fn (GenealogyReport $report): array => $this->resource($report))->values()->all(), 'meta' => ['current_page' => $reports->currentPage(), 'per_page' => $reports->perPage(), 'total' => $reports->total()]]);
     }

@@ -19,6 +19,7 @@ final class CollaborationWatchList extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
         $teamId = app(TeamContext::class)->current() ?? auth()->user()?->currentTeam?->getKey();
         $records = $teamId === null ? collect() : app(TeamContext::class)->run($teamId, fn () => CollaborationWatch::query()->where('user_id', auth()->id())->latest()->limit(50)->get());
 

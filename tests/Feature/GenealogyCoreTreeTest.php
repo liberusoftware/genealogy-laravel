@@ -124,6 +124,19 @@ it('rejects invalid lifecycle values before persistence', function (): void {
         ->toThrow(InvalidArgumentException::class);
 });
 
+it('uses the canonical tree status contract for create and update mutations', function (): void {
+    $team = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(Tree::STATUSES)->toBe(['draft', 'active', 'archived']);
+
+    $tree = (new CreateTree())->execute(['name' => 'Archived tree', 'status' => 'archived']);
+    expect($tree->status)->toBe('archived');
+
+    expect(fn () => (new UpdateTree())->execute($tree, ['status' => 'unknown']))
+        ->toThrow(InvalidArgumentException::class);
+});
+
 it('rejects an explicit tree owner outside the active team', function (): void {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();

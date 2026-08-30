@@ -19,7 +19,7 @@ final class TreeViewApiController
     public function index(Request $request): JsonResponse
     {
         $values = $request->validate([
-            'status' => ['nullable', 'string', 'in:draft,active,completed,archived'],
+            'status' => ['nullable', 'in:'.implode(',', TreeView::STATUSES)],
             'public_only' => ['sometimes', 'boolean'],
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
@@ -98,7 +98,7 @@ final class TreeViewApiController
     {
         return [
             'name' => [$creating ? 'required' : 'sometimes', 'string', 'max:255'],
-            'status' => ['sometimes', 'string', 'in:draft,active,completed,archived'],
+            'status' => ['sometimes', 'in:'.implode(',', TreeView::STATUSES)],
             'root_person_id' => ['sometimes', 'nullable', 'uuid'],
             'is_public' => ['sometimes', 'boolean'],
             'metadata' => ['nullable', 'array'],

@@ -24,6 +24,9 @@ final class CreateDnaKit
         if (isset($values['consent_status']) && ! in_array($values['consent_status'], DnaKit::CONSENT_STATUSES, true)) {
             throw ValidationException::withMessages(['consent_status' => 'The selected consent status is invalid.']);
         }
+        if (isset($values['status']) && ! in_array($values['status'], DnaKit::STATUSES, true)) {
+            throw ValidationException::withMessages(['status' => 'The selected DNA kit status is invalid.']);
+        }
         $this->assertProvider($values['provider_id'] ?? null);
         $this->assertPerson($values['person_id'] ?? null, $teamId);
         $values['team_id'] = $teamId;

@@ -20,8 +20,12 @@ final class UpdateCollaborationDiscussion
         if ($body === '') {
             throw new InvalidArgumentException('A discussion message is required.');
         }
+        $status = $attributes['status'] ?? $discussion->status;
+        if (! in_array($status, CollaborationDiscussion::STATUSES, true)) {
+            throw new InvalidArgumentException('The collaboration discussion status is invalid.');
+        }
 
-        DB::transaction(fn (): bool => $discussion->update(['body' => $body, 'status' => $attributes['status'] ?? $discussion->status, 'metadata' => $attributes['metadata'] ?? $discussion->metadata]));
+        DB::transaction(fn (): bool => $discussion->update(['body' => $body, 'status' => $status, 'metadata' => $attributes['metadata'] ?? $discussion->metadata]));
 
         $discussion = $discussion->refresh();
         app(RecordCollaborationAttribution::class)->execute('discussion', (string) $discussion->getKey(), 'updated');

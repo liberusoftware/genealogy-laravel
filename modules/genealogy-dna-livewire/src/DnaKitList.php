@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Dna\Livewire;
 
+use Illuminate\Validation\Rule;
 use Liberu\Genealogy\Dna\Actions\ImportDnaKit;
 use Liberu\Genealogy\Dna\Models\DnaKit;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
@@ -18,6 +19,17 @@ final class DnaKitList extends Component
     public string $content = '';
 
     public string $consentStatus = 'pending';
+
+    /** @return array<string, array<int, mixed>> */
+    protected function rules(): array
+    {
+        return ['status' => ['nullable', Rule::in(DnaKit::STATUSES)]];
+    }
+
+    public function updatedStatus(): void
+    {
+        $this->validateOnly('status');
+    }
 
     public function import(ImportDnaKit $import): void
     {
@@ -40,6 +52,7 @@ final class DnaKitList extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
         $teamId = app(TeamContext::class)->current() ?? auth()->user()?->currentTeam?->getKey();
         $records = $teamId === null ? collect() : app(TeamContext::class)->run($teamId, fn () => DnaKit::query()
             ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))

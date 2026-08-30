@@ -40,11 +40,7 @@ final class DnaKitResource extends Resource
             TextInput::make('person_id')->uuid(),
             TextInput::make('test_type')->maxLength(100),
             Select::make('consent_status')->options(array_combine(DnaKit::CONSENT_STATUSES, DnaKit::CONSENT_STATUSES))->disabled(),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            Select::make('status')->options(array_combine(DnaKit::STATUSES, DnaKit::STATUSES))->required(),
         ]);
     }
 

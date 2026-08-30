@@ -6,6 +6,7 @@ namespace Liberu\Genealogy\Dna\Filament\Resources;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -39,7 +40,7 @@ final class DnaMatchResource extends Resource
             TextInput::make('confidence')->numeric()->minValue(0)->maxValue(100),
             TextInput::make('total_cm')->numeric()->minValue(0),
             TextInput::make('shared_segments')->numeric()->minValue(0),
-            TextInput::make('status')->required()->maxLength(50),
+            Select::make('status')->options(array_combine(DnaMatch::STATUSES, DnaMatch::STATUSES))->required(),
             Toggle::make('is_private')->default(false),
             Textarea::make('notes')->columnSpanFull(),
             Textarea::make('metadata')->json()->columnSpanFull(),

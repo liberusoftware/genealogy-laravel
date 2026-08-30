@@ -13,6 +13,7 @@ use Liberu\Genealogy\Collaboration\Actions\InviteCollaborationMember;
 use Liberu\Genealogy\Collaboration\Actions\RecordCollaborationAttribution;
 use Liberu\Genealogy\Collaboration\Actions\ReviewCollaborationProposal;
 use Liberu\Genealogy\Collaboration\Actions\ToggleCollaborationWatch;
+use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationDiscussion;
 use Liberu\Genealogy\Collaboration\Actions\UpdateCollaborationSpace;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalCreated;
 use Liberu\Genealogy\Collaboration\Events\CollaborationProposalReviewed;
@@ -67,6 +68,34 @@ it('exposes proposal creation, review, filtering, and bounded pagination through
         ->assertUnprocessable()->assertJsonValidationErrors(['page.size']);
 });
 
+it('serializes collaboration spaces through an explicit API resource', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->id);
+
+    $response = $this->actingAs($user)->postJson('/api/v1/genealogy/collaboration', [
+        'name' => 'Archive review',
+        'status' => 'active',
+        'metadata' => ['source' => 'api'],
+    ])->assertCreated()
+        ->assertJsonPath('data.type', 'genealogy-collaboration-space')
+        ->assertJsonPath('data.attributes.name', 'Archive review')
+        ->assertJsonPath('data.attributes.status', 'active');
+
+    $this->actingAs($user)->getJson('/api/v1/genealogy/collaboration')
+        ->assertOk()
+        ->assertJsonPath('data.0.type', 'genealogy-collaboration-space')
+        ->assertJsonMissingPath('data.0.team_id');
+
+    $this->actingAs($user)->postJson('/api/v1/genealogy/collaboration', [
+        'name' => 'Invalid space',
+        'status' => 'unsupported',
+    ])->assertUnprocessable()->assertJsonValidationErrors(['status']);
+
+    expect($response->json('data.attributes.metadata'))->toBe(['source' => 'api']);
+});
+
 it('filters proposals through the Livewire list', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -79,7 +108,18 @@ it('filters proposals through the Livewire list', function (): void {
         ->set('search', 'Visible')
         ->assertSee('Visible branch proposal');
 
+    Livewire::actingAs($user)
+        ->test('genealogy-collaboration-proposal-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
+
     expect(CollaborationProposal::query()->count())->toBe(1);
+});
+
+it('forbids guests from collaboration list surfaces', function (): void {
+    Livewire::test('genealogy-collaboration-list')->assertForbidden();
+    Livewire::test('genealogy-collaboration-proposal-list')->assertForbidden();
+    Livewire::test('genealogy-collaboration-watch-list')->assertForbidden();
 });
 
 it('supports tenant-scoped collaboration invitations, roles, discussions, watches, and attribution', function (): void {
@@ -109,6 +149,31 @@ it('supports tenant-scoped collaboration invitations, roles, discussions, watche
         ->and(CollaborationInvitation::query()->count())->toBe(1);
 });
 
+it('rejects cross-team collaboration space and proposal references', function (): void {
+    $localOwner = User::factory()->create();
+    $remoteOwner = User::factory()->create();
+    $localTeam = Team::factory()->create(['user_id' => $localOwner->id]);
+    $remoteTeam = Team::factory()->create(['user_id' => $remoteOwner->id]);
+
+    app(TeamContext::class)->set($remoteTeam->id);
+    $remoteSpace = app(CreateCollaborationSpace::class)->execute(['name' => 'Remote space']);
+    $remoteProposal = app(CreateCollaborationProposal::class)->execute(['title' => 'Remote proposal', 'proposer_id' => $remoteOwner->id]);
+
+    app(TeamContext::class)->set($localTeam->id);
+    expect(fn () => app(InviteCollaborationMember::class)->execute([
+        'email' => $localOwner->email,
+        'space_id' => $remoteSpace->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'active team');
+    expect(fn () => app(CreateCollaborationDiscussion::class)->execute([
+        'body' => 'Cross-team reference',
+        'space_id' => $remoteSpace->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'active team');
+    expect(fn () => app(CreateCollaborationDiscussion::class)->execute([
+        'body' => 'Cross-team proposal reference',
+        'proposal_id' => $remoteProposal->getKey(),
+    ]))->toThrow(InvalidArgumentException::class, 'active team');
+});
+
 it('rejects incomplete collaboration attribution records', function (): void {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
@@ -118,9 +183,39 @@ it('rejects incomplete collaboration attribution records', function (): void {
         ->toThrow(InvalidArgumentException::class, 'required');
 });
 
+it('enforces discussion statuses through domain actions', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+
+    expect(fn () => app(CreateCollaborationDiscussion::class)->execute([
+        'body' => 'Invalid status',
+        'status' => 'unsupported',
+    ]))->toThrow(InvalidArgumentException::class, 'status is invalid');
+
+    $discussion = app(CreateCollaborationDiscussion::class)->execute(['body' => 'Valid discussion']);
+    expect(fn () => app(UpdateCollaborationDiscussion::class)->execute($discussion, [
+        'status' => 'unsupported',
+    ]))->toThrow(InvalidArgumentException::class, 'status is invalid');
+});
+
 it('does not expose direct invitation editing in the Filament adapter', function (): void {
     expect(CollaborationInvitationResource::getPages())->toHaveKeys(['index', 'create'])
         ->not->toHaveKey('edit');
+});
+
+it('validates collaboration Livewire review inputs', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->getKey()])->save();
+    app(TeamContext::class)->set($team->getKey());
+    $proposal = app(CreateCollaborationProposal::class)->execute(['title' => 'Review me']);
+
+    Livewire::actingAs($user)
+        ->test('genealogy-collaboration-proposal-editor')
+        ->set('proposalId', $proposal->getKey())
+        ->call('review', 'unsupported')
+        ->assertHasErrors(['status']);
 });
 
 it('runs invitation lifecycle mutations through the Livewire action boundary', function (): void {
@@ -137,6 +232,11 @@ it('runs invitation lifecycle mutations through the Livewire action boundary', f
         ->set('role', 'reviewer')
         ->call('invite')
         ->assertDispatched('collaboration-invitation-created');
+
+    Livewire::actingAs($owner)
+        ->test('genealogy-collaboration-invitation-list')
+        ->set('status', 'unsupported')
+        ->assertHasErrors(['status']);
 
     $invitation = CollaborationInvitation::query()->firstOrFail();
     expect($invitation->email)->toBe(mb_strtolower($invitee->email))

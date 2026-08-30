@@ -25,6 +25,9 @@ final class CreateDnaMatch
         if (isset($values['total_cm']) && $values['total_cm'] < 0) {
             throw ValidationException::withMessages(['total_cm' => 'Shared centimorgans cannot be negative.']);
         }
+        if (isset($values['status']) && ! in_array($values['status'], DnaMatch::STATUSES, true)) {
+            throw ValidationException::withMessages(['status' => 'The selected DNA match status is invalid.']);
+        }
 
         $values['team_id'] = $teamId;
 

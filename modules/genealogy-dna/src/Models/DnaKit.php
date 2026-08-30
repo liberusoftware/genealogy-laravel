@@ -16,6 +16,8 @@ final class DnaKit extends Model
 {
     public const CONSENT_STATUSES = ['pending', 'granted', 'revoked'];
 
+    public const STATUSES = ['draft', 'active', 'completed'];
+
     use BelongsToTeam;
     use HasUuids;
     use SoftDeletes;

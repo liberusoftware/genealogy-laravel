@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Dna\Livewire;
 
+use Illuminate\Validation\Rule;
 use Liberu\Genealogy\Dna\Actions\CreateDnaProvider;
 use Liberu\Genealogy\Dna\Actions\DeleteDnaProvider;
 use Liberu\Genealogy\Dna\Actions\UpdateDnaProvider;
@@ -26,6 +27,17 @@ final class DnaProviderList extends Component
     public string $website = '';
 
     public ?string $editingId = null;
+
+    /** @return array<string, array<int, mixed>> */
+    protected function rules(): array
+    {
+        return ['status' => ['nullable', Rule::in(DnaProvider::STATUSES)]];
+    }
+
+    public function updatedStatus(): void
+    {
+        $this->validateOnly('status');
+    }
 
     public function save(CreateDnaProvider $create, UpdateDnaProvider $update): void
     {
@@ -75,6 +87,7 @@ final class DnaProviderList extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
         $teamId = app(TeamContext::class)->current() ?? auth()->user()?->currentTeam?->getKey();
         $records = $teamId === null ? collect() : app(TeamContext::class)->run($teamId, fn () => DnaProvider::query()
             ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))

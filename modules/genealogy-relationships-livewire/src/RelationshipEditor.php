@@ -20,6 +20,7 @@ final class RelationshipEditor extends Component
 
     public function save(CreateRelationship $create): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate([
             'personId' => ['required', 'uuid'],
             'relatedPersonId' => ['required', 'uuid', 'different:personId'],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Genealogy\Research\Livewire;
 
+use Illuminate\Validation\Rule;
 use Liberu\Genealogy\Research\Actions\CreateResearchEntry;
 use Liberu\Genealogy\Research\Models\ResearchEntry;
 use Livewire\Component;
@@ -29,7 +30,7 @@ final class ResearchEntryEditor extends Component
             'kind' => ['required', 'in:'.implode(',', ResearchEntry::KINDS)],
             'title' => ['required', 'string', 'max:255'],
             'body' => ['nullable', 'string', 'max:50000'],
-            'status' => ['required', 'string', 'max:50'],
+            'status' => ['required', Rule::in(ResearchEntry::STATUSES)],
             'dueDate' => ['nullable', 'date'],
         ]);
         $create->execute([

@@ -2,9 +2,9 @@
     <label for="genealogy-import-export-list-status">Status</label>
     <select id="genealogy-import-export-list-status" wire:model.live="status">
         <option value="">All</option>
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
+        @foreach (\Liberu\Genealogy\ImportExport\Models\DataTransfer::STATUSES as $transferStatus)
+            <option value="{{ $transferStatus }}">{{ ucfirst(str_replace('_', ' ', $transferStatus)) }}</option>
+        @endforeach
     </select>
     <ul>
         @foreach ($records as $record)

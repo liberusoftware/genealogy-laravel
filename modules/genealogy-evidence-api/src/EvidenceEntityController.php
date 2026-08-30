@@ -164,6 +164,16 @@ final class EvidenceEntityController
     /** @return array<string, mixed> */
     private function resource(object $record): array
     {
-        return ['id' => $record->getKey(), 'type' => 'genealogy-evidence-'.$record->getTable(), 'attributes' => $record->toArray()];
+        $attributes = match (true) {
+            $record instanceof Source => $record->only(['name', 'description', 'url', 'archive_metadata', 'record_type', 'is_active', 'metadata']),
+            $record instanceof Repository => $record->only(['source_id', 'name', 'description', 'address', 'url', 'email', 'is_active', 'metadata']),
+            $record instanceof Citation => $record->only(['source_id', 'repository_id', 'title', 'volume', 'page', 'text', 'confidence', 'event_date', 'metadata']),
+            $record instanceof Extract => $record->only(['citation_id', 'content', 'transcription', 'page', 'metadata']),
+            $record instanceof Assertion => $record->only(['subject_person_id', 'citation_id', 'extract_id', 'statement', 'confidence', 'status', 'metadata']),
+            $record instanceof ProofConclusion => $record->only(['assertion_id', 'conclusion', 'confidence', 'status', 'metadata']),
+            default => [],
+        };
+
+        return ['id' => $record->getKey(), 'type' => 'genealogy-evidence-'.$record->getTable(), 'attributes' => $attributes];
     }
 }

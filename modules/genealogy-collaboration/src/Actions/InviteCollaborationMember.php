@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Liberu\Genealogy\Collaboration\Models\CollaborationInvitation;
+use Liberu\Genealogy\Collaboration\Models\CollaborationSpace;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 
 final class InviteCollaborationMember
@@ -22,6 +23,10 @@ final class InviteCollaborationMember
         }
         if (! in_array($role, CollaborationInvitation::ROLES, true)) {
             throw new InvalidArgumentException('The collaboration role is invalid.');
+        }
+        $spaceId = $attributes['space_id'] ?? null;
+        if ($spaceId !== null && ! CollaborationSpace::query()->whereKey($spaceId)->exists()) {
+            throw new InvalidArgumentException('The collaboration space must belong to the active team.');
         }
 
         $values = Arr::only($attributes, ['space_id', 'invited_by', 'expires_at']);

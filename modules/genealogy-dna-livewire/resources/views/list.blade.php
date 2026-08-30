@@ -16,9 +16,9 @@
     <label for="genealogy-dna-list-status">Status</label>
     <select id="genealogy-dna-list-status" wire:model.live="status">
         <option value="">All</option>
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
+        @foreach (\Liberu\Genealogy\Dna\Models\DnaKit::STATUSES as $statusOption)
+            <option value="{{ $statusOption }}">{{ ucfirst($statusOption) }}</option>
+        @endforeach
     </select>
     <ul>
         @foreach ($records as $record)

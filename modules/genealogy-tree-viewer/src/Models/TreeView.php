@@ -10,6 +10,8 @@ use Liberu\Genealogy\People\Models\Person;
 
 final class TreeView extends Tree
 {
+    public const STATUSES = ['draft', 'active', 'completed', 'archived'];
+
     public function rootPerson(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'root_person_id');

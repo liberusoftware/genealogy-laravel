@@ -24,9 +24,11 @@ final class DiscoveryMatchController
         $values = $request->validate([
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'kind' => ['sometimes', 'in:'.implode(',', DiscoveryMatch::KINDS)],
+            'status' => ['sometimes', 'in:'.implode(',', DiscoveryMatch::STATUSES)],
         ]);
         $perPage = $values['page']['size'] ?? 25;
-        $records = DiscoveryMatch::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))->latest()->paginate($perPage);
+        $records = DiscoveryMatch::query()->when(isset($values['kind']), fn ($query) => $query->where('kind', $values['kind']))->when(isset($values['status']), fn ($query) => $query->where('status', $values['status']))->latest()->paginate($perPage);
 
         return response()->json(['data' => $records->getCollection()->map(fn (DiscoveryMatch $record): array => $this->resource($record))->values()->all(), 'meta' => ['current_page' => $records->currentPage(), 'per_page' => $records->perPage(), 'total' => $records->total()]]);
     }

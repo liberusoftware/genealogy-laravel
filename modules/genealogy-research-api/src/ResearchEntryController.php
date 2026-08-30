@@ -20,11 +20,14 @@ final class ResearchEntryController
         $values = $request->validate([
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'kind' => ['sometimes', 'in:'.implode(',', ResearchEntry::KINDS)],
+            'status' => ['sometimes', 'in:'.implode(',', ResearchEntry::STATUSES)],
+            'overdue' => ['sometimes', 'boolean'],
         ]);
         $entries = $project->entries()
-            ->when($request->filled('kind'), fn ($query) => $query->where('kind', (string) $request->string('kind')))
-            ->when($request->filled('status'), fn ($query) => $query->where('status', (string) $request->string('status')))
-            ->when($request->boolean('overdue'), fn ($query) => $query->whereNotNull('due_date')->whereDate('due_date', '<', today())->where('status', '<>', 'completed'))
+            ->when(isset($values['kind']), fn ($query) => $query->where('kind', $values['kind']))
+            ->when(isset($values['status']), fn ($query) => $query->where('status', $values['status']))
+            ->when(($values['overdue'] ?? false), fn ($query) => $query->whereNotNull('due_date')->whereDate('due_date', '<', today())->where('status', '<>', 'completed'))
             ->latest()
             ->paginate($values['page']['size'] ?? 25);
 

@@ -36,11 +36,7 @@ final class TreeViewResource extends Resource
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
             TextInput::make('root_person_id')->label('Root person ID')->uuid()->nullable(),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            Select::make('status')->options(array_combine(TreeView::STATUSES, TreeView::STATUSES))->required(),
             Toggle::make('is_public')->default(false),
         ]);
     }

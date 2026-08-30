@@ -40,7 +40,7 @@ final class UpdateTree
         if ($tree->root_person_id !== null && ! $this->personBelongsToTeam($tree->root_person_id, (string) $tree->team_id)) {
             throw new InvalidArgumentException('The tree root person must belong to the active team.');
         }
-        if (! in_array($tree->status, ['draft', 'active', 'archived'], true)) {
+        if (! in_array($tree->status, Tree::STATUSES, true)) {
             throw new InvalidArgumentException('The tree status is invalid.');
         }
         DB::transaction(fn (): bool => $tree->save());

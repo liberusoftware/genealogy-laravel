@@ -24,10 +24,15 @@ use Liberu\Genealogy\Evidence\Filament\Resources\ExtractResource;
 use Liberu\Genealogy\Evidence\Filament\Resources\ProofConclusionResource;
 use Liberu\Genealogy\Evidence\Filament\Resources\RepositoryResource;
 use Liberu\Genealogy\Evidence\Filament\Resources\SourceResource;
+use Liberu\Genealogy\Evidence\Livewire\CitationLinks;
+use Liberu\Genealogy\Evidence\Livewire\EvidenceEditor;
+use Liberu\Genealogy\Evidence\Livewire\EvidenceEntityEditor;
+use Liberu\Genealogy\Evidence\Livewire\EvidenceEntityList;
 use Liberu\Genealogy\Evidence\Livewire\EvidenceRecordList;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
@@ -317,4 +322,11 @@ it('registers full Filament page workflows for every evidence entity resource', 
     foreach ([SourceResource::class, RepositoryResource::class, CitationResource::class, ExtractResource::class, AssertionResource::class, ProofConclusionResource::class] as $resource) {
         expect($resource::getPages())->toHaveKeys(['index', 'create', 'edit']);
     }
+});
+
+it('forbids guests from accessing evidence Livewire entity surfaces', function (): void {
+    expect(fn () => (new EvidenceEditor())->render())->toThrow(HttpException::class);
+    expect(fn () => (new EvidenceEntityList())->render())->toThrow(HttpException::class);
+    expect(fn () => (new EvidenceEntityEditor())->render())->toThrow(HttpException::class);
+    expect(fn () => (new CitationLinks())->render())->toThrow(HttpException::class);
 });

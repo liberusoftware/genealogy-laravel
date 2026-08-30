@@ -9,6 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -39,7 +40,7 @@ final class TreeResource extends Resource
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
             TextInput::make('identifier')->alphaDash()->maxLength(100),
-            TextInput::make('status')->required()->in(['draft', 'active', 'archived']),
+            Select::make('status')->options(array_combine(Tree::STATUSES, Tree::STATUSES))->required(),
             Textarea::make('description')->columnSpanFull(),
             TextInput::make('root_person_id')->uuid(),
             TextInput::make('user_id')->numeric()->label('Owner user ID'),

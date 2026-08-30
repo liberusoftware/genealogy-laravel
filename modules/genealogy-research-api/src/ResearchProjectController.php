@@ -18,9 +18,10 @@ final class ResearchProjectController
         $values = $request->validate([
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'status' => ['sometimes', 'in:'.implode(',', ResearchProject::STATUSES)],
         ]);
         $projects = ResearchProject::query()
-            ->when($request->filled('status'), fn ($query) => $query->where('status', (string) $request->string('status')))
+            ->when(isset($values['status']), fn ($query) => $query->where('status', $values['status']))
             ->latest()
             ->paginate($values['page']['size'] ?? 25);
 

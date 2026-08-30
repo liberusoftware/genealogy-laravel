@@ -32,11 +32,10 @@ final class ResearchProjectResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->required()->maxLength(255),
-            Select::make('status')->options([
-                'draft' => 'Draft',
-                'active' => 'Active',
-                'completed' => 'Completed',
-            ])->required(),
+            Select::make('status')->options(array_combine(
+                ResearchProject::STATUSES,
+                array_map(fn (string $status): string => str_replace('_', ' ', ucfirst($status)), ResearchProject::STATUSES),
+            ))->required(),
         ]);
     }
 

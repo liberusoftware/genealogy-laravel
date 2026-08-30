@@ -25,6 +25,7 @@ final class CitationLinks extends Component
 
     public function add(CreateCitationLink $create): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate([
             'citationId' => ['required', 'uuid'], 'subjectPersonId' => ['required', 'uuid'],
             'group' => ['required', 'in:indi,indi_name,indi_even,indi_asso,indi_lds'],
@@ -37,6 +38,7 @@ final class CitationLinks extends Component
 
     public function render(): View
     {
+        abort_unless(auth()->check(), 403);
         $citation = Citation::query()->with('personLinks.subject')->findOrFail($this->citationId);
 
         return view('genealogy-evidence-livewire::citation-links', compact('citation'));

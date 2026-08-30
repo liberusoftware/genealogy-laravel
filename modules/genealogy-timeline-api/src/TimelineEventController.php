@@ -6,6 +6,8 @@ namespace Liberu\Genealogy\Timeline\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\Timeline\Actions\CreateTimelineEvent;
 use Liberu\Genealogy\Timeline\Actions\DeleteTimelineEvent;
 use Liberu\Genealogy\Timeline\Actions\UpdateTimelineEvent;
@@ -20,9 +22,11 @@ final class TimelineEventController
         $values = $request->validate([
             'page' => ['sometimes', 'array'],
             'page.size' => ['sometimes', 'integer', 'between:1,100'],
+            'kind' => ['sometimes', 'in:'.implode(',', TimelineEvent::KINDS)],
+            'include_private' => ['sometimes', 'boolean'],
         ]);
         $perPage = $values['page']['size'] ?? 25;
-        $events = TimelineEvent::query()->when($request->filled('kind'), fn ($query) => $query->where('kind', $request->string('kind')))->when(! $request->boolean('include_private'), fn ($query) => $query->where('is_private', false))->orderByRaw('COALESCE(event_date, date_start, date_end) desc')->paginate($perPage);
+        $events = TimelineEvent::query()->when(isset($values['kind']), fn ($query) => $query->where('kind', $values['kind']))->when(! ($values['include_private'] ?? false), fn ($query) => $query->where('is_private', false))->orderByRaw('COALESCE(event_date, date_start, date_end) desc')->paginate($perPage);
 
         return response()->json(['data' => $events->getCollection()->map(fn (TimelineEvent $event): array => $this->resource($event))->values()->all(), 'meta' => ['current_page' => $events->currentPage(), 'per_page' => $events->perPage(), 'total' => $events->total()]]);
     }
@@ -32,7 +36,7 @@ final class TimelineEventController
         $record = $create->execute($request->validate([
             'kind' => ['sometimes', 'in:'.implode(',', TimelineEvent::KINDS)],
             'name' => ['required', 'string', 'max:255'],
-            'subject_person_id' => ['nullable', 'uuid'],
+            'subject_person_id' => ['nullable', 'uuid', $this->personRule()],
             'family_key' => ['nullable', 'string', 'max:255'],
             'event_date' => ['nullable', 'date'], 'date_start' => ['nullable', 'date'], 'date_end' => ['nullable', 'date', 'after_or_equal:date_start'],
             'date_precision' => ['sometimes', 'in:'.implode(',', TimelineEvent::DATE_PRECISIONS)],
@@ -75,14 +79,14 @@ final class TimelineEventController
 
     public function timeline(Request $request, ChronologicalTimeline $timeline): JsonResponse
     {
-        $values = $request->validate(['subject_person_id' => ['nullable', 'uuid'], 'family_key' => ['nullable', 'string', 'max:255'], 'from' => ['nullable', 'date'], 'to' => ['nullable', 'date', 'after_or_equal:from'], 'include_private' => ['sometimes', 'boolean']]);
+        $values = $request->validate(['subject_person_id' => ['nullable', 'uuid', $this->personRule()], 'family_key' => ['nullable', 'string', 'max:255'], 'from' => ['nullable', 'date'], 'to' => ['nullable', 'date', 'after_or_equal:from'], 'include_private' => ['sometimes', 'boolean']]);
 
         return response()->json(['data' => $timeline->execute($values['subject_person_id'] ?? null, $values['family_key'] ?? null, $values['from'] ?? null, $values['to'] ?? null, $values['include_private'] ?? false)]);
     }
 
     public function conflicts(Request $request, ConflictingTimelineEvents $conflicts): JsonResponse
     {
-        $values = $request->validate(['subject_person_id' => ['nullable', 'uuid'], 'include_private' => ['sometimes', 'boolean']]);
+        $values = $request->validate(['subject_person_id' => ['nullable', 'uuid', $this->personRule()], 'include_private' => ['sometimes', 'boolean']]);
 
         return response()->json(['data' => $conflicts->execute($values['subject_person_id'] ?? null, $values['include_private'] ?? false)]);
     }
@@ -97,5 +101,11 @@ final class TimelineEventController
             'historical_context' => $event->historical_context, 'conflict_group' => $event->conflict_group, 'confidence' => $event->confidence,
             'source_reference' => $event->source_reference, 'is_private' => $event->is_private, 'status' => $event->status, 'metadata' => $event->metadata,
         ]];
+    }
+
+    private function personRule(): object
+    {
+        return Rule::exists('genealogy_people', 'id')
+            ->where('team_id', app(TeamContext::class)->require());
     }
 }

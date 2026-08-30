@@ -23,6 +23,7 @@ final class MediaAssetUpload extends Component
 
     public function save(StoreMediaUpload $upload): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate([
             'file' => ['required', 'file', 'max:51200'],
             'name' => ['nullable', 'string', 'max:255'],
