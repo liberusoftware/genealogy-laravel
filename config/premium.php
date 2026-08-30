@@ -15,5 +15,7 @@ return [
         'month' => env('PREMIUM_STRIPE_MONTHLY_PRICE_ID'),
         'year' => env('PREMIUM_STRIPE_YEARLY_PRICE_ID'),
     ],
+    'stripe_application_key' => env('PREMIUM_STRIPE_APPLICATION_KEY'),
+    'stripe_product_name' => env('PREMIUM_STRIPE_PRODUCT_NAME'),
     'currency' => strtolower((string) env('PREMIUM_CURRENCY', 'gbp')),
 ];

@@ -30,6 +30,19 @@ it('uses the requested trial and pricing defaults for SaaS mode', function (): v
         ->and($pricing['require_card'])->toBeTrue();
 });
 
+it('uses an application-specific Stripe namespace when provisioning prices', function (): void {
+    config()->set('premium.stripe_application_key', 'genealogy-hosted-eu');
+    config()->set('app.name', 'Genealogy');
+
+    expect(app(SubscriptionService::class)->stripeApplicationKey())->toBe('genealogy-hosted-eu');
+});
+
+it('honors an existing Stripe Price override without provisioning another price', function (): void {
+    config()->set('premium.stripe_prices.month', 'price_existing_monthly');
+
+    expect(app(SubscriptionService::class)->stripePriceId('month'))->toBe('price_existing_monthly');
+});
+
 it('supports a no-card local trial when explicitly configured', function (): void {
     config()->set('premium.enabled', true);
     config()->set('premium.require_card', false);
