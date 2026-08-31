@@ -13,6 +13,7 @@ use Liberu\Genealogy\Reports\Actions\UpdateGenealogyReport;
 use Liberu\Genealogy\Reports\Livewire\GenealogyReportList;
 use Liberu\Genealogy\Reports\Models\GenealogyReport;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
@@ -115,6 +116,10 @@ it('validates report generation inputs through the Livewire presentation surface
         ->assertDispatched('genealogy-report-generated');
 
     expect($report->fresh()->generated_output['format'])->toBe('csv');
+});
+
+it('forbids guests from accessing the reports Livewire surface', function (): void {
+    expect(fn () => (new GenealogyReportList())->render())->toThrow(HttpException::class);
 });
 
 it('preserves legacy genealogy numbering schemes in bounded report output', function (): void {

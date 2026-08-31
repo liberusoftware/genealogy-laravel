@@ -20,5 +20,9 @@ Route::get('/dashboard', function () {
         return redirect($tenant !== null ? $panel->getUrl($tenant) : '/'.$panel->getPath());
     }
 
+    if ($user instanceof User && $user->onboarding_completed_at === null) {
+        return redirect()->route('filament.app.pages.workspace-setup');
+    }
+
     return redirect()->route('filament.app.pages.dashboard');
 })->middleware(['auth:sanctum', config('jetstream.auth_session')])->name('dashboard');

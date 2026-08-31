@@ -19,7 +19,7 @@ final class DnaConsentResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-check-badge';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Genealogy';
+    protected static string|\UnitEnum|null $navigationGroup = 'DNA & Matching';
 
     public static function form(Schema $schema): Schema
     {

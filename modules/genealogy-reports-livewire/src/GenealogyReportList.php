@@ -36,6 +36,7 @@ final class GenealogyReportList extends Component
 
     public function generate(string $id, GenerateGenealogyReport $generate): void
     {
+        abort_unless(auth()->check(), 403);
         $this->validate([
             'format' => $this->rules()['format'],
             'rootPersonId' => $this->rules()['rootPersonId'],
@@ -51,6 +52,8 @@ final class GenealogyReportList extends Component
 
     public function render(): mixed
     {
+        abort_unless(auth()->check(), 403);
+
         return view('genealogy-reports-livewire::list', [
             'records' => GenealogyReport::query()
                 ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))

@@ -75,6 +75,7 @@ class User extends Authenticatable implements ConnectedAccountOwner, FilamentUse
         'theme_preference',
         'locale',
         'timezone',
+        'onboarding_completed_at',
     ];
 
     /**
@@ -105,6 +106,7 @@ class User extends Authenticatable implements ConnectedAccountOwner, FilamentUse
         'premium_cancelled_at' => 'datetime',
         'is_premium' => 'boolean',
         'dna_uploads_count' => 'integer',
+        'onboarding_completed_at' => 'datetime',
     ];
 
     public function isPremium(): bool

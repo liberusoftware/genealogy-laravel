@@ -17,6 +17,8 @@ final class PremiumDashboardPage extends Page
 
     protected static ?string $navigationLabel = 'Premium status';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Billing & plan';
+
     protected static ?string $title = 'Premium status';
 
     protected string $view = 'filament.app.pages.premium-dashboard';
