@@ -24,13 +24,13 @@ final class WorkspaceSetup extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-sparkles';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Account';
+    protected static string|\UnitEnum|null $navigationGroup = 'Workspace';
 
-    protected static ?string $navigationLabel = 'Workspace & integrations';
+    protected static ?string $navigationLabel = 'Workspace setup';
 
     protected static ?int $navigationSort = -10;
 
-    protected static ?string $title = 'Workspace & integrations';
+    protected static ?string $title = 'Set up your workspace';
 
     protected string $view = 'filament-panels::pages.page';
 
@@ -60,6 +60,8 @@ final class WorkspaceSetup extends Page
             ->first();
 
         $this->form->fill([
+            'name' => $user->getAttribute('name'),
+            'email' => $user->getAttribute('email'),
             'team_name' => $team->getAttribute('name'),
             'locale' => $user->locale ?? 'en',
             'timezone' => $user->timezone ?? config('app.timezone'),
@@ -82,8 +84,17 @@ final class WorkspaceSetup extends Page
                             Section::make()
                                 ->description('These preferences apply to your current workspace and can be changed later.')
                                 ->schema([
+                                    TextInput::make('name')
+                                        ->label('Your name')
+                                        ->required()
+                                        ->maxLength(255),
+                                    TextInput::make('email')
+                                        ->label('Email address')
+                                        ->disabled()
+                                        ->dehydrated(false)
+                                        ->helperText('Your sign-in email can be changed from your profile.'),
                                     TextInput::make('team_name')
-                                        ->label('Workspace name')
+                                        ->label('Family workspace name')
                                         ->required()
                                         ->maxLength(255),
                                     Select::make('locale')
@@ -98,14 +109,15 @@ final class WorkspaceSetup extends Page
                                         ->required()
                                         ->native(false),
                                 ])
-                                ->columns(2),
+                                ->columns(2)
+                                ->columnSpanFull(),
                         ]),
                     Step::make('Sign-in & security')
                         ->icon('heroicon-o-shield-check')
                         ->description('Keep access convenient and protected.')
                         ->schema([
                             Section::make('Connect a sign-in provider')
-                                ->description('Use a provider you already trust for faster sign-in. OAuth credentials are handled by the provider and are never stored in this form.')
+                                ->description('Use a provider you already trust for faster sign-in. OAuth credentials are configured by the site administrator; this page only links your account.')
                                 ->schema([
                                     ViewField::make('oauth_links')
                                         ->view('filament.app.pages.workspace-setup.oauth-links'),
@@ -116,7 +128,7 @@ final class WorkspaceSetup extends Page
                         ->description('Add an optional project API key when your workflow needs one.')
                         ->schema([
                             Section::make('Project API access')
-                                ->description('Keys are encrypted before they are stored and are never shown in full after saving. This integration is optional and can be enabled later from this page.')
+                                ->description('Keys are encrypted before they are stored and are never shown in full after saving. This integration is optional and can be enabled later from Workspace setup.')
                                 ->schema([
                                     Toggle::make('api_key_enabled')
                                         ->label('Enable project API integration')
@@ -160,6 +172,7 @@ final class WorkspaceSetup extends Page
         DB::transaction(function () use ($data, $user, $team, $existingIntegration): void {
             $team->update(['name' => $data['team_name']]);
             $user->update([
+                'name' => $data['name'],
                 'locale' => $data['locale'],
                 'timezone' => $data['timezone'],
                 'onboarding_completed_at' => now(),

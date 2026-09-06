@@ -20,6 +20,7 @@ it('creates a workspace and completes onboarding for a new user', function (): v
     Livewire::actingAs($user)
         ->test(WorkspaceSetup::class)
         ->fillForm([
+            'name' => $user->name,
             'team_name' => 'The Lovelace family',
             'locale' => 'en',
             'timezone' => 'UTC',
@@ -41,6 +42,7 @@ it('stores the project integration encrypted and can disable it', function (): v
     Livewire::actingAs($user)
         ->test(WorkspaceSetup::class)
         ->fillForm([
+            'name' => $user->name,
             'team_name' => $team->name,
             'locale' => 'en',
             'timezone' => 'UTC',
@@ -59,6 +61,7 @@ it('stores the project integration encrypted and can disable it', function (): v
     Livewire::actingAs($user)
         ->test(WorkspaceSetup::class)
         ->fillForm([
+            'name' => $user->name,
             'team_name' => $team->name,
             'locale' => 'en',
             'timezone' => 'UTC',
