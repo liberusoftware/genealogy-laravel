@@ -23,6 +23,7 @@ COPY composer.json composer.lock ./
 # Make those package manifests available before the dependency stage resolves the
 # lock file; the final stage still receives the complete application source below.
 COPY modules ./modules
+COPY themes ./themes
 
 # Install composer dependencies (no autoloader yet, will optimize in final stage)
 RUN composer install \
