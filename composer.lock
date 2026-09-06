@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ea539b54ac0a1246d92669d0c2377b1f",
+    "content-hash": "cc8b52e45081dd4eec6fffb1decd76eb",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -10786,6 +10786,39 @@
             ],
             "description": "Liberu default public theme.",
             "time": "2026-08-24T01:26:38+00:00"
+        },
+        {
+            "name": "liberusoftware/theme-genealogy",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "themes/genealogy",
+                "reference": "e8b56eb45a452febe2a9055d9b99d019dccfa1d7"
+            },
+            "require": {
+                "liberusoftware/theme-base": "^2.0",
+                "liberusoftware/theme-support": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-theme",
+            "extra": {
+                "liberu": {
+                    "name": "genealogy"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Themes\\Genealogy\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Public genealogy theme for Liberu Genealogy.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "liberusoftware/theme-support",
