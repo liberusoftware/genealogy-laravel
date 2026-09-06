@@ -26,7 +26,7 @@ final class DnaRelationshipResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Genealogy';
+    protected static string|\UnitEnum|null $navigationGroup = 'DNA & Matching';
 
     public static function form(Schema $schema): Schema
     {

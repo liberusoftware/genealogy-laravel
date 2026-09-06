@@ -19,6 +19,13 @@
             }
         },
         {
+            "type": "path",
+            "url": "themes/*",
+            "options": {
+                "symlink": false
+            }
+        },
+        {
             "type": "vcs",
             "url": "https://github.com/liberusoftware/composer-installer.git"
         },
@@ -269,7 +276,8 @@
         "liberusoftware/theme-base": "^2.0",
         "liberusoftware/theme-clear-signal": "^1.0",
         "liberusoftware/theme-dark": "^1.0",
-        "liberusoftware/theme-default": "^1.0",
+    "liberusoftware/theme-default": "^1.0",
+    "liberusoftware/theme-genealogy": "^1.0",
         "liberusoftware/theme-support": "^1.0",
         "liberusoftware/theme-support-livewire": "^1.1",
         "liberusoftware/two-factor-authentication": "^1.0",
@@ -376,7 +384,6 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "Liberu\\Themes\\Genealogy\\": "themes/genealogy/src/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

@@ -2,9 +2,9 @@
     <label for="genealogy-reports-list-status">Status</label>
     <select id="genealogy-reports-list-status" wire:model.live="status">
         <option value="">All</option>
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
+        @foreach (\Liberu\Genealogy\Reports\Models\GenealogyReport::STATUSES as $reportStatus)
+            <option value="{{ $reportStatus }}">{{ ucfirst($reportStatus) }}</option>
+        @endforeach
     </select>
     <label for="genealogy-reports-list-format">Format</label>
     <select id="genealogy-reports-list-format" wire:model.live="format">

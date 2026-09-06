@@ -31,7 +31,7 @@ final class EvidenceRecordResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Genealogy';
+    protected static string|\UnitEnum|null $navigationGroup = 'Research & Evidence';
 
     public static function form(Schema $schema): Schema
     {

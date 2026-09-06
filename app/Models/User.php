@@ -16,10 +16,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use JoelButcher\Socialstream\HasConnectedAccounts;
 use JoelButcher\Socialstream\SetsProfilePhotoFromUrl;
+use Laravel\Cashier\Billable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
-use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Liberu\Foundation\Identity\Socialstream\Contracts\ConnectedAccountOwner;
 use Liberu\Foundation\Observability\Contracts\ObservabilityActor;
@@ -75,6 +75,7 @@ class User extends Authenticatable implements ConnectedAccountOwner, FilamentUse
         'theme_preference',
         'locale',
         'timezone',
+        'onboarding_completed_at',
     ];
 
     /**
@@ -105,6 +106,7 @@ class User extends Authenticatable implements ConnectedAccountOwner, FilamentUse
         'premium_cancelled_at' => 'datetime',
         'is_premium' => 'boolean',
         'dna_uploads_count' => 'integer',
+        'onboarding_completed_at' => 'datetime',
     ];
 
     public function isPremium(): bool

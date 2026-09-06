@@ -2,8 +2,9 @@
 
 namespace App\Providers\Filament;
 
-use App\Http\Middleware\EnsurePremiumAccess;
 use App\Filament\ModulePlugins;
+use App\Http\Middleware\EnsurePremiumAccess;
+use App\Support\PanelNavigation;
 use App\Support\ThemeColors;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -32,6 +33,8 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->colors(app(ThemeColors::class)->forSite())
+            ->navigationGroups(PanelNavigation::app())
+            ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([

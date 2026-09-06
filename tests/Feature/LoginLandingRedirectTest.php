@@ -30,10 +30,10 @@ it('sends a super_admin to the admin panel after login', function () {
         ->assertRedirectContains('/admin');
 });
 
-it('sends a normal user to the app panel after login', function () {
+it('sends a normal user to workspace setup until onboarding is complete', function () {
     $user = seedTeamUser(superAdmin: false);
 
     $this->actingAs($user)
         ->get('/dashboard')
-        ->assertRedirect(route('filament.app.pages.dashboard'));
+        ->assertRedirect(route('filament.app.pages.workspace-setup'));
 });

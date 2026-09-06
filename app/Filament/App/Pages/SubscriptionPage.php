@@ -17,6 +17,8 @@ final class SubscriptionPage extends Page
 
     protected static ?string $navigationLabel = 'Premium';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Billing & plan';
+
     protected static ?string $title = 'Premium subscription';
 
     protected string $view = 'filament.app.pages.subscription';
