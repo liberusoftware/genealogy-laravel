@@ -93,6 +93,7 @@ Run `php artisan test` for the application suite. Module-specific tests and docu
 
 ## Documentation
 
+- [Genealogy architecture](docs/GENEALOGY_ARCHITECTURE.md)
 - [Module development](docs/MODULE_DEVELOPMENT.md)
 - [Foundation compliance](docs/FOUNDATION_COMPLIANCE.md)
 - [Foundation module matrix](docs/FOUNDATION_MODULE_MATRIX.md)
