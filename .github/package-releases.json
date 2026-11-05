@@ -31,6 +31,14 @@
     "source_tree": "4b447a176265377639303bc5033bf1d8b77222f9",
     "version": "1.4.13"
   },
+  "liberusoftware/api-access": {
+    "path": "modules/api-access",
+    "reference": "f7391b34ae16d4e86b92fbacd355bfdfd8b3926c",
+    "repository": "https://github.com/liberusoftware/module-api-access",
+    "source_signature": "390002317743cf946d7a69f018e1725c7f0324f1d794c635f7c39c439f133db3",
+    "source_tree": "bb4451c1abc106d90e7ba0037b6b02b7b562c9d7",
+    "version": "1.6.0"
+  },
   "liberusoftware/application": {
     "path": "modules/application",
     "reference": "4031feeda93b25d97f271578f29f31ae7beac35b",
@@ -862,6 +870,14 @@
     "source_signature": "d1c433d600b3105e715b6b143d43cc26fef00231ae179e21b009573b05defe13",
     "source_tree": "9f6068f5ca8da1331ceb882ec20fb7b434fefc19",
     "version": "1.10.0"
+  },
+  "liberusoftware/theme-default": {
+    "path": "themes/default",
+    "reference": "981f81f9f72261fc72c0641e554da4f761dba7b0",
+    "repository": "https://github.com/liberusoftware/theme-default",
+    "source_signature": "5a6d5fca80ff251a2bd79cd7c36e9f442b0dd92453745f082d93680797c415db",
+    "source_tree": "397464325f89e558768734eacc1fdff1da5cf88a",
+    "version": "1.11.0"
   },
   "liberusoftware/theme-genealogy": {
     "path": "themes/genealogy",
