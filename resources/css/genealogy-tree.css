@@ -1,0 +1,8 @@
+@layer theme, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+
+@source '../../modules/genealogy-tree-viewer-livewire/resources/views/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));

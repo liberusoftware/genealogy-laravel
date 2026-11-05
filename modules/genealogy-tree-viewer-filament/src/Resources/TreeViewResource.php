@@ -49,7 +49,7 @@ final class TreeViewResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             Action::make('graph')
-                ->label('Open graph')
+                ->label('Explore family tree')
                 ->icon('heroicon-o-share')
                 ->url(fn (TreeView $record): string => self::getUrl('graph', ['record' => $record])),
             EditAction::make(),

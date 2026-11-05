@@ -11134,16 +11134,16 @@
         },
         {
             "name": "liberusoftware/tenancy",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liberusoftware/module-tenancy.git",
-                "reference": "634fcb3bdf9eb4625d37442dc2e388ec476dd041"
+                "reference": "32cdb9096690f29205255f2eafee4b2b2847fcaa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liberusoftware/module-tenancy/zipball/634fcb3bdf9eb4625d37442dc2e388ec476dd041",
-                "reference": "634fcb3bdf9eb4625d37442dc2e388ec476dd041",
+                "url": "https://api.github.com/repos/liberusoftware/module-tenancy/zipball/32cdb9096690f29205255f2eafee4b2b2847fcaa",
+                "reference": "32cdb9096690f29205255f2eafee4b2b2847fcaa",
                 "shasum": ""
             },
             "require": {
@@ -11181,9 +11181,9 @@
             "description": "Shared Filament and Jetstream team tenancy with scoped runtime context and Eloquent isolation.",
             "support": {
                 "issues": "https://github.com/liberusoftware/module-tenancy/issues",
-                "source": "https://github.com/liberusoftware/module-tenancy/tree/v1.0.0"
+                "source": "https://github.com/liberusoftware/module-tenancy/tree/v1.0.1"
             },
-            "time": "2026-11-02T14:07:14+00:00"
+            "time": "2026-11-02T14:46:06+00:00"
         },
         {
             "name": "liberusoftware/theme-base",
