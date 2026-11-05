@@ -9490,11 +9490,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/genealogy-tree-viewer-filament",
-                "reference": "2fb09763c2dff823dd748c16497776d728ca6840"
+                "reference": "e78348f3d760d389bf0f0c9adcd86ab26da4aa3b"
             },
             "require": {
                 "filament/filament": "^5.11.0",
                 "liberusoftware/module-genealogy-tree-viewer": "^1.0",
+                "liberusoftware/module-genealogy-tree-viewer-livewire": "^1.0",
                 "php": "^8.5"
             },
             "require-dev": {

@@ -39,6 +39,17 @@ jobs:
       - name: Installed packages match the tracked source
         run: git diff --exit-code --stat -- modules themes
 
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Build frontend assets
+        run: |
+          npm ci
+          npm run build
+
       - name: Copy environment file
         run: cp .env.example .env
 

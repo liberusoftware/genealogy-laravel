@@ -10,7 +10,8 @@
     "php": "^8.5",
     "laravel": "^13.0",
     "packages": {
-      "liberusoftware/module-genealogy-tree-viewer": "^1.0"
+      "liberusoftware/module-genealogy-tree-viewer": "^1.0",
+      "liberusoftware/module-genealogy-tree-viewer-livewire": "^1.0"
     }
   },
   "capabilities": [
