@@ -7,5 +7,23 @@
     "source_tree": "31f44bf73f7a099d2575959eb48336b1874ed4b9",
     "url": "https://github.com/liberusoftware/module-genealogy-core/pull/4",
     "version": "1.1.0"
+  },
+  "liberusoftware/module-genealogy-media-livewire": {
+    "branch": "sync/project-genealogy-laravel-filament/v1.1.0-74a759b92eed",
+    "path": "modules/genealogy-media-livewire",
+    "repository": "https://github.com/liberusoftware/module-genealogy-media-livewire",
+    "source_signature": "74a759b92eed8ddfb8525340a62fe80707f6ba8ea91450ce54b5f349f5502e16",
+    "source_tree": "f99c2b75989b00aa6361c7261f8e1972f67a48e5",
+    "url": "https://github.com/liberusoftware/module-genealogy-media-livewire/pull/3",
+    "version": "1.1.0"
+  },
+  "liberusoftware/module-genealogy-people-livewire": {
+    "branch": "sync/project-genealogy-laravel-filament/v1.1.0-b7b11d6d8461",
+    "path": "modules/genealogy-people-livewire",
+    "repository": "https://github.com/liberusoftware/module-genealogy-people-livewire",
+    "source_signature": "b7b11d6d8461376e0701e16e69968b4203bcba5164ec038d1d48785ba032f140",
+    "source_tree": "154589e6dd6d5538778635d0dc6f19c7b61f1c78",
+    "url": "https://github.com/liberusoftware/module-genealogy-people-livewire/pull/3",
+    "version": "1.1.0"
   }
 }

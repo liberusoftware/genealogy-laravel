@@ -47,6 +47,14 @@
     "source_tree": "fbd8d99cc3ac3f41f440f83751eea0314d69a2b8",
     "version": "1.10.0"
   },
+  "liberusoftware/audit": {
+    "path": "modules/audit",
+    "reference": "a2a10e80311af78bf697ee6c710ec6580b07f778",
+    "repository": "https://github.com/liberusoftware/module-audit",
+    "source_signature": "9bc2bff49be38aa4a4be36212703307bc6ead2dfe13b68e6fe8d38f9806e9b97",
+    "source_tree": "bca2696e7d97158b777d722a6baf355e46a576f8",
+    "version": "1.10.0"
+  },
   "liberusoftware/currency-context": {
     "path": "modules/currency-context",
     "reference": "d7f1cce6a5349f857f1ce0e6ac313429c7263405",
@@ -569,19 +577,19 @@
   },
   "liberusoftware/module-genealogy-tree-viewer-filament": {
     "path": "modules/genealogy-tree-viewer-filament",
-    "reference": "eede4c3c9970cb4f16013d2baf9a0198da685f57",
+    "reference": "cfa9a804a1f6442ed8a5e43cdfdb135514716b1c",
     "repository": "https://github.com/liberusoftware/module-genealogy-tree-viewer-filament",
-    "source_signature": "8ad7784989a53703d4802f7c9f9e4abeef0489c48c07fea8f915bec09b988604",
-    "source_tree": "c59904fbcdfb0300ce359d7537fb0e16aa654b43",
-    "version": "1.1.0"
+    "source_signature": "b6ea7b66ec1b5926a71eb8eb625415845e7d3526357f816abcd82b38cc77a5a2",
+    "source_tree": "2a31e5380cf0cfb416ef82ff00070830dd5541da",
+    "version": "1.2.0"
   },
   "liberusoftware/module-genealogy-tree-viewer-livewire": {
     "path": "modules/genealogy-tree-viewer-livewire",
-    "reference": "7d4db8f9644176770dd2177dd36c0dc500d8a39a",
+    "reference": "27acd4efb2681e241415495cc91e8d76b3e141ad",
     "repository": "https://github.com/liberusoftware/module-genealogy-tree-viewer-livewire",
-    "source_signature": "c7ee8ee9a36431740d34793cd8af084d84d9c53e374aa2dfee35518c8d2d4060",
-    "source_tree": "a17dc913c625bd400a65894a1f9d72ff541fe239",
-    "version": "1.1.0"
+    "source_signature": "0df0912935ead3cbf4fe8c44ce4ffd91f1db02cd8e3a0dc9a412f5f039b1caa4",
+    "source_tree": "071646df06dbf8dfc9e65cf8307d328d81dd1280",
+    "version": "1.2.0"
   },
   "liberusoftware/module-liberu-business-workflow-reconciliation": {
     "path": "modules/liberu-business-workflow-reconciliation",
