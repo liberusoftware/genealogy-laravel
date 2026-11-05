@@ -1,10 +1,12 @@
 <?php
 
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Genealogy\GenealogyCore\TeamContext;
 use Liberu\Genealogy\People\Actions\CreatePerson;
+use Liberu\Genealogy\People\Models\Person;
 use Liberu\Genealogy\Relationships\Actions\RecordRelationship;
 use Liberu\Genealogy\TreeViewer\Actions\CreateTreeView;
 use Liberu\Genealogy\TreeViewer\Actions\UpdateTreeView;
@@ -158,4 +160,119 @@ it('restores optional sibling expansion from the legacy tree builder', function 
     expect($graph['siblings'])->toHaveCount(1)
         ->and($graph['siblings'][0]['name'])->toBe('Sibling')
         ->and($graph['nodes'])->toContainEqual($graph['siblings'][0]);
+});
+
+it('finds people by full name within the active team', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    (new CreatePerson())->execute(['given_name' => 'Ada', 'family_name' => 'Lovelace']);
+    $otherTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($otherTeam->id);
+    (new CreatePerson())->execute(['given_name' => 'Ada', 'family_name' => 'Lovelace', 'display_name' => 'Hidden match']);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)->test('genealogy-tree-viewer-graph')
+        ->set('search', ' Ada Lovelace ')
+        ->assertSee('Ada Lovelace')
+        ->assertDontSee('Hidden match');
+});
+
+it('loads an initial person and returns to them after exploring relatives', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $root = (new CreatePerson())->execute(['given_name' => 'Starting person']);
+    $child = (new CreatePerson())->execute(['given_name' => 'Child']);
+
+    Livewire::actingAs($user)->test('genealogy-tree-viewer-graph', ['personId' => (string) $root->id])
+        ->assertSet('data.root.id', (string) $root->id)
+        ->call('navigateTo', (string) $child->id)
+        ->assertSee('Back to starting person')
+        ->call('returnToStart')
+        ->assertSet('data.root.id', (string) $root->id);
+});
+
+it('adds a private relative with the correct relationship direction', function (string $type): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $root = (new CreatePerson())->execute(['given_name' => 'Root']);
+
+    Livewire::actingAs($user)->test('genealogy-tree-viewer-graph', ['personId' => (string) $root->id])
+        ->set('relativeType', $type)
+        ->set('givenName', 'New relative')
+        ->set('birthDate', '1950-01-01')
+        ->call('addRelative')
+        ->assertHasNoErrors()
+        ->assertSet('givenName', '')
+        ->assertSee('Relative added.');
+
+    $relative = Person::query()->where('given_name', 'New relative')->sole();
+    expect($relative->is_public)->toBeFalse();
+    $this->assertDatabaseHas('genealogy_relationships', [
+        'person_id' => $type === 'parent' ? $relative->id : $root->id,
+        'related_person_id' => $type === 'parent' ? $root->id : $relative->id,
+        'type' => $type === 'partner' ? 'partner' : 'parent',
+        'team_id' => $team->id,
+    ]);
+})->with(['parent', 'child', 'partner']);
+
+it('keeps invalid relative dates from creating a person', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    app(TeamContext::class)->set($team->id);
+    $root = (new CreatePerson())->execute(['given_name' => 'Root']);
+
+    Livewire::actingAs($user)->test('genealogy-tree-viewer-graph', ['personId' => (string) $root->id])
+        ->set('givenName', 'Invalid relative')
+        ->set('birthDate', '1950-01-01')
+        ->set('deathDate', '1940-01-01')
+        ->call('addRelative')
+        ->assertHasErrors(['deathDate']);
+
+    $this->assertDatabaseMissing('genealogy_people', ['given_name' => 'Invalid relative']);
+});
+
+it('forbids guests from creating relatives and does not offer name search', function (): void {
+    Livewire::test('genealogy-tree-viewer-graph')
+        ->set('search', 'Private')
+        ->assertViewHas('people', fn ($people): bool => $people->isEmpty())
+        ->assertDontSee('Find a person')
+        ->call('addRelative')
+        ->assertForbidden();
+});
+
+it('cannot add a relative to someone outside the active team', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $otherTeam = Team::factory()->create(['user_id' => User::factory()->create()->id]);
+    app(TeamContext::class)->set($otherTeam->id);
+    $remote = (new CreatePerson())->execute(['given_name' => 'Remote']);
+    app(TeamContext::class)->set($team->id);
+
+    Livewire::actingAs($user)->test('genealogy-tree-viewer-graph')
+        ->set('personId', (string) $remote->id)
+        ->set('givenName', 'Forbidden relative')
+        ->call('addRelative')
+        ->assertNotFound();
+
+    $this->assertDatabaseMissing('genealogy_people', ['given_name' => 'Forbidden relative']);
+});
+
+it('renders the family explorer on the saved tree page', function (): void {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    app(TeamContext::class)->set($team->id);
+    $root = (new CreatePerson())->execute(['given_name' => 'Saved tree root']);
+    $tree = (new CreateTreeView())->execute(['name' => 'Our family', 'root_person_id' => $root->id]);
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('app'));
+    Filament::setTenant($team);
+
+    Livewire::actingAs($user)
+        ->test(Liberu\Genealogy\TreeViewer\Filament\Resources\TreeViewResource\Pages\TreeGraph::class, ['record' => (string) $tree->id])
+        ->assertSeeLivewire('genealogy-tree-viewer-graph')
+        ->assertSee('Saved tree root');
 });

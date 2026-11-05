@@ -1,0 +1,597 @@
+{
+  "module-activity-comments": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-analytics-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-analytics-google": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-analytics-meta": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-api-access": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-application": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-audit": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-currency-context": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-developer-experience": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-feature-flags": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-files-media": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-collaboration": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-collaboration-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-collaboration-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-collaboration-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-core-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-core-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-core-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-discovery": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-discovery-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-discovery-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-discovery-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-dna": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-dna-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-dna-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-dna-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-evidence": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-evidence-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-evidence-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-evidence-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-gamification": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-import-export": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-import-export-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-import-export-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-import-export-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-media": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-media-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-media-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-media-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-people": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-people-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-people-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-people-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-places": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-places-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-places-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-places-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-relationships": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-relationships-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-relationships-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-relationships-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-reports": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-reports-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-reports-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-reports-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-research": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-research-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-research-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-research-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-timeline": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-timeline-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-timeline-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-timeline-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-tree-viewer": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-tree-viewer-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-tree-viewer-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-genealogy-tree-viewer-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-identity-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-identity-core-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-identity-socialstream": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-import-export": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-integrations": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-jetstream-bridge": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-business-workflow-reconciliation": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-business-workflow-reconciliation-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-business-workflow-reconciliation-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-business-workflow-reconciliation-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-executive-insights": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-executive-insights-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-executive-insights-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-executive-insights-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-platform-orchestration": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-platform-orchestration-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-platform-orchestration-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-platform-orchestration-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-revenue-and-care-orchestration": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-revenue-and-care-orchestration-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-revenue-and-care-orchestration-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-liberu-revenue-and-care-orchestration-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-localization-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-localization-core-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-localization-mymemory": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-module-manager": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-module-manager-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-notifications": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-observability": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-organizations-teams": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-organizations-teams-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-profiles": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-roles-permissions": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-roles-permissions-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-scheduler-queues": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-search": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-search-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-sessions-devices": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-sessions-devices-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-settings": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-settings-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-theme-support": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-theme-support-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-two-factor-authentication": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-users-roles": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-webhooks": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-base": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-clear-signal": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-dark": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-default": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-genealogy": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  }
+}

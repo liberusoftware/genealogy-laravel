@@ -6,8 +6,10 @@ namespace Liberu\Genealogy\TreeViewer\Filament\Resources\TreeViewResource\Pages;
 
 use Filament\Resources\Pages\Page;
 use Liberu\Genealogy\TreeViewer\Filament\Resources\TreeViewResource;
+use Liberu\Genealogy\TreeViewer\Livewire\TreeViewerLivewireServiceProvider;
 use Liberu\Genealogy\TreeViewer\Models\TreeView;
 use Liberu\Genealogy\TreeViewer\Queries\TreeGraph as TreeGraphQuery;
+use Livewire\Attributes\Locked;
 
 final class TreeGraph extends Page
 {
@@ -15,7 +17,8 @@ final class TreeGraph extends Page
 
     protected string $view = 'genealogy-tree-viewer-filament::resources.tree-view-resource.pages.tree-graph';
 
-    public TreeView $record;
+    #[Locked]
+    public TreeView|string $record;
 
     public string $viewMode = 'chart';
 
@@ -25,7 +28,9 @@ final class TreeGraph extends Page
     public function mount(string $record, TreeGraphQuery $treeGraph): void
     {
         $this->record = TreeView::query()->findOrFail($record);
-        $this->loadGraph($treeGraph);
+        if (! app()->providerIsLoaded(TreeViewerLivewireServiceProvider::class)) {
+            $this->loadGraph($treeGraph);
+        }
     }
 
     public function setView(string $view, TreeGraphQuery $treeGraph): void
